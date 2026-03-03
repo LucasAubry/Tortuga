@@ -1,4 +1,4 @@
-# Install script for directory: /Users/lucasaubry/Desktop/mmo bato/build/_deps/raylib-src
+# Install script for directory: /Users/lucasaubry/Desktop/Tortuga/build/_deps/raylib-src
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -39,6 +39,6 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for the subdirectory.
-  include("/Users/lucasaubry/Desktop/mmo bato/build/_deps/raylib-build/raylib/cmake_install.cmake")
+  include("/Users/lucasaubry/Desktop/Tortuga/build/_deps/raylib-build/raylib/cmake_install.cmake")
 endif()
 

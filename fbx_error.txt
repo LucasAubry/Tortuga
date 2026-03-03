@@ -1,0 +1,4 @@
+Raylib ne supporte pas nativement les fichiers .FBX animés sans un module externe très lourd.
+L'erreur "Failed to load model mesh(es) data" s'est produite lors du test.
+
+Solution recommandée : GLTF.

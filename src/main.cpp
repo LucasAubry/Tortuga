@@ -15,7 +15,7 @@ int main() {
     Game::GetInstance()->Update(dt);
 
     BeginDrawing();
-    ClearBackground({0, 80, 150, 255}); // Ocean color
+    ClearBackground({0, 80, 180, 255}); // Ocean color
 
     Game::GetInstance()->Draw();
 

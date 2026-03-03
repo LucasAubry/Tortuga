@@ -1,4 +1,4 @@
-# Install script for directory: /Users/lucasaubry/Desktop/mmo bato/build/_deps/raylib-src/src/external/glfw/src
+# Install script for directory: /Users/lucasaubry/Desktop/Tortuga/build/_deps/raylib-src/src/external/glfw/src
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

@@ -78,6 +78,32 @@ void Game::Init() {
   islands.push_back(Island({-1600, 0, -1300}, 350.0f, false, false));
   islands.push_back(Island({2000, 0, -500}, 400.0f, false, false));
 
+  // --- CAPITAL CITY NETWORK ---
+  // Create a central hub at (0, 0, 0) consisting of 4 large islands forming
+  // river channels
+  float capOffset = 450.0f; // Distance from center
+  float capRadius = 350.0f; // Size of the capital islands
+  // The 4 main landmasses of the capital (now solid blocks)
+  islands.push_back(Island({capOffset, 0, capOffset}, capRadius, false, false,
+                           false, false, false, true));
+  islands.push_back(Island({-capOffset, 0, capOffset}, capRadius, false, false,
+                           false, false, false, true));
+  islands.push_back(Island({capOffset, 0, -capOffset}, capRadius, false, false,
+                           false, false, false, true));
+  islands.push_back(Island({-capOffset, 0, -capOffset}, capRadius, false, false,
+                           false, false, false, true));
+
+  // The Merchant Platforms in the river channels between the islands
+  // 1. General Merchant (North channel)
+  islands.push_back(
+      Island({0.0f, 0, -capOffset}, 60.0f, false, true, false, false, true));
+  // 2. Shipwright (South channel)
+  islands.push_back(
+      Island({0.0f, 0, capOffset}, 80.0f, false, false, true, false, true));
+  // 3. Fisherman (East channel)
+  islands.push_back(
+      Island({capOffset, 0, 0.0f}, 50.0f, false, false, false, true, true));
+
   // Expand Map
   for (int i = 0; i < 40; i++) {
     bool isMerch = (rand() % 10 == 0);           // 10% chance to be merchant
@@ -131,20 +157,44 @@ void Game::Init() {
     fz.radius = 70.0f;                 // Smaller zones
     fz.fishRemaining = 3 + rand() % 3; // 3 to 5
 
-    // 75% chance to cluster near a fisherman island, if any exist
-    if (!fishermanIslands.empty() && rand() % 100 < 75) {
-      Island *target = fishermanIslands[rand() % fishermanIslands.size()];
-      float angle = (rand() % 360) * DEG2RAD;
-      // Spawn right outside the island
-      float dist = target->radius + 150.0f + (rand() % 350);
-      fz.position = {target->position.x + cosf(angle) * dist, 0.0f,
-                     target->position.z + sinf(angle) * dist};
-    } else {
-      fz.position = {float(rand() % 38000 - 19000), 0.0f,
-                     float(rand() % 38000 - 19000)};
+    bool validPos = false;
+    int fAttempts = 0;
+    while (!validPos && fAttempts < 50) {
+      if (!fishermanIslands.empty() && rand() % 100 < 75) {
+        Island *target = fishermanIslands[rand() % fishermanIslands.size()];
+        float angle = (rand() % 360) * DEG2RAD;
+        // Spawn right outside the island
+        float dist = target->radius + 150.0f + (rand() % 350);
+        fz.position = {target->position.x + cosf(angle) * dist, 0.0f,
+                       target->position.z + sinf(angle) * dist};
+      } else {
+        fz.position = {float(rand() % 38000 - 19000), 0.0f,
+                       float(rand() % 38000 - 19000)};
+      }
+      validPos = true;
+      for (const auto &existing : fishingZones) {
+        float dx = fz.position.x - existing.position.x;
+        float dz = fz.position.z - existing.position.z;
+        if (sqrtf(dx * dx + dz * dz) < fz.radius + existing.radius) {
+          validPos = false;
+          break;
+        }
+      }
+      fAttempts++;
     }
     fishingZones.push_back(fz);
   }
+
+  // Load custom 3D models from assets
+  shipSloopModel = LoadModel("assets/sloup.glb");
+
+  // Apply bilinear filtering to the built-in materials to prevent pixelation
+  for (int i = 0; i < shipSloopModel.materialCount; i++) {
+    SetTextureFilter(
+        shipSloopModel.materials[i].maps[MATERIAL_MAP_DIFFUSE].texture,
+        TEXTURE_FILTER_BILINEAR);
+  }
+
   for (int i = 0; i < 80; i++) {
     ships.push_back(
         Ship({float(rand() % 38000 - 19000), 0, float(rand() % 38000 - 19000)},
@@ -587,13 +637,17 @@ void Game::Draw() {
   if (state != GameState::MENU && state != GameState::CUSTOMIZE) {
     BeginMode3D(camera);
     Color waterBase = {0, 80, 180, 255};
-    DrawPlane({0, -5, 0}, {80000, 80000}, waterBase);
+    // Removed DrawPlane: The massive 80000x80000 plane caused severe Z-fighting
+    // The water background is now handled cleanly by ClearBackground() in
+    // main.cpp.
 
     // Draw Ocean Lines/Grid for depth/movement perception (Increased density)
+    // Draw at Y=0.0f, with water at -20.0f there's a huge gap to prevent
+    // z-fighting
     for (int i = -20000; i <= 20000; i += 250) {
-      DrawLine3D({(float)i, -4.9f, -20000.0f}, {(float)i, -4.9f, 20000.0f},
+      DrawLine3D({(float)i, 0.0f, -20000.0f}, {(float)i, 0.0f, 20000.0f},
                  Fade(SKYBLUE, 0.3f));
-      DrawLine3D({-20000.0f, -4.9f, (float)i}, {40000.0f, -4.9f, (float)i},
+      DrawLine3D({-20000.0f, 0.0f, (float)i}, {40000.0f, 0.0f, (float)i},
                  Fade(SKYBLUE, 0.3f));
     }
 
@@ -610,8 +664,9 @@ void Game::Draw() {
     for (auto &fz : fishingZones) {
       if (fz.fishRemaining > 0 &&
           Vector3Distance(camera.target, fz.position) < 4000.0f) {
-        DrawCylinder({fz.position.x, 0.0f, fz.position.z}, fz.radius, fz.radius,
-                     0.5f, 16, Fade(SKYBLUE, 0.3f));
+        // Draw slightly above the 0.0f grid to prevent overlap
+        DrawCylinder({fz.position.x, 0.5f, fz.position.z}, fz.radius, fz.radius,
+                     1.0f, 16, Fade(SKYBLUE, 0.3f));
       }
     }
 
@@ -838,8 +893,10 @@ void Game::Draw() {
                resY + 260, 20, RAYWHITE);
       DrawText(TextFormat("DEGATS: %.0f", playerPtr->damage), 1280 / 2 - 330,
                resY + 290, 20, RAYWHITE);
-      DrawText(TextFormat("AMELIORATIONS: %d", playerPtr->upgradesPurchased),
+      DrawText(TextFormat("CADENCE DE TIR: %.2f s", playerPtr->maxCooldown),
                1280 / 2 - 330, resY + 320, 20, RAYWHITE);
+      DrawText(TextFormat("AMELIORATIONS: %d", playerPtr->upgradesPurchased),
+               1280 / 2 - 330, resY + 350, 20, RAYWHITE);
 
       DrawText("QUETES EN COURS", 1280 / 2 + 30, 720 / 2 - 220, 30, YELLOW);
       if (activeQuests.empty())
@@ -1273,7 +1330,15 @@ void Game::Draw() {
         playerPtr->extraCannons++;
       }
     }
-    if (GuiButton({1280 / 2.0f - 100, 460, 200, 40}, "QUITTER")) {
+    if (GuiButton({1280 / 2.0f - 200, 400, 400, 40},
+                  TextFormat("RECHARGEMENT EXPERT (+Cadence, 1200g)"))) {
+      if (playerPtr->gold >= 1200) {
+        playerPtr->gold -= 1200;
+        playerPtr->upgradesPurchased++;
+        playerPtr->maxCooldown *= 0.6f;
+      }
+    }
+    if (GuiButton({1280 / 2.0f - 100, 520, 200, 40}, "QUITTER")) {
       state = GameState::PLAYING;
       menuCooldownTimer = 15.0f;
     }

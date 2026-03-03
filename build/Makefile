@@ -57,10 +57,10 @@ RM = /Users/lucasaubry/.brew/Cellar/cmake/3.30.5/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = "/Users/lucasaubry/Desktop/mmo bato"
+CMAKE_SOURCE_DIR = /Users/lucasaubry/Desktop/Tortuga
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = "/Users/lucasaubry/Desktop/mmo bato/build"
+CMAKE_BINARY_DIR = /Users/lucasaubry/Desktop/Tortuga/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -78,7 +78,7 @@ package/fast: package
 # Special rule for the target package_source
 package_source:
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Run CPack packaging tool for source..."
-	/Users/lucasaubry/.brew/Cellar/cmake/3.30.5/bin/cpack --config ./CPackSourceConfig.cmake /Users/lucasaubry/Desktop/mmo\ bato/build/CPackSourceConfig.cmake
+	/Users/lucasaubry/.brew/Cellar/cmake/3.30.5/bin/cpack --config ./CPackSourceConfig.cmake /Users/lucasaubry/Desktop/Tortuga/build/CPackSourceConfig.cmake
 .PHONY : package_source
 
 # Special rule for the target package_source
@@ -152,9 +152,9 @@ install/strip/fast: preinstall/fast
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start "/Users/lucasaubry/Desktop/mmo bato/build/CMakeFiles" "/Users/lucasaubry/Desktop/mmo bato/build//CMakeFiles/progress.marks"
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/lucasaubry/Desktop/Tortuga/build/CMakeFiles /Users/lucasaubry/Desktop/Tortuga/build//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start "/Users/lucasaubry/Desktop/mmo bato/build/CMakeFiles" 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/lucasaubry/Desktop/Tortuga/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target

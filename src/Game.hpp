@@ -95,6 +95,10 @@ public:
   };
   std::vector<WindParticle> windParticles;
 
+  // 3D Models
+  Model shipSloopModel;
+  Texture2D shipSloopTexture;
+
   // Config / Options
   float masterVolume;
   bool soundEnabled;

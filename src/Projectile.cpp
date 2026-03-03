@@ -23,6 +23,6 @@ void Projectile::Update(float dt) {
 void Projectile::Draw() {
   if (!active)
     return;
-  Color color = isPlayerOwned ? YELLOW : RED;
+  Color color = BLACK;
   DrawSphere(position, radius, color);
 }

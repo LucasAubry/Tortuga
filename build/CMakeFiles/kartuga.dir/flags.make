@@ -4,7 +4,7 @@
 # compile CXX with /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++
 CXX_DEFINES = -DGRAPHICS_API_OPENGL_33 -DPLATFORM_DESKTOP
 
-CXX_INCLUDES = -I"/Users/lucasaubry/Desktop/mmo bato/src" -I"/Users/lucasaubry/Desktop/mmo bato/build/_deps/raylib-src/src"
+CXX_INCLUDES = -I/Users/lucasaubry/Desktop/Tortuga/src -I/Users/lucasaubry/Desktop/Tortuga/build/_deps/raylib-src/src
 
 CXX_FLAGSarm64 = -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk
 

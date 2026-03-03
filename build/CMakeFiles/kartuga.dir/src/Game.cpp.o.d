@@ -1,9 +1,9 @@
 CMakeFiles/kartuga.dir/src/Game.cpp.o: \
-  /Users/lucasaubry/Desktop/mmo\ bato/src/Game.cpp \
-  /Users/lucasaubry/Desktop/mmo\ bato/src/Game.hpp \
-  /Users/lucasaubry/Desktop/mmo\ bato/src/Island.hpp \
-  /Users/lucasaubry/Desktop/mmo\ bato/src/Entity.hpp \
-  /Users/lucasaubry/Desktop/mmo\ bato/build/_deps/raylib-src/src/raylib.h \
+  /Users/lucasaubry/Desktop/Tortuga/src/Game.cpp \
+  /Users/lucasaubry/Desktop/Tortuga/src/Game.hpp \
+  /Users/lucasaubry/Desktop/Tortuga/src/Island.hpp \
+  /Users/lucasaubry/Desktop/Tortuga/src/Entity.hpp \
+  /Users/lucasaubry/Desktop/Tortuga/build/_deps/raylib-src/src/raylib.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdarg.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg_header_macro.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg___gnuc_va_list.h \
@@ -755,9 +755,9 @@ CMakeFiles/kartuga.dir/src/Game.cpp.o: \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/usr/include/sys/_types/_fsfilcnt_t.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/usr/include/_types/_nl_item.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/cstdarg \
-  /Users/lucasaubry/Desktop/mmo\ bato/src/Loot.hpp \
-  /Users/lucasaubry/Desktop/mmo\ bato/src/Projectile.hpp \
-  /Users/lucasaubry/Desktop/mmo\ bato/src/Ship.hpp \
-  /Users/lucasaubry/Desktop/mmo\ bato/build/_deps/raylib-src/src/raymath.h \
-  /Users/lucasaubry/Desktop/mmo\ bato/src/GameConfig.hpp \
-  /Users/lucasaubry/Desktop/mmo\ bato/src/raygui.h
+  /Users/lucasaubry/Desktop/Tortuga/src/Loot.hpp \
+  /Users/lucasaubry/Desktop/Tortuga/src/Projectile.hpp \
+  /Users/lucasaubry/Desktop/Tortuga/src/Ship.hpp \
+  /Users/lucasaubry/Desktop/Tortuga/build/_deps/raylib-src/src/raymath.h \
+  /Users/lucasaubry/Desktop/Tortuga/src/GameConfig.hpp \
+  /Users/lucasaubry/Desktop/Tortuga/src/raygui.h

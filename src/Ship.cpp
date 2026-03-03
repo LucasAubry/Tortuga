@@ -332,8 +332,25 @@ void Ship::Update(float dt) {
 
   float currentMaxSpeed = maxSpeed;
   if (speed > 0) {
-    currentMaxSpeed += maxSpeed * 0.5f * windDot * localWindStr;
-    speed += (windDot * localWindStr * 60.0f) * dt;
+    float windMultiplier = 1.0f;
+    if (windDot < 0) { // Against the wind
+      if (type == ShipClass::GALLEON)
+        windMultiplier = 2.0f; // Loses a lot
+      else if (type == ShipClass::BRIGANTINE)
+        windMultiplier = 1.5f;
+      else if (type == ShipClass::SLOOP)
+        windMultiplier = 0.5f; // Loses little
+    } else {                   // With the wind
+      if (type == ShipClass::GALLEON)
+        windMultiplier = 1.5f; // Gains more
+      else if (type == ShipClass::BRIGANTINE)
+        windMultiplier = 1.2f;
+      else if (type == ShipClass::SLOOP)
+        windMultiplier = 0.8f; // Gains less
+    }
+    currentMaxSpeed +=
+        maxSpeed * 0.5f * windDot * localWindStr * windMultiplier;
+    speed += (windDot * localWindStr * 60.0f * windMultiplier) * dt;
   }
 
   if (speed > currentMaxSpeed)
@@ -349,6 +366,41 @@ void Ship::Update(float dt) {
     float dx = position.x - island.position.x;
     float dz = position.z - island.position.z;
     float dist = sqrtf(dx * dx + dz * dz) + radius;
+
+    // --- Collisions and Menu Logic ---
+    if (island.isSolidCapitalIsland) {
+      if (dist < island.radius + 10.0f) {
+        float push = (island.radius + 10.0f) - dist;
+        position.x += (dx / dist) * push;
+        position.z += (dz / dist) * push;
+        speed *= 0.5f;
+      }
+      continue; // Skip standard port logic
+    }
+
+    if (island.isCapitalPlatform) {
+      // Capital platforms are wooden squares, no "walls" or "bays", just a
+      // solid touching area
+      if (dist < island.radius + 10.0f) {
+        // Prevent going completely through it, give a small push
+        float push = (island.radius + 10.0f) - dist;
+        position.x += (dx / dist) * push;
+        position.z += (dz / dist) * push;
+        speed *= 0.5f;
+      }
+
+      // Instantly open menu if close enough
+      if (isPlayer && dist < island.radius + 40.0f &&
+          Game::GetInstance()->state == GameState::PLAYING &&
+          Game::GetInstance()->menuCooldownTimer <= 0) {
+        Game::GetInstance()->state = island.isShipwright
+                                         ? GameState::SHIPWRIGHT_MENU
+                                         : GameState::TOWN_MENU;
+        Game::GetInstance()->parkedIsland = &island;
+        speed = 0.0f;
+      }
+      continue; // Skip the rest of the standard island logic
+    }
 
     // AI Ships are forbidden from entering ANY island bay/inner radius
     if (!isPlayer && dist < island.radius + 50.0f) {
@@ -467,54 +519,67 @@ void Ship::Draw() {
   rlTranslatef(position.x, position.y, position.z);
   rlRotatef(-rotation, 0.0f, 1.0f, 0.0f); // Inverted to match CW minimap logic
 
-  // Hull (Body)
-  float hullLen = radius * 2.0f;
-  DrawCube({0, 0, 0}, hullLen, radius, radius * 1.5f, color);
-  DrawCubeWires({0, 0, 0}, hullLen, radius, radius * 1.5f, DARKGRAY);
+  if (type == ShipClass::SLOOP) {
+    // Render the custom 3D model exclusively for the Sloop
+    // Model imported too large and facing left, adjusting scale and rotation.
+    float scale = 0.10f;
 
-  // Bow (Front - Pointed)
-  float bowLen = radius * 1.2f;
-  Vector3 p1 = {hullLen / 2, radius / 2, 0};
-  Vector3 p2 = {hullLen / 2 + bowLen, 0, 0};
-  Vector3 p3 = {hullLen / 2, -radius / 2, 0};
-  DrawTriangle3D(p1, p2, p3, color); // Top tip
+    // Draw relative to the matrix origin, rotated 90 degrees around Y axis
+    DrawModelEx(Game::GetInstance()->shipSloopModel, {0, 0, 0}, {0, 1, 0},
+                90.0f, {scale, scale, scale}, WHITE);
+  } else {
+    // --- Procedural Generation for Brigantine & Galleon ---
 
-  // Stern (Back - Slightly narrower or flat with trim)
-  DrawCube({-hullLen / 2 - radius * 0.2f, radius * 0.2f, 0}, radius * 0.4f,
-           radius * 0.6f, radius * 1.2f, DARKBROWN);
-  // Masts & Sails
-  int numMasts = 1;
-  if (type == ShipClass::BRIGANTINE)
-    numMasts = 2;
-  if (type == ShipClass::GALLEON)
-    numMasts = 3;
+    // Hull (Body)
+    float hullLen = radius * 2.0f;
+    DrawCube({0, 0, 0}, hullLen, radius, radius * 1.5f, color);
+    DrawCubeWires({0, 0, 0}, hullLen, radius, radius * 1.5f, DARKGRAY);
 
-  for (int i = 0; i < numMasts; i++) {
-    float xPos = 0;
-    if (numMasts == 2)
-      xPos = (i == 0) ? radius * 0.5f : -radius * 0.5f;
-    if (numMasts == 3)
-      xPos = (i - 1) * radius * 0.7f;
+    // Bow (Front - Pointed)
+    float bowLen = radius * 1.2f;
+    Vector3 p1 = {hullLen / 2, radius / 2, 0};
+    Vector3 p2 = {hullLen / 2 + bowLen, 0, 0};
+    Vector3 p3 = {hullLen / 2, -radius / 2, 0};
+    DrawTriangle3D(p1, p2, p3, color); // Top tip
 
-    // Mast
-    DrawCube({xPos, radius * 1.5f, 0}, 2.0f, radius * 3.0f, 2.0f, DARKBROWN);
+    // Stern (Back - Slightly narrower or flat with trim)
+    DrawCube({-hullLen / 2 - radius * 0.2f, radius * 0.2f, 0}, radius * 0.4f,
+             radius * 0.6f, radius * 1.2f, DARKBROWN);
 
-    // Sail (Raylib white)
-    float sailWidth = radius * 1.2f;
-    float sailHeight = radius * 1.8f;
-    DrawCube({xPos, radius * 2.0f, 0}, 2.0f, sailHeight, sailWidth, RAYWHITE);
-  }
+    // Masts & Sails
+    int numMasts = 1;
+    if (type == ShipClass::BRIGANTINE)
+      numMasts = 2;
+    if (type == ShipClass::GALLEON)
+      numMasts = 3;
 
-  // Draw Decorative Cannons
-  for (int i = 0; i < 3; i++) {
-    float zOffset = (radius * 0.7f);
-    float xOffset = (radius * 0.8f) - (i * radius * 0.8f);
-    // Port
-    DrawCube({xOffset, radius * 0.2f, zOffset}, radius * 0.4f, radius * 0.3f,
-             radius * 0.8f, BLACK);
-    // Starboard
-    DrawCube({xOffset, radius * 0.2f, -zOffset}, radius * 0.4f, radius * 0.3f,
-             radius * 0.8f, BLACK);
+    for (int i = 0; i < numMasts; i++) {
+      float xPos = 0;
+      if (numMasts == 2)
+        xPos = (i == 0) ? radius * 0.5f : -radius * 0.5f;
+      if (numMasts == 3)
+        xPos = (i - 1) * radius * 0.7f;
+
+      // Mast
+      DrawCube({xPos, radius * 1.5f, 0}, 2.0f, radius * 3.0f, 2.0f, DARKBROWN);
+
+      // Sail (Raylib white)
+      float sailWidth = radius * 1.2f;
+      float sailHeight = radius * 1.8f;
+      DrawCube({xPos, radius * 2.0f, 0}, 2.0f, sailHeight, sailWidth, RAYWHITE);
+    }
+
+    // Draw Decorative Cannons
+    for (int i = 0; i < 3; i++) {
+      float zOffset = (radius * 0.7f);
+      float xOffset = (radius * 0.8f) - (i * radius * 0.8f);
+      // Port
+      DrawCube({xOffset, radius * 0.2f, zOffset}, radius * 0.4f, radius * 0.3f,
+               radius * 0.8f, BLACK);
+      // Starboard
+      DrawCube({xOffset, radius * 0.2f, -zOffset}, radius * 0.4f, radius * 0.3f,
+               radius * 0.8f, BLACK);
+    }
   }
 
   rlPopMatrix();

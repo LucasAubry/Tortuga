@@ -4,7 +4,7 @@
 # compile C with /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/cc
 C_DEFINES = -D_GLFW_COCOA
 
-C_INCLUDES = -I"/Users/lucasaubry/Desktop/mmo bato/build/_deps/raylib-src/src/external/glfw/include" -I"/Users/lucasaubry/Desktop/mmo bato/build/_deps/raylib-src/src/external/glfw/src" -I"/Users/lucasaubry/Desktop/mmo bato/build/_deps/raylib-build/raylib/external/glfw/src"
+C_INCLUDES = -I/Users/lucasaubry/Desktop/Tortuga/build/_deps/raylib-src/src/external/glfw/include -I/Users/lucasaubry/Desktop/Tortuga/build/_deps/raylib-src/src/external/glfw/src -I/Users/lucasaubry/Desktop/Tortuga/build/_deps/raylib-build/raylib/external/glfw/src
 
 C_FLAGSarm64 = -fno-strict-aliasing -Werror=implicit-function-declaration -Werror=pointer-arith  -std=c99 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk -fPIC -Wall
 

@@ -53,10 +53,10 @@ RM = /Users/lucasaubry/.brew/Cellar/cmake/3.30.5/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = "/Users/lucasaubry/Desktop/mmo bato"
+CMAKE_SOURCE_DIR = /Users/lucasaubry/Desktop/Tortuga
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = "/Users/lucasaubry/Desktop/mmo bato/build"
+CMAKE_BINARY_DIR = /Users/lucasaubry/Desktop/Tortuga/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/kartuga.dir/depend.make
@@ -70,88 +70,88 @@ include CMakeFiles/kartuga.dir/progress.make
 include CMakeFiles/kartuga.dir/flags.make
 
 CMakeFiles/kartuga.dir/src/main.cpp.o: CMakeFiles/kartuga.dir/flags.make
-CMakeFiles/kartuga.dir/src/main.cpp.o: /Users/lucasaubry/Desktop/mmo\ bato/src/main.cpp
+CMakeFiles/kartuga.dir/src/main.cpp.o: /Users/lucasaubry/Desktop/Tortuga/src/main.cpp
 CMakeFiles/kartuga.dir/src/main.cpp.o: CMakeFiles/kartuga.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/Users/lucasaubry/Desktop/mmo bato/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/kartuga.dir/src/main.cpp.o"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/kartuga.dir/src/main.cpp.o -MF CMakeFiles/kartuga.dir/src/main.cpp.o.d -o CMakeFiles/kartuga.dir/src/main.cpp.o -c "/Users/lucasaubry/Desktop/mmo bato/src/main.cpp"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/lucasaubry/Desktop/Tortuga/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/kartuga.dir/src/main.cpp.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/kartuga.dir/src/main.cpp.o -MF CMakeFiles/kartuga.dir/src/main.cpp.o.d -o CMakeFiles/kartuga.dir/src/main.cpp.o -c /Users/lucasaubry/Desktop/Tortuga/src/main.cpp
 
 CMakeFiles/kartuga.dir/src/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/kartuga.dir/src/main.cpp.i"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/lucasaubry/Desktop/mmo bato/src/main.cpp" > CMakeFiles/kartuga.dir/src/main.cpp.i
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/lucasaubry/Desktop/Tortuga/src/main.cpp > CMakeFiles/kartuga.dir/src/main.cpp.i
 
 CMakeFiles/kartuga.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/kartuga.dir/src/main.cpp.s"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/lucasaubry/Desktop/mmo bato/src/main.cpp" -o CMakeFiles/kartuga.dir/src/main.cpp.s
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/lucasaubry/Desktop/Tortuga/src/main.cpp -o CMakeFiles/kartuga.dir/src/main.cpp.s
 
 CMakeFiles/kartuga.dir/src/Game.cpp.o: CMakeFiles/kartuga.dir/flags.make
-CMakeFiles/kartuga.dir/src/Game.cpp.o: /Users/lucasaubry/Desktop/mmo\ bato/src/Game.cpp
+CMakeFiles/kartuga.dir/src/Game.cpp.o: /Users/lucasaubry/Desktop/Tortuga/src/Game.cpp
 CMakeFiles/kartuga.dir/src/Game.cpp.o: CMakeFiles/kartuga.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/Users/lucasaubry/Desktop/mmo bato/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/kartuga.dir/src/Game.cpp.o"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/kartuga.dir/src/Game.cpp.o -MF CMakeFiles/kartuga.dir/src/Game.cpp.o.d -o CMakeFiles/kartuga.dir/src/Game.cpp.o -c "/Users/lucasaubry/Desktop/mmo bato/src/Game.cpp"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/lucasaubry/Desktop/Tortuga/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/kartuga.dir/src/Game.cpp.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/kartuga.dir/src/Game.cpp.o -MF CMakeFiles/kartuga.dir/src/Game.cpp.o.d -o CMakeFiles/kartuga.dir/src/Game.cpp.o -c /Users/lucasaubry/Desktop/Tortuga/src/Game.cpp
 
 CMakeFiles/kartuga.dir/src/Game.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/kartuga.dir/src/Game.cpp.i"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/lucasaubry/Desktop/mmo bato/src/Game.cpp" > CMakeFiles/kartuga.dir/src/Game.cpp.i
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/lucasaubry/Desktop/Tortuga/src/Game.cpp > CMakeFiles/kartuga.dir/src/Game.cpp.i
 
 CMakeFiles/kartuga.dir/src/Game.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/kartuga.dir/src/Game.cpp.s"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/lucasaubry/Desktop/mmo bato/src/Game.cpp" -o CMakeFiles/kartuga.dir/src/Game.cpp.s
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/lucasaubry/Desktop/Tortuga/src/Game.cpp -o CMakeFiles/kartuga.dir/src/Game.cpp.s
 
 CMakeFiles/kartuga.dir/src/Ship.cpp.o: CMakeFiles/kartuga.dir/flags.make
-CMakeFiles/kartuga.dir/src/Ship.cpp.o: /Users/lucasaubry/Desktop/mmo\ bato/src/Ship.cpp
+CMakeFiles/kartuga.dir/src/Ship.cpp.o: /Users/lucasaubry/Desktop/Tortuga/src/Ship.cpp
 CMakeFiles/kartuga.dir/src/Ship.cpp.o: CMakeFiles/kartuga.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/Users/lucasaubry/Desktop/mmo bato/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/kartuga.dir/src/Ship.cpp.o"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/kartuga.dir/src/Ship.cpp.o -MF CMakeFiles/kartuga.dir/src/Ship.cpp.o.d -o CMakeFiles/kartuga.dir/src/Ship.cpp.o -c "/Users/lucasaubry/Desktop/mmo bato/src/Ship.cpp"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/lucasaubry/Desktop/Tortuga/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/kartuga.dir/src/Ship.cpp.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/kartuga.dir/src/Ship.cpp.o -MF CMakeFiles/kartuga.dir/src/Ship.cpp.o.d -o CMakeFiles/kartuga.dir/src/Ship.cpp.o -c /Users/lucasaubry/Desktop/Tortuga/src/Ship.cpp
 
 CMakeFiles/kartuga.dir/src/Ship.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/kartuga.dir/src/Ship.cpp.i"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/lucasaubry/Desktop/mmo bato/src/Ship.cpp" > CMakeFiles/kartuga.dir/src/Ship.cpp.i
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/lucasaubry/Desktop/Tortuga/src/Ship.cpp > CMakeFiles/kartuga.dir/src/Ship.cpp.i
 
 CMakeFiles/kartuga.dir/src/Ship.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/kartuga.dir/src/Ship.cpp.s"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/lucasaubry/Desktop/mmo bato/src/Ship.cpp" -o CMakeFiles/kartuga.dir/src/Ship.cpp.s
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/lucasaubry/Desktop/Tortuga/src/Ship.cpp -o CMakeFiles/kartuga.dir/src/Ship.cpp.s
 
 CMakeFiles/kartuga.dir/src/Island.cpp.o: CMakeFiles/kartuga.dir/flags.make
-CMakeFiles/kartuga.dir/src/Island.cpp.o: /Users/lucasaubry/Desktop/mmo\ bato/src/Island.cpp
+CMakeFiles/kartuga.dir/src/Island.cpp.o: /Users/lucasaubry/Desktop/Tortuga/src/Island.cpp
 CMakeFiles/kartuga.dir/src/Island.cpp.o: CMakeFiles/kartuga.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/Users/lucasaubry/Desktop/mmo bato/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/kartuga.dir/src/Island.cpp.o"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/kartuga.dir/src/Island.cpp.o -MF CMakeFiles/kartuga.dir/src/Island.cpp.o.d -o CMakeFiles/kartuga.dir/src/Island.cpp.o -c "/Users/lucasaubry/Desktop/mmo bato/src/Island.cpp"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/lucasaubry/Desktop/Tortuga/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/kartuga.dir/src/Island.cpp.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/kartuga.dir/src/Island.cpp.o -MF CMakeFiles/kartuga.dir/src/Island.cpp.o.d -o CMakeFiles/kartuga.dir/src/Island.cpp.o -c /Users/lucasaubry/Desktop/Tortuga/src/Island.cpp
 
 CMakeFiles/kartuga.dir/src/Island.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/kartuga.dir/src/Island.cpp.i"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/lucasaubry/Desktop/mmo bato/src/Island.cpp" > CMakeFiles/kartuga.dir/src/Island.cpp.i
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/lucasaubry/Desktop/Tortuga/src/Island.cpp > CMakeFiles/kartuga.dir/src/Island.cpp.i
 
 CMakeFiles/kartuga.dir/src/Island.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/kartuga.dir/src/Island.cpp.s"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/lucasaubry/Desktop/mmo bato/src/Island.cpp" -o CMakeFiles/kartuga.dir/src/Island.cpp.s
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/lucasaubry/Desktop/Tortuga/src/Island.cpp -o CMakeFiles/kartuga.dir/src/Island.cpp.s
 
 CMakeFiles/kartuga.dir/src/Loot.cpp.o: CMakeFiles/kartuga.dir/flags.make
-CMakeFiles/kartuga.dir/src/Loot.cpp.o: /Users/lucasaubry/Desktop/mmo\ bato/src/Loot.cpp
+CMakeFiles/kartuga.dir/src/Loot.cpp.o: /Users/lucasaubry/Desktop/Tortuga/src/Loot.cpp
 CMakeFiles/kartuga.dir/src/Loot.cpp.o: CMakeFiles/kartuga.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/Users/lucasaubry/Desktop/mmo bato/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/kartuga.dir/src/Loot.cpp.o"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/kartuga.dir/src/Loot.cpp.o -MF CMakeFiles/kartuga.dir/src/Loot.cpp.o.d -o CMakeFiles/kartuga.dir/src/Loot.cpp.o -c "/Users/lucasaubry/Desktop/mmo bato/src/Loot.cpp"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/lucasaubry/Desktop/Tortuga/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/kartuga.dir/src/Loot.cpp.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/kartuga.dir/src/Loot.cpp.o -MF CMakeFiles/kartuga.dir/src/Loot.cpp.o.d -o CMakeFiles/kartuga.dir/src/Loot.cpp.o -c /Users/lucasaubry/Desktop/Tortuga/src/Loot.cpp
 
 CMakeFiles/kartuga.dir/src/Loot.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/kartuga.dir/src/Loot.cpp.i"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/lucasaubry/Desktop/mmo bato/src/Loot.cpp" > CMakeFiles/kartuga.dir/src/Loot.cpp.i
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/lucasaubry/Desktop/Tortuga/src/Loot.cpp > CMakeFiles/kartuga.dir/src/Loot.cpp.i
 
 CMakeFiles/kartuga.dir/src/Loot.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/kartuga.dir/src/Loot.cpp.s"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/lucasaubry/Desktop/mmo bato/src/Loot.cpp" -o CMakeFiles/kartuga.dir/src/Loot.cpp.s
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/lucasaubry/Desktop/Tortuga/src/Loot.cpp -o CMakeFiles/kartuga.dir/src/Loot.cpp.s
 
 CMakeFiles/kartuga.dir/src/Projectile.cpp.o: CMakeFiles/kartuga.dir/flags.make
-CMakeFiles/kartuga.dir/src/Projectile.cpp.o: /Users/lucasaubry/Desktop/mmo\ bato/src/Projectile.cpp
+CMakeFiles/kartuga.dir/src/Projectile.cpp.o: /Users/lucasaubry/Desktop/Tortuga/src/Projectile.cpp
 CMakeFiles/kartuga.dir/src/Projectile.cpp.o: CMakeFiles/kartuga.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir="/Users/lucasaubry/Desktop/mmo bato/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/kartuga.dir/src/Projectile.cpp.o"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/kartuga.dir/src/Projectile.cpp.o -MF CMakeFiles/kartuga.dir/src/Projectile.cpp.o.d -o CMakeFiles/kartuga.dir/src/Projectile.cpp.o -c "/Users/lucasaubry/Desktop/mmo bato/src/Projectile.cpp"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/Users/lucasaubry/Desktop/Tortuga/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/kartuga.dir/src/Projectile.cpp.o"
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/kartuga.dir/src/Projectile.cpp.o -MF CMakeFiles/kartuga.dir/src/Projectile.cpp.o.d -o CMakeFiles/kartuga.dir/src/Projectile.cpp.o -c /Users/lucasaubry/Desktop/Tortuga/src/Projectile.cpp
 
 CMakeFiles/kartuga.dir/src/Projectile.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/kartuga.dir/src/Projectile.cpp.i"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/Users/lucasaubry/Desktop/mmo bato/src/Projectile.cpp" > CMakeFiles/kartuga.dir/src/Projectile.cpp.i
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/lucasaubry/Desktop/Tortuga/src/Projectile.cpp > CMakeFiles/kartuga.dir/src/Projectile.cpp.i
 
 CMakeFiles/kartuga.dir/src/Projectile.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/kartuga.dir/src/Projectile.cpp.s"
-	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/Users/lucasaubry/Desktop/mmo bato/src/Projectile.cpp" -o CMakeFiles/kartuga.dir/src/Projectile.cpp.s
+	/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/lucasaubry/Desktop/Tortuga/src/Projectile.cpp -o CMakeFiles/kartuga.dir/src/Projectile.cpp.s
 
 # Object files for target kartuga
 kartuga_OBJECTS = \
@@ -174,7 +174,7 @@ kartuga: CMakeFiles/kartuga.dir/src/Projectile.cpp.o
 kartuga: CMakeFiles/kartuga.dir/build.make
 kartuga: _deps/raylib-build/raylib/libraylib.a
 kartuga: CMakeFiles/kartuga.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir="/Users/lucasaubry/Desktop/mmo bato/build/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable kartuga"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/Users/lucasaubry/Desktop/Tortuga/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable kartuga"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/kartuga.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -186,6 +186,6 @@ CMakeFiles/kartuga.dir/clean:
 .PHONY : CMakeFiles/kartuga.dir/clean
 
 CMakeFiles/kartuga.dir/depend:
-	cd "/Users/lucasaubry/Desktop/mmo bato/build" && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" "/Users/lucasaubry/Desktop/mmo bato" "/Users/lucasaubry/Desktop/mmo bato" "/Users/lucasaubry/Desktop/mmo bato/build" "/Users/lucasaubry/Desktop/mmo bato/build" "/Users/lucasaubry/Desktop/mmo bato/build/CMakeFiles/kartuga.dir/DependInfo.cmake" "--color=$(COLOR)"
+	cd /Users/lucasaubry/Desktop/Tortuga/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /Users/lucasaubry/Desktop/Tortuga /Users/lucasaubry/Desktop/Tortuga /Users/lucasaubry/Desktop/Tortuga/build /Users/lucasaubry/Desktop/Tortuga/build /Users/lucasaubry/Desktop/Tortuga/build/CMakeFiles/kartuga.dir/DependInfo.cmake "--color=$(COLOR)"
 .PHONY : CMakeFiles/kartuga.dir/depend
 

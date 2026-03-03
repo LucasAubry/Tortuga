@@ -4,15 +4,17 @@
 #include <stdlib.h>
 
 Island::Island(Vector3 pos, float r, bool giant, bool merchant, bool shipwright,
-               bool fisherman)
+               bool fisherman, bool capitalPlatform, bool solidCapitalIsland)
     : Entity(pos, r), isGiant(giant), isMerchant(merchant),
-      isShipwright(shipwright), isFisherman(fisherman) {
+      isShipwright(shipwright), isFisherman(fisherman),
+      isCapitalPlatform(capitalPlatform),
+      isSolidCapitalIsland(solidCapitalIsland) {
   innerRadius = isGiant ? 150.0f : r * 0.6f;
   portOpeningWidth = isGiant ? 30.0f : 80.0f;
 
   if (isGiant) {
     portOpeningAngles.push_back(0.0f); // Just one small hole
-  } else {
+  } else if (!isCapitalPlatform) {
     portOpeningAngles.push_back((float)(rand() % 360));
   }
 }
@@ -22,9 +24,46 @@ void Island::Update(float dt) {
 }
 
 void Island::Draw() {
+  if (isCapitalPlatform) {
+    rlPushMatrix();
+    rlTranslatef(position.x, position.y + 5.0f, position.z);
+    // Draw a wooden square platform (height 10, centered at 0, so top is +5.0f
+    // locally)
+    DrawCube(Vector3Zero(), radius * 2.0f, 10.0f, radius * 2.0f, DARKBROWN);
+    DrawCubeWires(Vector3Zero(), radius * 2.0f, 10.0f, radius * 2.0f, BLACK);
+
+    // Draw some decorative elements based on merchant type
+    // Position them on top of the platform (Y = 5.0f + their height / 2)
+    if (isMerchant) {
+      DrawCube({0, 5.0f + 15.0f / 2.0f, 0}, 15.0f, 15.0f, 15.0f, GOLD);
+    } else if (isShipwright) {
+      DrawCube({0, 5.0f + 10.0f / 2.0f, 0}, 20.0f, 10.0f, 10.0f, PURPLE);
+    } else if (isFisherman) {
+      DrawCube({0, 5.0f + 15.0f / 2.0f, 0}, 10.0f, 15.0f, 10.0f, SKYBLUE);
+    }
+    rlPopMatrix();
+    return;
+  }
+
   float height = 40.0f;
   Color sandColor = {194, 178, 128, 255};
   Color grassColor = {34, 139, 34, 255};
+
+  if (isSolidCapitalIsland) {
+    rlPushMatrix();
+    rlTranslatef(position.x, position.y, position.z);
+
+    // Draw Sand Base (solid cylinder)
+    DrawCylinder(Vector3Zero(), radius, radius, height * 0.5f, 32, sandColor);
+
+    // Draw Grass Top (slightly smaller solid cylinder)
+    rlTranslatef(0, height * 0.5f, 0);
+    DrawCylinder(Vector3Zero(), radius - 5.0f, radius - 5.0f, height * 0.5f, 32,
+                 grassColor);
+
+    rlPopMatrix();
+    return;
+  }
 
   // We will draw the C-shape by drawing several overlapping cylinders in a
   // ring, skipping the opening

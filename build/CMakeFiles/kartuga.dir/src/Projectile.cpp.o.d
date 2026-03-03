@@ -1,8 +1,8 @@
 CMakeFiles/kartuga.dir/src/Projectile.cpp.o: \
-  /Users/lucasaubry/Desktop/mmo\ bato/src/Projectile.cpp \
-  /Users/lucasaubry/Desktop/mmo\ bato/src/Projectile.hpp \
-  /Users/lucasaubry/Desktop/mmo\ bato/src/Entity.hpp \
-  /Users/lucasaubry/Desktop/mmo\ bato/build/_deps/raylib-src/src/raylib.h \
+  /Users/lucasaubry/Desktop/Tortuga/src/Projectile.cpp \
+  /Users/lucasaubry/Desktop/Tortuga/src/Projectile.hpp \
+  /Users/lucasaubry/Desktop/Tortuga/src/Entity.hpp \
+  /Users/lucasaubry/Desktop/Tortuga/build/_deps/raylib-src/src/raylib.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/stdarg.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg_header_macro.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg___gnuc_va_list.h \
@@ -10,7 +10,7 @@ CMakeFiles/kartuga.dir/src/Projectile.cpp.o: \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg_va_arg.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg___va_copy.h \
   /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/17/include/__stdarg_va_copy.h \
-  /Users/lucasaubry/Desktop/mmo\ bato/build/_deps/raylib-src/src/raymath.h \
+  /Users/lucasaubry/Desktop/Tortuga/build/_deps/raylib-src/src/raymath.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/math.h \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config \
   /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX26.2.sdk/usr/include/c++/v1/__config_site \

@@ -2,7 +2,7 @@
 
 namespace GameConfig {
 // Economy
-constexpr int StartingGold = 10000;
+constexpr int StartingGold = 10000000;
 
 // Repair and upgrades
 constexpr int RepairCost = 100;
@@ -36,7 +36,7 @@ constexpr float MaxWindStrengthMultiplier =
 // Ship Base Speeds (Max Speed)
 constexpr float SloopSpeed = 150.0f;
 constexpr float BrigantineSpeed = 200.0f;
-constexpr float GalleonSpeed = 220.0f;
+constexpr float GalleonSpeed = 250.0f;
 
 // Ship Base Health (Max HP)
 constexpr float SloopHP = 150.0f;

@@ -54,10 +54,10 @@ RM = /Users/lucasaubry/.brew/Cellar/cmake/3.30.5/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = "/Users/lucasaubry/Desktop/mmo bato"
+CMAKE_SOURCE_DIR = /Users/lucasaubry/Desktop/Tortuga
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = "/Users/lucasaubry/Desktop/mmo bato/build"
+CMAKE_BINARY_DIR = /Users/lucasaubry/Desktop/Tortuga/build
 
 #=============================================================================
 # Directory level rules for the build root directory
@@ -147,14 +147,14 @@ CMakeFiles/kartuga.dir/all: _deps/raylib-build/raylib/CMakeFiles/raylib.dir/all
 CMakeFiles/kartuga.dir/all: _deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/all
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/kartuga.dir/build.make CMakeFiles/kartuga.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/kartuga.dir/build.make CMakeFiles/kartuga.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir="/Users/lucasaubry/Desktop/mmo bato/build/CMakeFiles" --progress-num=22,23,24,25,26,27,28 "Built target kartuga"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/lucasaubry/Desktop/Tortuga/build/CMakeFiles --progress-num=22,23,24,25,26,27,28 "Built target kartuga"
 .PHONY : CMakeFiles/kartuga.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/kartuga.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start "/Users/lucasaubry/Desktop/mmo bato/build/CMakeFiles" 35
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/lucasaubry/Desktop/Tortuga/build/CMakeFiles 35
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/kartuga.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start "/Users/lucasaubry/Desktop/mmo bato/build/CMakeFiles" 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/lucasaubry/Desktop/Tortuga/build/CMakeFiles 0
 .PHONY : CMakeFiles/kartuga.dir/rule
 
 # Convenience name for target.
@@ -173,14 +173,14 @@ CMakeFiles/kartuga.dir/clean:
 _deps/raylib-build/raylib/CMakeFiles/raylib.dir/all: _deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/all
 	$(MAKE) $(MAKESILENT) -f _deps/raylib-build/raylib/CMakeFiles/raylib.dir/build.make _deps/raylib-build/raylib/CMakeFiles/raylib.dir/depend
 	$(MAKE) $(MAKESILENT) -f _deps/raylib-build/raylib/CMakeFiles/raylib.dir/build.make _deps/raylib-build/raylib/CMakeFiles/raylib.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir="/Users/lucasaubry/Desktop/mmo bato/build/CMakeFiles" --progress-num=29,30,31,32,33,34,35 "Built target raylib"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/lucasaubry/Desktop/Tortuga/build/CMakeFiles --progress-num=29,30,31,32,33,34,35 "Built target raylib"
 .PHONY : _deps/raylib-build/raylib/CMakeFiles/raylib.dir/all
 
 # Build rule for subdir invocation for target.
 _deps/raylib-build/raylib/CMakeFiles/raylib.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start "/Users/lucasaubry/Desktop/mmo bato/build/CMakeFiles" 28
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/lucasaubry/Desktop/Tortuga/build/CMakeFiles 28
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 _deps/raylib-build/raylib/CMakeFiles/raylib.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start "/Users/lucasaubry/Desktop/mmo bato/build/CMakeFiles" 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/lucasaubry/Desktop/Tortuga/build/CMakeFiles 0
 .PHONY : _deps/raylib-build/raylib/CMakeFiles/raylib.dir/rule
 
 # Convenience name for target.
@@ -199,14 +199,14 @@ _deps/raylib-build/raylib/CMakeFiles/raylib.dir/clean:
 _deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/all:
 	$(MAKE) $(MAKESILENT) -f _deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/build.make _deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/depend
 	$(MAKE) $(MAKESILENT) -f _deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/build.make _deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir="/Users/lucasaubry/Desktop/mmo bato/build/CMakeFiles" --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21 "Built target glfw"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/lucasaubry/Desktop/Tortuga/build/CMakeFiles --progress-num=1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21 "Built target glfw"
 .PHONY : _deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/all
 
 # Build rule for subdir invocation for target.
 _deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start "/Users/lucasaubry/Desktop/mmo bato/build/CMakeFiles" 21
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/lucasaubry/Desktop/Tortuga/build/CMakeFiles 21
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 _deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start "/Users/lucasaubry/Desktop/mmo bato/build/CMakeFiles" 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/lucasaubry/Desktop/Tortuga/build/CMakeFiles 0
 .PHONY : _deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/rule
 
 # Convenience name for target.
@@ -225,14 +225,14 @@ _deps/raylib-build/raylib/external/glfw/src/CMakeFiles/glfw.dir/clean:
 _deps/raylib-build/raylib/external/glfw/src/CMakeFiles/update_mappings.dir/all:
 	$(MAKE) $(MAKESILENT) -f _deps/raylib-build/raylib/external/glfw/src/CMakeFiles/update_mappings.dir/build.make _deps/raylib-build/raylib/external/glfw/src/CMakeFiles/update_mappings.dir/depend
 	$(MAKE) $(MAKESILENT) -f _deps/raylib-build/raylib/external/glfw/src/CMakeFiles/update_mappings.dir/build.make _deps/raylib-build/raylib/external/glfw/src/CMakeFiles/update_mappings.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir="/Users/lucasaubry/Desktop/mmo bato/build/CMakeFiles" --progress-num=36 "Built target update_mappings"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/Users/lucasaubry/Desktop/Tortuga/build/CMakeFiles --progress-num=36 "Built target update_mappings"
 .PHONY : _deps/raylib-build/raylib/external/glfw/src/CMakeFiles/update_mappings.dir/all
 
 # Build rule for subdir invocation for target.
 _deps/raylib-build/raylib/external/glfw/src/CMakeFiles/update_mappings.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start "/Users/lucasaubry/Desktop/mmo bato/build/CMakeFiles" 1
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/lucasaubry/Desktop/Tortuga/build/CMakeFiles 1
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 _deps/raylib-build/raylib/external/glfw/src/CMakeFiles/update_mappings.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start "/Users/lucasaubry/Desktop/mmo bato/build/CMakeFiles" 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /Users/lucasaubry/Desktop/Tortuga/build/CMakeFiles 0
 .PHONY : _deps/raylib-build/raylib/external/glfw/src/CMakeFiles/update_mappings.dir/rule
 
 # Convenience name for target.
