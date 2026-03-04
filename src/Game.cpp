@@ -188,11 +188,12 @@ void Game::Init() {
   // Load custom 3D models from assets
   shipSloopModel = LoadModel("assets/sloup.glb");
 
-  // Apply bilinear filtering to the built-in materials to prevent pixelation
+  // Use Point filtering (Nearest-Neighbor) for palette-based textures to stop
+  // color bleeding/pixelation
   for (int i = 0; i < shipSloopModel.materialCount; i++) {
     SetTextureFilter(
         shipSloopModel.materials[i].maps[MATERIAL_MAP_DIFFUSE].texture,
-        TEXTURE_FILTER_BILINEAR);
+        TEXTURE_FILTER_POINT);
   }
 
   for (int i = 0; i < 80; i++) {
