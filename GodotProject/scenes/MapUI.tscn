@@ -1,0 +1,61 @@
+[gd_scene load_steps=2 format=3 uid="uid://map_ui"]
+[ext_resource type="Script" path="res://scripts/MapUI.gd" id="1_map"]
+
+[node name="MapUI" type="CanvasLayer"]
+process_mode = 3
+layer = 10
+visible = false
+script = ExtResource("1_map")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.12, 0.1, 0.08, 0.95)
+
+[node name="MarginContainer" type="MarginContainer" parent="ColorRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 50
+theme_override_constants/margin_top = 50
+theme_override_constants/margin_right = 50
+theme_override_constants/margin_bottom = 50
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ColorRect/MarginContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="ColorRect/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "- WORLD MAP -"
+horizontal_alignment = 1
+
+[node name="MapContainer" type="Control" parent="ColorRect/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MapBackground" type="ColorRect" parent="ColorRect/MarginContainer/VBoxContainer/MapContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.76, 0.69, 0.5, 0.2)
+
+[node name="PlayerMarker" type="ColorRect" parent="ColorRect/MarginContainer/VBoxContainer/MapContainer"]
+layout_mode = 0
+offset_right = 10.0
+offset_bottom = 10.0
+color = Color(0, 1, 0, 1)
+
+[node name="LabelCoords" type="Label" parent="ColorRect/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Player Position: X: 0 | Y: 0"
+horizontal_alignment = 1

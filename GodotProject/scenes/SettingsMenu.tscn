@@ -1,0 +1,114 @@
+[gd_scene load_steps=2 format=3 uid="uid://settings_menu"]
+[ext_resource type="Script" path="res://scripts/SettingsMenu.gd" id="1_set"]
+
+[node name="SettingsMenu" type="CanvasLayer"]
+process_mode = 3
+layer = 20
+visible = false
+script = ExtResource("1_set")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.1, 0.1, 0.1, 0.95)
+
+[node name="MarginContainer" type="MarginContainer" parent="ColorRect"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 60
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 60
+theme_override_constants/margin_bottom = 40
+
+[node name="VBox" type="VBoxContainer" parent="ColorRect/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Title" type="Label" parent="ColorRect/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "Settings"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="ColorRect/MarginContainer/VBox"]
+layout_mode = 2
+
+[node name="HBoxControls" type="HBoxContainer" parent="ColorRect/MarginContainer/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 50
+
+[node name="AudioCol" type="VBoxContainer" parent="ColorRect/MarginContainer/VBox/HBoxControls"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 15
+
+[node name="Subtitle" type="Label" parent="ColorRect/MarginContainer/VBox/HBoxControls/AudioCol"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Audio & Lang"
+
+[node name="LabelVol" type="Label" parent="ColorRect/MarginContainer/VBox/HBoxControls/AudioCol"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Master Volume"
+
+[node name="HSliderVol" type="HSlider" parent="ColorRect/MarginContainer/VBox/HBoxControls/AudioCol"]
+layout_mode = 2
+max_value = 1.0
+step = 0.05
+value = 1.0
+
+[node name="LabelLang" type="Label" parent="ColorRect/MarginContainer/VBox/HBoxControls/AudioCol"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Language"
+
+[node name="OptionLang" type="OptionButton" parent="ColorRect/MarginContainer/VBox/HBoxControls/AudioCol"]
+layout_mode = 2
+item_count = 2
+selected = 0
+popup/item_0/text = "English"
+popup/item_0/id = 0
+popup/item_1/text = "Français"
+popup/item_1/id = 1
+
+[node name="GraphicsCol" type="VBoxContainer" parent="ColorRect/MarginContainer/VBox/HBoxControls"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 15
+
+[node name="Subtitle" type="Label" parent="ColorRect/MarginContainer/VBox/HBoxControls/GraphicsCol"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Graphics"
+
+[node name="LabelPreset" type="Label" parent="ColorRect/MarginContainer/VBox/HBoxControls/GraphicsCol"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Quality Preset"
+
+[node name="OptionPreset" type="OptionButton" parent="ColorRect/MarginContainer/VBox/HBoxControls/GraphicsCol"]
+layout_mode = 2
+item_count = 3
+selected = 2
+popup/item_0/text = "Low"
+popup/item_0/id = 0
+popup/item_1/text = "Medium"
+popup/item_1/id = 1
+popup/item_2/text = "High"
+popup/item_2/id = 2
+
+[node name="CloseBtn" type="Button" parent="ColorRect/MarginContainer/VBox"]
+custom_minimum_size = Vector2(200, 50)
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 24
+text = "Resume Game"

@@ -1,0 +1,160 @@
+[gd_scene load_steps=17 format=3 uid="uid://world"]
+
+[ext_resource type="PackedScene" uid="uid://ship" path="res://scenes/Ship.tscn" id="1_kqs1s"]
+[ext_resource type="PackedScene" uid="uid://b73hyfrtx14yh" path="res://scenes/HUD.tscn" id="2_hud"]
+[ext_resource type="PackedScene" uid="uid://island" path="res://scenes/Island.tscn" id="3_island"]
+[ext_resource type="PackedScene" path="res://scenes/MapUI.tscn" id="4_map"]
+[ext_resource type="PackedScene" path="res://scenes/QuestMenu.tscn" id="5_quest"]
+[ext_resource type="PackedScene" path="res://scenes/TabMenu.tscn" id="6_tab"]
+[ext_resource type="PackedScene" path="res://scenes/SettingsMenu.tscn" id="7_set"]
+[ext_resource type="Script" uid="uid://blqfq2pyvw0iy" path="res://scripts/WindManager.gd" id="10_wind"]
+[ext_resource type="Script" uid="uid://63ild0f6hv6l" path="res://scripts/WakeManager.gd" id="11_wake"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_xwyq"]
+sky_horizon_color = Color(0.646, 0.656, 0.67, 1)
+ground_horizon_color = Color(0.646, 0.656, 0.67, 1)
+
+[sub_resource type="Sky" id="Sky_xwyq"]
+sky_material = SubResource("ProceduralSkyMaterial_xwyq")
+
+[sub_resource type="Environment" id="Environment_xwyq"]
+background_mode = 2
+sky = SubResource("Sky_xwyq")
+ambient_light_source = 3
+ambient_light_color = Color(0.501961, 0.6, 0.701961, 1)
+ambient_light_sky_contribution = 0.5
+tonemap_mode = 2
+tonemap_exposure = 1.1
+tonemap_white = 1.2
+glow_enabled = true
+glow_bloom = 0.2
+
+[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_kqs1s"]
+
+[sub_resource type="Shader" id="Shader_water"]
+code = "shader_type spatial;
+render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_schlick_ggx;
+
+uniform vec4 albedo : source_color = vec4(0.0, 0.45, 0.75, 0.85);
+uniform vec4 albedo2 : source_color = vec4(0.0, 0.25, 0.55, 0.95);
+uniform float metallic : hint_range(0.0, 1.0) = 0.0;
+uniform float roughness : hint_range(0.0, 1.0) = 0.02;
+uniform float wave_speed : hint_range(0.0, 5.0) = 0.5;
+uniform float wave_amplitude : hint_range(0.0, 5.0) = 1.0;
+uniform float wave_frequency : hint_range(0.0, 5.0) = 0.1;
+
+varying vec2 world_pos;
+
+void vertex() {
+	// Simple sine wave displacement for the water surface
+	float time = TIME * wave_speed;
+	float wave1 = sin(VERTEX.x * wave_frequency + time) * wave_amplitude;
+	float wave2 = cos(VERTEX.z * wave_frequency * 1.5 + time * 1.2) * wave_amplitude * 0.8;
+	
+	VERTEX.y += wave1 + wave2;
+	world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xz;
+}
+
+void fragment() {
+	// Mix color based on height/time to give it a nice gradient
+	float time = TIME * wave_speed * 0.5;
+	float wave_mask = sin(UV.x * 20.0 + time) * cos(UV.y * 20.0 + time) * 0.5 + 0.5;
+	
+	vec3 base_color = mix(albedo.rgb, albedo2.rgb, wave_mask);
+	
+	// Add Isometric Grid
+	float grid_size = 100.0;
+	vec2 grid_uv = fract(world_pos / grid_size);
+	float line_width = 0.02; // Thin grid lines
+	float grid_mask = step(grid_uv.x, line_width) + step(grid_uv.y, line_width);
+	grid_mask = clamp(grid_mask, 0.0, 1.0);
+	
+	ALBEDO = mix(base_color, vec3(0.0, 0.6, 1.0), grid_mask * 0.15);
+	ALPHA = mix(albedo.a, albedo2.a, wave_mask);
+	
+	METALLIC = metallic;
+	ROUGHNESS = roughness;
+}"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_water"]
+render_priority = 0
+shader = SubResource("Shader_water")
+shader_parameter/albedo = Color(0, 0.05, 0.15, 0.95)
+shader_parameter/albedo2 = Color(0, 0.08, 0.25, 1)
+shader_parameter/metallic = 0.1
+shader_parameter/roughness = 0.8
+shader_parameter/wave_speed = 0.8
+shader_parameter/wave_amplitude = 3.0
+shader_parameter/wave_frequency = 0.03
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_32lhk"]
+material = SubResource("ShaderMaterial_water")
+size = Vector2(10000, 10000)
+subdivide_width = 200
+subdivide_depth = 200
+
+[node name="World" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_xwyq")
+
+[node name="Ship" parent="." instance=ExtResource("1_kqs1s")]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 42.957836, 0)
+is_player = true
+
+[node name="OceanFloor" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="OceanFloor"]
+shape = SubResource("WorldBoundaryShape3D_kqs1s")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.094777346, -0.54438525, -0.83346385, -0.86082345, -0.37569243, 0.34327573, -0.50000024, 0.75, -0.43301255, 0, 83, 0)
+light_color = Color(1, 0.960784, 0.882353, 1)
+light_energy = 1.5
+shadow_enabled = true
+shadow_bias = 0.05
+directional_shadow_mode = 0
+
+[node name="WindManager" type="MultiMeshInstance3D" parent="."]
+script = ExtResource("10_wind")
+
+[node name="WakeManager" type="MultiMeshInstance3D" parent="."]
+script = ExtResource("11_wake")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -8, 0)
+mesh = SubResource("PlaneMesh_32lhk")
+
+[node name="Islands" type="Node3D" parent="."]
+
+[node name="Island3" parent="Islands" instance=ExtResource("3_island")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 500, -1, -600)
+
+[node name="Island4" parent="Islands" instance=ExtResource("3_island")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -800, -1, 400)
+
+[node name="Island5" parent="Islands" instance=ExtResource("3_island")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1200, -1, 100)
+
+[node name="Island6" parent="Islands" instance=ExtResource("3_island")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1500, -1, -900)
+
+[node name="Island7" parent="Islands" instance=ExtResource("3_island")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 800, -1, 1500)
+
+[node name="Island8" parent="Islands" instance=ExtResource("3_island")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -400, -1, 2000)
+
+[node name="Island9" parent="Islands" instance=ExtResource("3_island")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2200, -1, 500)
+
+[node name="HUD" parent="." instance=ExtResource("2_hud")]
+
+[node name="MapUI" parent="." instance=ExtResource("4_map")]
+visible = true
+
+[node name="QuestMenu" parent="." instance=ExtResource("5_quest")]
+
+[node name="TabMenu" parent="." instance=ExtResource("6_tab")]
+
+[node name="SettingsMenu" parent="." instance=ExtResource("7_set")]

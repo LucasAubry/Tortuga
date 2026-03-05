@@ -1,0 +1,35 @@
+[gd_scene load_steps=4 format=3 uid="uid://ship"]
+
+[ext_resource type="Script" uid="uid://b7ljuujup7t27" path="res://scripts/Ship.gd" id="1_ship"]
+[ext_resource type="PackedScene" uid="uid://c8bnvh274ti0g" path="res://assets/sloup.glb" id="2_mesh"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_gjfe0"]
+size = Vector3(44.686523, 0.19650269, 0.6550293)
+
+[node name="Ship" type="CharacterBody3D"]
+script = ExtResource("1_ship")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1.5444444, 0, 0, 0, 186.16226, 0, 0, 0, 263.9256, 7.579693, 26.937511, 25.29072)
+shape = SubResource("BoxShape3D_gjfe0")
+
+[node name="sloup" parent="." instance=ExtResource("2_mesh")]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
+
+[node name="CameraGimbal" type="Node3D" parent="."]
+
+[node name="SpringArm3D" type="SpringArm3D" parent="CameraGimbal"]
+transform = Transform3D(0.707107, -0.408248, 0.57735, 0, 0.816497, 0.57735, -0.707107, -0.408248, 0.57735, 0, 50, 0)
+spring_length = 3000.0
+
+[node name="Camera3D" type="Camera3D" parent="CameraGimbal/SpringArm3D"]
+fov = 15.0
+far = 20000.0
+
+[node name="Cannons" type="Node3D" parent="."]
+
+[node name="PortCannon1" type="Marker3D" parent="Cannons"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 15, 0)
+
+[node name="StarboardCannon1" type="Marker3D" parent="Cannons"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 15, 0)

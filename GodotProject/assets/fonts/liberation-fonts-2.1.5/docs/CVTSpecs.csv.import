@@ -1,0 +1,17 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://b1v2ltuilf01x"
+
+[deps]
+
+files=["res://assets/fonts/liberation-fonts-2.1.5/docs/CVTSpecs.Description.translation", "res://assets/fonts/liberation-fonts-2.1.5/docs/CVTSpecs.Sans.translation", "res://assets/fonts/liberation-fonts-2.1.5/docs/CVTSpecs.Sans.translation", "res://assets/fonts/liberation-fonts-2.1.5/docs/CVTSpecs.Sans.translation", "res://assets/fonts/liberation-fonts-2.1.5/docs/CVTSpecs.Sans_BI.translation", "res://assets/fonts/liberation-fonts-2.1.5/docs/CVTSpecs.Serif.translation", "res://assets/fonts/liberation-fonts-2.1.5/docs/CVTSpecs.Serif.translation", "res://assets/fonts/liberation-fonts-2.1.5/docs/CVTSpecs.Serif.translation", "res://assets/fonts/liberation-fonts-2.1.5/docs/CVTSpecs.Serif_BI.translation", "res://assets/fonts/liberation-fonts-2.1.5/docs/CVTSpecs.Mono.translation", "res://assets/fonts/liberation-fonts-2.1.5/docs/CVTSpecs.Mono.translation", "res://assets/fonts/liberation-fonts-2.1.5/docs/CVTSpecs.Mono.translation", "res://assets/fonts/liberation-fonts-2.1.5/docs/CVTSpecs.Mono_BI.translation"]
+
+source_file="res://assets/fonts/liberation-fonts-2.1.5/docs/CVTSpecs.csv"
+dest_files=["res://assets/fonts/liberation-fonts-2.1.5/docs/CVTSpecs.Description.translation", "res://assets/fonts/liberation-fonts-2.1.5/docs/CVTSpecs.Sans.translation", "res://assets/fonts/liberation-fonts-2.1.5/docs/CVTSpecs.Sans.translation", "res://assets/fonts/liberation-fonts-2.1.5/docs/CVTSpecs.Sans.translation", "res://assets/fonts/liberation-fonts-2.1.5/docs/CVTSpecs.Sans_BI.translation", "res://assets/fonts/liberation-fonts-2.1.5/docs/CVTSpecs.Serif.translation", "res://assets/fonts/liberation-fonts-2.1.5/docs/CVTSpecs.Serif.translation", "res://assets/fonts/liberation-fonts-2.1.5/docs/CVTSpecs.Serif.translation", "res://assets/fonts/liberation-fonts-2.1.5/docs/CVTSpecs.Serif_BI.translation", "res://assets/fonts/liberation-fonts-2.1.5/docs/CVTSpecs.Mono.translation", "res://assets/fonts/liberation-fonts-2.1.5/docs/CVTSpecs.Mono.translation", "res://assets/fonts/liberation-fonts-2.1.5/docs/CVTSpecs.Mono.translation", "res://assets/fonts/liberation-fonts-2.1.5/docs/CVTSpecs.Mono_BI.translation"]
+
+[params]
+
+compress=true
+delimiter=0
