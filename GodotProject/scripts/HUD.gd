@@ -11,8 +11,6 @@ extends CanvasLayer
 @onready var label_wood = $MarginContainer/TopLeft/LabelWood
 @onready var label_food = $MarginContainer/TopLeft/LabelFood
 @onready var label_water = $MarginContainer/TopLeft/LabelWater
-@onready var minimap_rect = $MarginContainer/TopRight/MinimapRect
-@onready var minimap_label = $MarginContainer/TopRight/MinimapRect/MapLabel
 
 var player_ship: Ship
 var enemy_hp_bars: Dictionary = {}
@@ -30,10 +28,6 @@ func _ready():
 	if settings_btn:
 		settings_btn.pressed.connect(_on_settings_pressed)
 		
-	if minimap_label:
-		minimap_label.visible = false
-	if minimap_rect:
-		minimap_rect.draw.connect(_on_minimap_draw)
 
 func _on_settings_pressed():
 	var settings = get_tree().get_first_node_in_group("settings_menu")
@@ -84,38 +78,6 @@ func _process(delta):
 	
 	_update_enemy_bars()
 	
-	if minimap_rect:
-		minimap_rect.queue_redraw()
-
-func _on_minimap_draw():
-	if not is_instance_valid(player_ship): return
-	var rect_size = minimap_rect.size
-	
-	var scale_factor = rect_size.x / 4000.0 # 4000 world units -> map width
-	var player_pos = Vector2(player_ship.global_position.x, player_ship.global_position.z)
-	
-	var islands_node = get_tree().current_scene.get_node_or_null("Islands")
-	if islands_node:
-		for child in islands_node.get_children():
-			if "Island" in child.name: # Roughly identify islands
-				var c_pos = Vector2(child.global_position.x, child.global_position.z)
-				var rel_pos = (c_pos - player_pos) * scale_factor
-				var draw_pos = (rect_size / 2.0) + rel_pos
-				if Rect2(Vector2.ZERO, rect_size).has_point(draw_pos):
-					minimap_rect.draw_circle(draw_pos, 4.0, Color(0.1, 0.8, 0.1)) # Green islands
-	
-	var enemies = get_tree().get_nodes_in_group("enemies")
-	for e in enemies:
-		if is_instance_valid(e) and e is Ship and e.hp > 0:
-			var c_pos = Vector2(e.global_position.x, e.global_position.z)
-			var rel_pos = (c_pos - player_pos) * scale_factor
-			var draw_pos = (rect_size / 2.0) + rel_pos
-			if Rect2(Vector2.ZERO, rect_size).has_point(draw_pos):
-				minimap_rect.draw_circle(draw_pos, 3.0, Color(0.9, 0.1, 0.1)) # Red enemies
-				
-	# Draw player blip last
-	minimap_rect.draw_circle(rect_size / 2.0, 3.0, Color(0.1, 0.9, 0.9)) # Cyan player
-
 
 func _update_enemy_bars():
 	var camera = get_viewport().get_camera_3d()

@@ -1,5 +1,6 @@
-[gd_scene load_steps=2 format=3 uid="uid://map_ui"]
+[gd_scene load_steps=3 format=3 uid="uid://map_ui"]
 [ext_resource type="Script" path="res://scripts/MapUI.gd" id="1_map"]
+[ext_resource type="Texture2D" path="res://assets/hud/hud_map.png" id="2_bg"]
 
 [node name="MapUI" type="CanvasLayer"]
 process_mode = 3
@@ -40,14 +41,16 @@ horizontal_alignment = 1
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="MapBackground" type="ColorRect" parent="ColorRect/MarginContainer/VBoxContainer/MapContainer"]
+[node name="MapBackground" type="TextureRect" parent="ColorRect/MarginContainer/VBoxContainer/MapContainer"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.76, 0.69, 0.5, 0.2)
+texture = ExtResource("2_bg")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="PlayerMarker" type="ColorRect" parent="ColorRect/MarginContainer/VBoxContainer/MapContainer"]
 layout_mode = 0

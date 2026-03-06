@@ -31,5 +31,5 @@ func _on_body_entered(body: Node3D):
 			
 		body.take_damage(damage, get_node(owner_ship) if not owner_ship.is_empty() else null)
 		queue_free()
-	elif body is Island:
+	elif body is Ile:
 		queue_free()

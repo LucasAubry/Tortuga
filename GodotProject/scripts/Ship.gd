@@ -48,7 +48,9 @@ var spring_arm: SpringArm3D
 func _ready():
 	_init_stats()
 	
-	if not is_player:
+	if is_player:
+		add_to_group("player")
+	else:
 		add_to_group("enemies")
 		
 	# Find camera nodes
@@ -57,6 +59,21 @@ func _ready():
 		spring_arm = gimbal_node.get_node_or_null("SpringArm3D")
 		# Make the gimbal independent of the Ship's rotation hierarchy
 		gimbal_node.set_as_top_level(true)
+		
+		# --- BORDERLANDS CEL-SHADER (POST PROCESSING) ---
+		var cam = spring_arm.get_node_or_null("Camera3D")
+		if cam and is_player: # Only render shader for the active player's screen
+			var cel_mesh = MeshInstance3D.new()
+			var quad = QuadMesh.new()
+			quad.size = Vector2(2, 2)
+			cel_mesh.mesh = quad
+			cel_mesh.custom_aabb = AABB(Vector3(-10000, -10000, -10000), Vector3(20000, 20000, 20000))
+			cel_mesh.ignore_occlusion_culling = true
+			
+			var shader_mat = ShaderMaterial.new()
+			shader_mat.shader = load("res://scripts/cel_shader.gdshader")
+			cel_mesh.material_override = shader_mat
+			cam.add_child(cel_mesh)
 
 func _unhandled_input(event):
 	pass

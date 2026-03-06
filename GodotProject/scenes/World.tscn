@@ -1,14 +1,15 @@
-[gd_scene load_steps=17 format=3 uid="uid://world"]
+[gd_scene load_steps=18 format=3 uid="uid://world"]
 
 [ext_resource type="PackedScene" uid="uid://ship" path="res://scenes/Ship.tscn" id="1_kqs1s"]
 [ext_resource type="PackedScene" uid="uid://b73hyfrtx14yh" path="res://scenes/HUD.tscn" id="2_hud"]
-[ext_resource type="PackedScene" uid="uid://island" path="res://scenes/Island.tscn" id="3_island"]
 [ext_resource type="PackedScene" path="res://scenes/MapUI.tscn" id="4_map"]
 [ext_resource type="PackedScene" path="res://scenes/QuestMenu.tscn" id="5_quest"]
 [ext_resource type="PackedScene" path="res://scenes/TabMenu.tscn" id="6_tab"]
 [ext_resource type="PackedScene" path="res://scenes/SettingsMenu.tscn" id="7_set"]
 [ext_resource type="Script" uid="uid://blqfq2pyvw0iy" path="res://scripts/WindManager.gd" id="10_wind"]
 [ext_resource type="Script" uid="uid://63ild0f6hv6l" path="res://scripts/WakeManager.gd" id="11_wake"]
+[ext_resource type="PackedScene" uid="uid://57e5pj3ul0v1" path="res://scenes/iles.tscn" id="12_mesh"]
+[ext_resource type="PackedScene" uid="uid://island" path="res://scenes/Ile.tscn" id="13_ile"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_xwyq"]
 sky_horizon_color = Color(0.646, 0.656, 0.67, 1)
@@ -35,13 +36,18 @@ glow_bloom = 0.2
 code = "shader_type spatial;
 render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_schlick_ggx;
 
-uniform vec4 albedo : source_color = vec4(0.0, 0.45, 0.75, 0.85);
-uniform vec4 albedo2 : source_color = vec4(0.0, 0.25, 0.55, 0.95);
+uniform vec4 albedo : source_color = vec4(0.0, 0.45, 0.75, 1.0);
+uniform vec4 albedo2 : source_color = vec4(0.0, 0.25, 0.55, 1.0);
 uniform float metallic : hint_range(0.0, 1.0) = 0.0;
 uniform float roughness : hint_range(0.0, 1.0) = 0.02;
 uniform float wave_speed : hint_range(0.0, 5.0) = 0.5;
 uniform float wave_amplitude : hint_range(0.0, 5.0) = 1.0;
 uniform float wave_frequency : hint_range(0.0, 5.0) = 0.1;
+
+uniform vec2 island_1 = vec2(150.0, 150.0);
+uniform vec2 island_2 = vec2(-150.0, 150.0);
+uniform vec2 island_3 = vec2(150.0, -150.0);
+uniform vec2 island_4 = vec2(-150.0, -150.0);
 
 varying vec2 world_pos;
 
@@ -51,7 +57,17 @@ void vertex() {
 	float wave1 = sin(VERTEX.x * wave_frequency + time) * wave_amplitude;
 	float wave2 = cos(VERTEX.z * wave_frequency * 1.5 + time * 1.2) * wave_amplitude * 0.8;
 	
-	VERTEX.y += wave1 + wave2;
+	// Distance to closest island for wave dampening
+	float d1 = distance(VERTEX.xz, island_1);
+	float d2 = distance(VERTEX.xz, island_2);
+	float d3 = distance(VERTEX.xz, island_3);
+	float d4 = distance(VERTEX.xz, island_4);
+	float min_d = min(min(d1, d2), min(d3, d4));
+	
+	// Smoothstep from 45.0m to 120.0m (waves are flat until 45m away, then rise to full at 120m)
+	float dampen = smoothstep(45.0, 120.0, min_d);
+	
+	VERTEX.y += (wave1 + wave2) * dampen;
 	world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xz;
 }
 
@@ -70,7 +86,7 @@ void fragment() {
 	grid_mask = clamp(grid_mask, 0.0, 1.0);
 	
 	ALBEDO = mix(base_color, vec3(0.0, 0.6, 1.0), grid_mask * 0.15);
-	ALPHA = mix(albedo.a, albedo2.a, wave_mask);
+	// No alpha write forces it to be opaque and write to depth buffer for Cel Shader masking
 	
 	METALLIC = metallic;
 	ROUGHNESS = roughness;
@@ -79,13 +95,17 @@ void fragment() {
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_water"]
 render_priority = 0
 shader = SubResource("Shader_water")
-shader_parameter/albedo = Color(0, 0.05, 0.15, 0.95)
+shader_parameter/albedo = Color(0, 0.05, 0.15, 1)
 shader_parameter/albedo2 = Color(0, 0.08, 0.25, 1)
 shader_parameter/metallic = 0.1
 shader_parameter/roughness = 0.8
 shader_parameter/wave_speed = 0.8
 shader_parameter/wave_amplitude = 3.0
 shader_parameter/wave_frequency = 0.03
+shader_parameter/island_1 = Vector2(150, 150)
+shader_parameter/island_2 = Vector2(-150, 150)
+shader_parameter/island_3 = Vector2(150, -150)
+shader_parameter/island_4 = Vector2(-150, -150)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_32lhk"]
 material = SubResource("ShaderMaterial_water")
@@ -125,29 +145,6 @@ script = ExtResource("11_wake")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -8, 0)
 mesh = SubResource("PlaneMesh_32lhk")
 
-[node name="Islands" type="Node3D" parent="."]
-
-[node name="Island3" parent="Islands" instance=ExtResource("3_island")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 500, -1, -600)
-
-[node name="Island4" parent="Islands" instance=ExtResource("3_island")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -800, -1, 400)
-
-[node name="Island5" parent="Islands" instance=ExtResource("3_island")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1200, -1, 100)
-
-[node name="Island6" parent="Islands" instance=ExtResource("3_island")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1500, -1, -900)
-
-[node name="Island7" parent="Islands" instance=ExtResource("3_island")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 800, -1, 1500)
-
-[node name="Island8" parent="Islands" instance=ExtResource("3_island")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -400, -1, 2000)
-
-[node name="Island9" parent="Islands" instance=ExtResource("3_island")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2200, -1, 500)
-
 [node name="HUD" parent="." instance=ExtResource("2_hud")]
 
 [node name="MapUI" parent="." instance=ExtResource("4_map")]
@@ -158,3 +155,32 @@ visible = true
 [node name="TabMenu" parent="." instance=ExtResource("6_tab")]
 
 [node name="SettingsMenu" parent="." instance=ExtResource("7_set")]
+
+[node name="Node3D" type="Node3D" parent="."]
+
+[node name="IleMesh_City" parent="Node3D" instance=ExtResource("12_mesh")]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 150, -22.754028, 150)
+
+[node name="Zone_City" parent="Node3D" instance=ExtResource("13_ile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 150, 20, 150)
+
+[node name="IleMesh_Merchant" parent="Node3D" instance=ExtResource("12_mesh")]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -150, -22.754028, 150)
+
+[node name="Zone_Merchant" parent="Node3D" instance=ExtResource("13_ile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -150, 20, 150)
+ile_type = 1
+
+[node name="IleMesh_Shipwright" parent="Node3D" instance=ExtResource("12_mesh")]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 150, -22.754028, -150)
+
+[node name="Zone_Shipwright" parent="Node3D" instance=ExtResource("13_ile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 150, 20, -150)
+ile_type = 2
+
+[node name="IleMesh_Fisherman" parent="Node3D" instance=ExtResource("12_mesh")]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -150, -22.754028, -150)
+
+[node name="Zone_Fisherman" parent="Node3D" instance=ExtResource("13_ile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -150, 20, -150)
+ile_type = 3

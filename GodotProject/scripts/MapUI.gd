@@ -33,10 +33,10 @@ func _on_map_draw():
 	# Draw lines
 	for i in range(1, cols.size()):
 		var x = i * col_step
-		map_container.draw_line(Vector2(x, 0), Vector2(x, h), Color(1, 1, 1, 0.2), 2.0)
+		map_container.draw_line(Vector2(x, 0), Vector2(x, h), Color(0, 0, 0, 0.15), 2.0)
 	for j in range(1, rows.size()):
 		var y = j * row_step
-		map_container.draw_line(Vector2(0, y), Vector2(w, y), Color(1, 1, 1, 0.2), 2.0)
+		map_container.draw_line(Vector2(0, y), Vector2(w, y), Color(0, 0, 0, 0.15), 2.0)
 		
 	# Draw labels
 	for i in range(cols.size()):
@@ -44,7 +44,7 @@ func _on_map_draw():
 			var center = Vector2(i * col_step + col_step/2.0, j * row_step + row_step/2.0)
 			# Draw letter number (A1, B2)
 			var text = cols[i] + rows[j]
-			map_container.draw_string(ttf, center - Vector2(10, -5), text, HORIZONTAL_ALIGNMENT_CENTER, -1, 24, Color(1,1,1,0.15))
+			map_container.draw_string(ttf, center - Vector2(10, -5), text, HORIZONTAL_ALIGNMENT_CENTER, -1, 24, Color(0,0,0,0.1))
 
 func _process(delta):
 	if visible:
@@ -69,20 +69,35 @@ func hide_map():
 	island_markers.clear()
 
 func _populate_islands():
-	# Find all islands in the tree
-	var islands = get_tree().get_nodes_in_group("islands")
-	if islands.is_empty(): # Fallback if groups aren't setup
-		_find_islands_recursive(get_tree().get_root())
+	# Always do a recursive scan to ensure markers bind reliably to our generic Ile.gd definitions
+	_find_islands_recursive(get_tree().get_root())
 
-func _find_islands_recursive(node: Node):
-	if node is Island:
-		_create_island_marker(node)
+func _find_islands_recursive(node: Node, tracked: Array = []):
+	var is_island = false
+	if node is Ile:
+		is_island = true
+	elif node.scene_file_path != "" and node.scene_file_path.find("iles.tscn") != -1:
+		is_island = true
+	elif "IleMesh" in node.name:
+		is_island = true
+		
+	if is_island:
+		var duplicate = false
+		for t in tracked:
+			if is_instance_valid(t) and "global_position" in t and "global_position" in node:
+				if node.global_position.distance_to(t.global_position) < 25.0:
+					duplicate = true
+					break
+		if not duplicate:
+			_create_ile_marker(node)
+			tracked.append(node)
+			
 	for child in node.get_children():
-		_find_islands_recursive(child)
+		_find_islands_recursive(child, tracked)
 
-func _create_island_marker(island: Island):
+func _create_ile_marker(ile: Node):
 	var marker = ColorRect.new()
-	marker.color = Color(0.8, 0.7, 0.5, 1.0)
+	marker.color = Color(0.4, 0.3, 0.1, 1.0) # Darker brown for better parchment contrast
 	
 	# Size based on Island logic
 	var size = 20.0
@@ -93,7 +108,7 @@ func _create_island_marker(island: Island):
 	island_markers.append(marker)
 	
 	# Store the island reference as meta data for positioning
-	marker.set_meta("island", island)
+	marker.set_meta("island", ile)
 
 func _update_map():
 	# Calculate offset based on UI container size so (0,0) is center
@@ -102,9 +117,9 @@ func _update_map():
 	# Update Island positions
 	for marker in island_markers:
 		if is_instance_valid(marker) and marker.has_meta("island"):
-			var island = marker.get_meta("island") as Island
-			if is_instance_valid(island):
-				var pos = Vector2(island.global_position.x, island.global_position.z)
+			var ile = marker.get_meta("island")
+			if is_instance_valid(ile):
+				var pos = Vector2(ile.global_position.x, ile.global_position.z)
 				marker.position = map_offset + (pos * map_scale) - (marker.size / 2.0)
 				
 	# Update Player position
