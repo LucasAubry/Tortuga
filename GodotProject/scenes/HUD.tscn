@@ -25,7 +25,7 @@ grow_vertical = 2
 theme_override_constants/margin_left = 20
 theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 20
+theme_override_constants/margin_bottom = 0
 
 [node name="BottomRight" type="VBoxContainer" parent="MarginContainer"]
 layout_mode = 2
@@ -109,73 +109,79 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="BottomCenter" type="Control" parent="MarginContainer"]
-custom_minimum_size = Vector2(500, 80)
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 8
 
 [node name="TextureRect" type="TextureRect" parent="MarginContainer/BottomCenter"]
-custom_minimum_size = Vector2(500, 80)
+custom_minimum_size = Vector2(1700, 670)
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -262.0
-offset_top = -421.0
-offset_right = 774.0
-offset_bottom = 523.0
+offset_left = -828.0
+offset_top = -502.0
+offset_right = 872.0
+offset_bottom = 168.0
 grow_horizontal = 2
-grow_vertical = 2
-scale = Vector2(0.6750066, 0.6750066)
+grow_vertical = 0
 texture = ExtResource("3_hp")
+expand_mode = 1
 stretch_mode = 5
 
-[node name="LabelHP" type="Label" parent="MarginContainer/BottomCenter"]
+[node name="BackgroundBar" type="ColorRect" parent="MarginContainer/BottomCenter/TextureRect"]
+visible = false
 layout_mode = 1
-anchors_preset = 5
-anchor_left = 0.5
-anchor_right = 0.5
-offset_left = 23.230774
-offset_top = -7.0
-offset_right = 1725.6409
-offset_bottom = 366.0
-grow_horizontal = 2
-scale = Vector2(0.12, 0.12)
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0)
-theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 200
-text = "HP: 150 / 150"
-horizontal_alignment = 1
-
-[node name="BackgroundBar" type="ColorRect" parent="MarginContainer/BottomCenter"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 220.0
-offset_top = 43.0
-offset_right = -46.0
-offset_bottom = -20.0
+anchors_preset = -1
+anchor_left = 0.52
+anchor_top = 0.78
+anchor_right = 0.93
+anchor_bottom = 0.88
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.1, 0.05, 0.05, 0.7)
 
-[node name="ProgressBar" type="ProgressBar" parent="MarginContainer/BottomCenter"]
+[node name="ProgressBar" type="ProgressBar" parent="MarginContainer/BottomCenter/TextureRect"]
+unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 220.0
-offset_top = 43.0
-offset_right = 88.0
-offset_bottom = -12.0
+anchors_preset = -1
+anchor_left = 0.52
+anchor_top = 0.78
+anchor_right = 0.93
+anchor_bottom = 0.88
+offset_left = -67.99994
+offset_top = -71.599976
+offset_right = -408.0
+offset_bottom = -116.599976
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/background = SubResource("StyleBoxEmpty_bg")
 theme_override_styles/fill = SubResource("StyleBoxFlat_fill")
-value = 100.0
+value = 75.0
+fill_mode = 1
 show_percentage = false
+
+[node name="LabelHP" type="Label" parent="MarginContainer/BottomCenter/TextureRect"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.63
+anchor_right = 0.91
+anchor_bottom = 0.78
+offset_left = -200.0
+offset_top = -48.099976
+offset_right = -200.0
+offset_bottom = -48.099976
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 36
+text = "HP: 150 / 150"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="TopLeft" type="VBoxContainer" parent="MarginContainer"]
 layout_mode = 2
