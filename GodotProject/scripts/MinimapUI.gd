@@ -1,7 +1,7 @@
 extends Control
 
 @onready var island_container = $ClippingContainer/IslandContainer
-@onready var player_marker = $ClippingContainer/PlayerMarker
+@onready var player_marker = $ClippingContainer/PlayerIcon
 
 var minimap_scale: float = 0.5 # Zoom level
 var island_markers: Dictionary = {}
@@ -9,6 +9,7 @@ var island_markers: Dictionary = {}
 func _ready():
 	# Initial scan for islands
 	_populate_islands()
+
 
 func _process(_delta):
 	var player = _find_player()
@@ -25,7 +26,12 @@ func _process(_delta):
 			var relative_pos = (node_pos - player_pos) * minimap_scale
 			marker.position = relative_pos - (marker.size / 2.0)
 			
+			# Rotation of the player icon
+			if player_marker:
+				player_marker.rotation = -player.rotation.y + PI/2.0
+			
 			# Circular clipping: hide if outside the 200px radius of the radar (fits 400x400 hole)
+
 			marker.visible = relative_pos.length() < 200.0
 		else:
 			# Cleanup if island is destroyed

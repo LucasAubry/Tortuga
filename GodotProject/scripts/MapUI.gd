@@ -2,7 +2,7 @@ class_name MapUI
 extends CanvasLayer
 
 @onready var map_container = $ColorRect/MarginContainer/VBoxContainer/MapContainer
-@onready var player_marker = $ColorRect/MarginContainer/VBoxContainer/MapContainer/PlayerMarker
+@onready var player_marker = $ColorRect/MarginContainer/VBoxContainer/MapContainer/PlayerIcon
 @onready var label_coords = $ColorRect/MarginContainer/VBoxContainer/LabelCoords
 
 var map_scale: float = 0.05
@@ -127,6 +127,8 @@ func _update_map():
 	if player:
 		var pos = Vector2(player.global_position.x, player.global_position.z)
 		player_marker.position = map_offset + (pos * map_scale) - (player_marker.size / 2.0)
+		# Rotation of the player icon
+		player_marker.rotation = -player.rotation.y + PI/2.0
 		# No longer outputting string coords per task list
 
 func _find_player() -> Ship:

@@ -23,6 +23,7 @@ var max_ammo: int = 100
 var cooldown_timer: float = 0.0
 const ProjectileScene = preload("res://scenes/Projectile.tscn")
 const LootScene = preload("res://scenes/Loot.tscn")
+const SmokeScene = preload("res://scenes/SmokeEffect.tscn")
 
 # Inventory
 var gold: int = 0
@@ -44,6 +45,17 @@ var upgrades_purchased: int = 0
 @export var zoom_speed: float = 150.0
 var gimbal_node: Node3D
 var spring_arm: SpringArm3D
+
+# Visual Steering
+var visual_mast: Node3D
+var visual_wheel: Node3D
+var visual_sails: Node3D
+var base_wheel_rot: Vector3
+var base_mast_rot: Vector3
+var base_sails_rot: Vector3
+var base_sails_scale: Vector3
+var current_steer_angle: float = 0.0
+var current_sail_angle: float = 0.0
 
 func _ready():
 	_init_stats()
@@ -74,6 +86,31 @@ func _ready():
 			shader_mat.shader = load("res://scripts/cel_shader.gdshader")
 			cel_mesh.material_override = shader_mat
 			cam.add_child(cel_mesh)
+			
+	var mesh_node = get_node_or_null("sloup")
+	if mesh_node:
+		visual_mast = _find_child_recursive(mesh_node, "Mast")
+		visual_wheel = _find_child_recursive(mesh_node, "ShipWheel")
+		visual_sails = _find_child_recursive(mesh_node, "Sails")
+		
+		# Fallbacks if names differ
+		if not visual_wheel: visual_wheel = _find_child_recursive(mesh_node, "wheel")
+		if not visual_mast: visual_mast = _find_child_recursive(mesh_node, "mat")
+		
+		if visual_mast: base_mast_rot = visual_mast.rotation
+		if visual_sails: 
+			base_sails_rot = visual_sails.rotation
+			base_sails_scale = visual_sails.scale
+		if visual_wheel: base_wheel_rot = visual_wheel.rotation
+
+func _find_child_recursive(node: Node, target_name: String) -> Node:
+	for child in node.get_children():
+		# Using match/find case insensitively
+		if child.name.to_lower().find(target_name.to_lower()) != -1:
+			return child
+		var res = _find_child_recursive(child, target_name)
+		if res: return res
+	return null
 
 func _unhandled_input(event):
 	pass
@@ -164,14 +201,90 @@ func _handle_player_input(delta):
 	global_position.y = 0.0
 	
 	var mesh_node = get_node_or_null("sloup")
+	var t = Time.get_ticks_msec() / 1000.0
+	
+	# Wind Data for animations
+	var wind_vec3 = Vector3(wind_dir.x, 0, wind_dir.y) 
+	
 	if mesh_node:
-		var t = Time.get_ticks_msec() / 1000.0
-		# Pure mathematical sine loops to emulate ship swaying without physics logic
+		# --- REALISTIC HEELING (La Gîte) ---
+		# Le bateau penche sur le côté en fonction de la force du vent latéral
+		var side_pressure = forward.cross(wind_vec3).y * wind_speed
+		var target_heeling = side_pressure * 0.08 # Intensité de l'inclinaison
+		
 		mesh_node.position.y = sin(t * 2.0) * 0.5
 		mesh_node.rotation.x = sin(t * 1.5) * 0.10
-		mesh_node.rotation.z = cos(t * 1.0) * 0.08
+		# On combine le tangage naturel avec l'inclinaison du vent
+		mesh_node.rotation.z = lerp(mesh_node.rotation.z, (cos(t * 1.0) * 0.08) + target_heeling, delta * 2.0)
+	
+	# Visual Steering for Mast and Wheel
+	var target_steer = input_dir.x
+	current_steer_angle = lerp(current_steer_angle, target_steer, delta * 3.0)
+	
+	if visual_wheel:
+		visual_wheel.transform.basis = Basis.from_euler(base_wheel_rot)
+		# Dans un vrai bateau, on tourne beaucoup la barre pour un petit virage
+		visual_wheel.rotate_object_local(Vector3(0, 0, 1), -current_steer_angle * 8.0)
+	
+	if visual_mast:
+		visual_mast.transform.basis = Basis.from_euler(base_mast_rot)
+		
+		# Mast & Sail Logic: Sur un vrai sloop, tout le mât pivote pour orienter la voile
+		
+		# Calcul du vent relatif par rapport au bateau
+		var wind_world_angle = atan2(wind_vec3.x, wind_vec3.z)
+		var ship_world_angle = global_rotation.y
+		var relative_wind_angle = wrapf(wind_world_angle - (ship_world_angle + PI), -PI, PI)
+		
+		# On oriente le mât entier vers 1/2 de l'angle du vent pour garder la prise
+		var target_mast_angle = clamp(relative_wind_angle * 0.45, -deg_to_rad(70), deg_to_rad(70))
+		
+		# On ajoute un léger tremblement si le vent est fort ou change (plus vivant)
+		var flutter = 0.0
+		if abs(relative_wind_angle) > PI * 0.8: # Vent de face (virements)
+			flutter = sin(Time.get_ticks_msec() * 0.01) * 0.02
+		
+		# Interpolation plus lente pour donner du poids au mât
+		current_sail_angle = lerp_angle(current_sail_angle, target_mast_angle + flutter, delta * 1.2)
+		
+		# Appliquer la rotation locale au mât
+		visual_mast.rotate_object_local(Vector3(0, 1, 0), current_sail_angle)
+		
+		# --- DYNAMIC SAIL INFLATION (Gonflage des Voiles) ---
+		if visual_sails:
+			visual_sails.transform.basis = Basis.from_euler(base_sails_rot)
+			
+			# Calcul du gonflage : Max quand le vent est arrière (relative_wind_angle proche de 0)
+			# On utilise le vent relatif calculé précédemment (-PI à PI, 0 = vent arrière)
+			var wind_efficiency = clamp(cos(relative_wind_angle * 0.5), 0.0, 1.0)
+			var inflation_factor = wind_efficiency * (wind_speed / 2.0) # Scale with speed
+			
+			# Appliquer un gonflement (augmentation d'échelle sur l'axe Z local de la voile)
+			# et une légère réduction latérale (l'arc tire sur les côtés)
+			var target_scale = base_sails_scale
+			target_scale.z *= 1.0 + (inflation_factor * 0.4) # Gonfle vers l'avant
+			target_scale.x *= 1.0 - (inflation_factor * 0.05) # Se contracte légèrement
+			
+			# --- FLUTTER EFFECT (Battement au vent) ---
+			# Si on est face au vent (angle proche de PI), les voiles faseillent (vibration rapide)
+			var face_to_wind = abs(relative_wind_angle) > PI * 0.75
+			var flutter_vibration = 0.0
+			if face_to_wind:
+				# Vibration rapide et aléatoire simulant le tissu qui claque
+				flutter_vibration = sin(t * 25.0) * 0.03 * wind_speed
+				target_scale.z *= 0.85 + (sin(t * 30.0) * 0.1) # La voile se dégonfle et tremble
+			
+			visual_sails.scale = lerp(visual_sails.scale, target_scale, delta * 4.0)
+			# On ajoute le tremblement visuel si nécessaire
+			if face_to_wind:
+				visual_sails.rotation.y += flutter_vibration
+
 	
 	# Force the gimbal to stay at a fixed rotation (e.g. isometric/top-down perspective)
+
+
+
+
 	# but follow the ship's position. We do this by setting it as top-level so 
 	# it ignores the ship's rotation, then manually updating its position.
 	if gimbal_node:
@@ -209,6 +322,14 @@ func _fire_projectile(marker: Marker3D, direction: Vector3, speed: float):
 	proj.damage = damage
 	proj.is_player_owned = is_player
 	proj.owner_ship = get_path()
+	
+	# Smoke Effect - Attached, directed outwards
+	var smoke = SmokeScene.instantiate() as Node3D
+	marker.add_child(smoke)
+	# Start at muzzle
+	smoke.position = Vector3.ZERO
+	# look_at needs to be correctly directed outwards from the ship
+	smoke.look_at(smoke.global_position + direction.normalized(), Vector3.UP)
 
 var ai_state_timer: float = 0.0
 var ai_target_pos: Vector3
