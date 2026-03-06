@@ -46,11 +46,11 @@ var upgrades_purchased: int = 0
 
 # Sail Visual Tweakables (Visible in Godot Inspector)
 @export_group("Sail Visuals")
-@export var sail_inflation_left: float = 12.0
+@export var sail_inflation_left: float = 2.5
 @export var sail_offset_left: float = 0.0
-@export var sail_inflation_right: float = 12.0
-@export var sail_offset_right: float = 0.45
-@export var sail_lerp_speed: float = 3.5
+@export var sail_inflation_right: float = 2.5
+@export var sail_offset_right: float = 0.3
+@export var sail_lerp_speed: float = 1.2
 
 var gimbal_node: Node3D
 var spring_arm: SpringArm3D
@@ -255,16 +255,17 @@ func _handle_player_input(delta):
 		if abs(relative_wind_angle) > PI * 0.8: # Vent de face (virements)
 			flutter = sin(Time.get_ticks_msec() * 0.01) * 0.02
 		
-		# Interpolation plus lente pour donner du poids au mât
-		current_sail_angle = lerp_angle(current_sail_angle, target_mast_angle + flutter, delta * 1.2)
+		# Interpolation très fluide pour donner du poids au mât
+		current_sail_angle = lerp_angle(current_sail_angle, target_mast_angle + flutter, delta * sail_lerp_speed)
 		
-		# Appliquer la rotation locale au mât
+		# Appliquer la rotation locale au mât (en remplaçant toute la rotation pour éviter l'accumulation)
+		visual_mast.rotation = base_mast_rot
 		visual_mast.rotate_object_local(Vector3(0, 1, 0), current_sail_angle)
 		
 		# --- DYNAMIC SAIL BOMBAGE (Inversion selon le vent) ---
 		if visual_sails:
-			# Réinitialiser la base (orientation et échelle d'origine)
-			visual_sails.transform.basis = Basis.from_euler(base_sails_rot)
+			# On garde la rotation de base sans écraser l'échelle (scale)
+			visual_sails.rotation = base_sails_rot
 			
 			# Détecter de quel côté le vent frappe le mât (dans son espace local)
 			# On prend le vecteur vent dans le monde et on l'amène dans le repère du mât
