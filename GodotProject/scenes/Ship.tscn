@@ -8,6 +8,11 @@ size = Vector3(31.756836, 0.19650269, 0.51792717)
 
 [node name="Ship" type="CharacterBody3D"]
 script = ExtResource("1_ship")
+sail_inflation_left = -50.0
+sail_offset_left = -0.8
+sail_inflation_right = -15.0
+sail_offset_right = 0.3
+sail_lerp_speed = 3.0
 
 [node name="sloup" parent="." instance=ExtResource("2_gjfe0")]
 

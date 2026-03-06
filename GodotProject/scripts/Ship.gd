@@ -43,6 +43,15 @@ var upgrades_purchased: int = 0
 @export var min_zoom: float = 50.0
 @export var max_zoom: float = 5000.0
 @export var zoom_speed: float = 150.0
+
+# Sail Visual Tweakables (Visible in Godot Inspector)
+@export_group("Sail Visuals")
+@export var sail_inflation_left: float = 12.0
+@export var sail_offset_left: float = 0.0
+@export var sail_inflation_right: float = 12.0
+@export var sail_offset_right: float = 0.45
+@export var sail_lerp_speed: float = 3.5
+
 var gimbal_node: Node3D
 var spring_arm: SpringArm3D
 
@@ -54,6 +63,7 @@ var base_wheel_rot: Vector3
 var base_mast_rot: Vector3
 var base_sails_rot: Vector3
 var base_sails_scale: Vector3
+var base_sails_pos: Vector3
 var current_steer_angle: float = 0.0
 var current_sail_angle: float = 0.0
 
@@ -101,6 +111,7 @@ func _ready():
 		if visual_sails: 
 			base_sails_rot = visual_sails.rotation
 			base_sails_scale = visual_sails.scale
+			base_sails_pos = visual_sails.position
 		if visual_wheel: base_wheel_rot = visual_wheel.rotation
 
 func _find_child_recursive(node: Node, target_name: String) -> Node:
@@ -250,34 +261,46 @@ func _handle_player_input(delta):
 		# Appliquer la rotation locale au mât
 		visual_mast.rotate_object_local(Vector3(0, 1, 0), current_sail_angle)
 		
-		# --- DYNAMIC SAIL INFLATION (Gonflage des Voiles) ---
+		# --- DYNAMIC SAIL BOMBAGE (Inversion selon le vent) ---
 		if visual_sails:
+			# Réinitialiser la base (orientation et échelle d'origine)
 			visual_sails.transform.basis = Basis.from_euler(base_sails_rot)
 			
-			# Calcul du gonflage : Max quand le vent est arrière (relative_wind_angle proche de 0)
-			# On utilise le vent relatif calculé précédemment (-PI à PI, 0 = vent arrière)
-			var wind_efficiency = clamp(cos(relative_wind_angle * 0.5), 0.0, 1.0)
-			var inflation_factor = wind_efficiency * (wind_speed / 2.0) # Scale with speed
+			# Détecter de quel côté le vent frappe le mât (dans son espace local)
+			# On prend le vecteur vent dans le monde et on l'amène dans le repère du mât
+			var mast_basis = visual_mast.global_transform.basis
+			var mast_local_wind = mast_basis.inverse() * wind_vec3
 			
-			# Appliquer un gonflement (augmentation d'échelle sur l'axe Z local de la voile)
-			# et une légère réduction latérale (l'arc tire sur les côtés)
+			# side_sign : détermine si la voile bombe à gauche (1) ou à droite (-1)
+			# Nouvel ajustement de l'inversion
+			var side_sign = -1.0
+			if mast_local_wind.x < 0:
+				side_sign = 1.0
+			
+			# Paramètres différents selon le côté du bombage
+			var target_inflation = 1.0
+			var target_offset = 0.0
+			
+			if side_sign > 0:
+				# Côté Gauche (Positif)
+				target_inflation = sail_inflation_left
+				target_offset = sail_offset_left
+			else:
+				# Côté Droit (Négatif)
+				target_inflation = sail_inflation_right
+				target_offset = sail_offset_right
+			
+			# Appliquer le bombage via l'échelle (scale.x)
 			var target_scale = base_sails_scale
-			target_scale.z *= 1.0 + (inflation_factor * 0.4) # Gonfle vers l'avant
-			target_scale.x *= 1.0 - (inflation_factor * 0.05) # Se contracte légèrement
+			target_scale.x *= target_inflation * side_sign
 			
-			# --- FLUTTER EFFECT (Battement au vent) ---
-			# Si on est face au vent (angle proche de PI), les voiles faseillent (vibration rapide)
-			var face_to_wind = abs(relative_wind_angle) > PI * 0.75
-			var flutter_vibration = 0.0
-			if face_to_wind:
-				# Vibration rapide et aléatoire simulant le tissu qui claque
-				flutter_vibration = sin(t * 25.0) * 0.03 * wind_speed
-				target_scale.z *= 0.85 + (sin(t * 30.0) * 0.1) # La voile se dégonfle et tremble
-			
-			visual_sails.scale = lerp(visual_sails.scale, target_scale, delta * 4.0)
-			# On ajoute le tremblement visuel si nécessaire
-			if face_to_wind:
-				visual_sails.rotation.y += flutter_vibration
+			# Appliquer le décalage spécifique au côté
+			var target_pos = base_sails_pos
+			target_pos.x = base_sails_pos.x + target_offset
+				
+			# Interpolation avec vitesse ajustable
+			visual_sails.scale = lerp(visual_sails.scale, target_scale, delta * sail_lerp_speed)
+			visual_sails.position = lerp(visual_sails.position, target_pos, delta * sail_lerp_speed)
 
 	
 	# Force the gimbal to stay at a fixed rotation (e.g. isometric/top-down perspective)
