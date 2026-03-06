@@ -1,8 +1,8 @@
 class_name HUD
 extends CanvasLayer
 
-@onready var hp_bar = $MarginContainer/BottomCenter/ProgressBar
-@onready var label_hp = $MarginContainer/BottomCenter/LabelHP
+@onready var hp_bar = $MarginContainer/BottomCenter/TextureRect/ProgressBar
+@onready var label_hp = $MarginContainer/BottomCenter/TextureRect/LabelHP
 @onready var label_ammo = $MarginContainer/TopLeft/LabelAmmo
 @onready var wind_speed_label = $MarginContainer/BottomLeft/WindBox/WindSpeedLabel
 @onready var arrow_pivot = $MarginContainer/BottomLeft/WindBox/ArrowPivot
@@ -18,8 +18,7 @@ var enemy_hp_bars: Dictionary = {}
 func _ready():
 	# Recursively enlarge UI text rather than breaking the layout scale
 	_scale_fonts(self, 24)
-	if hp_bar:
-		hp_bar.custom_minimum_size = Vector2(400, 30)
+
 	# Try to find the player ship immediately
 	player_ship = _find_player_ship(get_tree().get_root())
 	
@@ -48,18 +47,26 @@ func _process(delta):
 			return
 			
 	# Update UI elements
-	hp_bar.max_value = player_ship.max_hp
-	hp_bar.value = player_ship.hp
-	label_hp.text = "VIE: %d / %d" % [player_ship.hp, player_ship.max_hp]
-	if label_ammo:
+	if is_instance_valid(hp_bar) and is_instance_valid(player_ship):
+		hp_bar.max_value = player_ship.max_hp
+		hp_bar.value = player_ship.hp
+	
+	if is_instance_valid(label_hp) and is_instance_valid(player_ship):
+		label_hp.text = "VIE: %d / %d" % [player_ship.hp, player_ship.max_hp]
+		
+	if is_instance_valid(label_ammo) and is_instance_valid(player_ship):
 		label_ammo.text = "BOULETS: %d / %d" % [player_ship.ammo, player_ship.max_ammo]
-	if label_gold:
+		
+	if is_instance_valid(label_gold) and is_instance_valid(player_ship):
 		label_gold.text = "OR: %d" % player_ship.gold
-	if label_wood:
+		
+	if is_instance_valid(label_wood) and is_instance_valid(player_ship):
 		label_wood.text = "BOIS: %d" % player_ship.wood
-	if label_food:
+		
+	if is_instance_valid(label_food) and is_instance_valid(player_ship):
 		label_food.text = "VIVRES: %d" % player_ship.food
-	if label_water:
+		
+	if is_instance_valid(label_water) and is_instance_valid(player_ship):
 		label_water.text = "EAU: %d" % player_ship.water
 	
 	# Wind UI Update based on Player location
