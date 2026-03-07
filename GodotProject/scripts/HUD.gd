@@ -11,21 +11,66 @@ extends CanvasLayer
 @onready var label_wood = $MarginContainer/TopLeft/LabelWood
 @onready var label_food = $MarginContainer/TopLeft/LabelFood
 @onready var label_water = $MarginContainer/TopLeft/LabelWater
+@onready var weapon_slots_container = $WeaponSlots
 
+var weapon_slot_panels: Array[PanelContainer] = []
+var weapon_slot_icons: Array[TextureRect] = []
+var weapon_slot_cooldowns: Array[TextureProgressBar] = []
 var player_ship: Ship
 var enemy_hp_bars: Dictionary = {}
 
 func _ready():
-	# Recursively enlarge UI text rather than breaking the layout scale
 	_scale_fonts(self, 24)
-
-	# Try to find the player ship immediately
 	player_ship = _find_player_ship(get_tree().get_root())
 	
-	# Font assignment removed (falling back to engine default theme due to missing assets)
-		
+	_setup_weapon_ui()
+	
 	if settings_btn:
 		settings_btn.pressed.connect(_on_settings_pressed)
+
+func _setup_weapon_ui():
+	# On récupère les 5 slots créés dans l'éditeur
+	weapon_slot_panels = [
+		%Slot1, %Slot2, %Slot3, %Slot4, %Slot5
+	]
+	
+	for panel in weapon_slot_panels:
+		if not panel: continue
+		
+		# Ajout d'un TextureRect pour l'icône de l'arme
+		var tex_rect = TextureRect.new()
+		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		tex_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		tex_rect.custom_minimum_size = Vector2(50, 50)
+		panel.add_child(tex_rect)
+		weapon_slot_icons.append(tex_rect)
+		
+		# Overlay de Cooldown (Horloge blanche)
+		var progress = TextureProgressBar.new()
+		progress.fill_mode = TextureProgressBar.FILL_CLOCKWISE
+		progress.set_anchors_preset(Control.PRESET_FULL_RECT) # Utilise l'entier du slot
+		progress.texture_progress = load("res://assets/ui/white_rect.png")
+		progress.step = 0.01
+		progress.value = 0
+		progress.modulate = Color(1, 1, 1, 0.4) # Blanc transparent
+		progress.nine_patch_stretch = true # Pour bien remplir le carré
+		panel.add_child(progress)
+		weapon_slot_cooldowns.append(progress)
+		
+		# Style Transparent avec bordure
+		var sb = StyleBoxFlat.new()
+		sb.bg_color = Color(0, 0, 0, 0)
+		sb.set_border_width_all(2)
+		sb.border_color = Color(1, 1, 1, 0.2)
+		sb.corner_radius_top_left = 6
+		sb.corner_radius_top_right = 6
+		sb.corner_radius_bottom_right = 6
+		sb.corner_radius_bottom_left = 6
+		
+		sb.shadow_color = Color(1, 0.8, 0, 0)
+		sb.shadow_size = 0
+		
+		panel.add_theme_stylebox_override("panel", sb)
 		
 
 func _on_settings_pressed():
@@ -69,6 +114,55 @@ func _process(delta):
 			
 		if is_instance_valid(label_water):
 			label_water.text = "EAU: %d" % player_ship.water
+			
+		# Update weapons UI (Glow and Icons)
+		for i in range(weapon_slot_panels.size()):
+			var panel = weapon_slot_panels[i]
+			if not is_instance_valid(panel): continue
+			
+			var weapon = player_ship.weapon_slots[i] if i < player_ship.weapon_slots.size() else null
+			var icon_rect = weapon_slot_icons[i] if i < weapon_slot_icons.size() else null
+			
+			if icon_rect:
+				if weapon and weapon.icon:
+					icon_rect.texture = weapon.icon
+					icon_rect.modulate = Color(1, 1, 1, 1)
+				else:
+					icon_rect.texture = null
+					icon_rect.modulate = Color(1, 1, 1, 0.3) # S'il n'y a pas d'arme
+			
+			# Update Cooldown Display
+			var cooldown_rect = weapon_slot_cooldowns[i] if i < weapon_slot_cooldowns.size() else null
+			if cooldown_rect:
+				if weapon and player_ship.weapon_cooldowns[i] > 0:
+					cooldown_rect.visible = true
+					# On affiche le reste du temps sous forme d'horloge
+					cooldown_rect.value = (player_ship.weapon_cooldowns[i] / weapon.cooldown) * 100.0
+				else:
+					cooldown_rect.visible = false
+			
+			var sb = panel.get_theme_stylebox("panel") as StyleBoxFlat
+			
+			# Détectier si l'action est bloquée (Canon/Grappin en plongée)
+			var is_blocked = player_ship.is_diving and weapon and (weapon.type == WeaponData.ActionType.CANNON or weapon.type == WeaponData.ActionType.GRAPPLE)
+			
+			if i == player_ship.active_weapon_index:
+				# Bordure Dorée (Actif)
+				if is_blocked:
+					sb.border_color = Color(1, 0, 0, 1) # Rouge si bloqué
+				else:
+					sb.border_color = Color(1, 0.84, 0, 1) # Gold si utilisable
+					
+				sb.set_border_width_all(3)
+				sb.shadow_color = Color(1, 0.8, 0, 0.4) if not is_blocked else Color(1, 0, 0, 0.4)
+				sb.shadow_size = 12
+				if icon_rect: icon_rect.modulate = Color(1, 1, 1, 1) if not is_blocked else Color(1, 0.4, 0.4, 1)
+			else:
+				# Normal / Inactif
+				sb.border_color = Color(1, 1, 1, 0.2)
+				sb.set_border_width_all(1)
+				sb.shadow_size = 0
+				if icon_rect and weapon: icon_rect.modulate = Color(0.7, 0.7, 0.7, 0.8)
 	
 	# Wind UI Update based on Player location
 	var local_wind = {"direction": Vector2(1,0), "speed": 1.0}

@@ -1,8 +1,10 @@
-res://scenes/Ship.tscn
-res://scenes/sloup.tscn
-res://scripts/Ship.gd
-res://scenes/World.tscn
-res://scenes/MapUI.tscn
-res://scripts/MapUI.gd
-res://scenes/HUD.tscn
 res://scripts/HUD.gd
+res://scripts/Ship.gd
+res://scenes/HUD.tscn
+res://scenes/Ship.tscn
+res://scenes/World.tscn
+res://resources/weapons/Lourd.tres
+res://resources/weapons/Standard.tres
+res://scripts/WeaponData.gd
+res://resources/skills/Plongee.tres
+res://scripts/skills/Dive.gd

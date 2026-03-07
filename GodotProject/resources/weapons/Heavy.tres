@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=3 format=3 uid="uid://db8lo1v63e3re"]
+
+[ext_resource type="Texture2D" uid="uid://djodk5tvqs2p3" path="res://assets/weapon/heavy.png" id="1_icon"]
+[ext_resource type="Script" uid="uid://cexkxjymb314v" path="res://scripts/WeaponData.gd" id="2_script"]
+
+[resource]
+script = ExtResource("2_script")
+weapon_name = "Canon de Siege"
+damage = 80.0
+cooldown = 3.0
+ammo_cost = 10
+projectile_speed = 120.0
+projectile_color = Color(0.6, 0.6, 0.6, 1)
+icon = ExtResource("1_icon")

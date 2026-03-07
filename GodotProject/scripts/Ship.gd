@@ -20,7 +20,7 @@ var damage: float = 25.0
 var ammo: int = 50
 var max_ammo: int = 100
 
-var cooldown_timer: float = 0.0
+var weapon_cooldowns: Array[float] = [0.0, 0.0, 0.0, 0.0, 0.0]
 const ProjectileScene = preload("res://scenes/Projectile.tscn")
 const LootScene = preload("res://scenes/Loot.tscn")
 const SmokeScene = preload("res://scenes/SmokeEffect.tscn")
@@ -37,6 +37,18 @@ var speed_level: int = 0
 var fire_rate_level: int = 0
 var extra_cannons: int = 0
 var upgrades_purchased: int = 0
+
+# Weapons System
+@export var weapon_slots: Array[WeaponData] = [null, null, null, null, null]
+var active_weapon_index: int = 0
+var skill_timer: float = 0.0
+var current_speed_buff: float = 1.0
+
+@export_group("Diving Status (ReadOnly)")
+@export var is_diving: bool = false
+@export var current_dive_depth: float = 0.0
+@export var current_dive_tilt: float = 0.0
+@export var dive_delay_timer: float = 0.0
 
 # Camera variables
 @export var mouse_sensitivity: float = 0.002
@@ -70,11 +82,18 @@ var current_sail_angle: float = 0.0
 
 func _ready():
 	_init_stats()
+	_init_weapons()
 	
 	if is_player:
 		add_to_group("player")
 	else:
 		add_to_group("enemies")
+
+func _init_weapons():
+	# On ne fait plus d'initialisation automatique par code.
+	# Le joueur (vous) configure le tableau directement dans l'inspecteur de Godot.
+	# Si un slot est vide (null), le tir ne fera rien ou utilisera les stats de base.
+	pass
 		
 	# Find camera nodes
 	gimbal_node = get_node_or_null("CameraGimbal")
@@ -144,14 +163,26 @@ func _init_stats():
 	hp = max_hp
 
 func _physics_process(delta):
-	if cooldown_timer > 0:
-		cooldown_timer -= delta
+	# Gestion des temps de recharge
+	for i in range(weapon_cooldowns.size()):
+		if weapon_cooldowns[i] > 0:
+			weapon_cooldowns[i] -= delta
 		
+	if skill_timer > 0:
+		skill_timer -= delta
+		if skill_timer <= 0:
+			current_speed_buff = 1.0
+		
+	# Mouvement physique de base
 	if is_player:
 		_handle_player_input(delta)
 	else:
 		_handle_ai(delta)
 		
+	# LOGIQUE MODULAIRE (Exécutée à la fin pour appliquer les modifications de position/visuel)
+	for i in range(weapon_slots.size()):
+		if weapon_slots[i] and weapon_slots[i].has_method("process_tick"):
+			weapon_slots[i].process_tick(self, delta)
 
 func _handle_player_input(delta):
 	# Handle Zoom
@@ -169,11 +200,21 @@ func _handle_player_input(delta):
 	# Acceleration & Reversing
 	var max_reverse_speed = max_speed * 0.15 # Reverse is only 15% of max forward speed
 	
-	if Input.is_action_just_pressed("ui_fire") and cooldown_timer <= 0 and ammo > 0:
+	# Weapon Selection
+	if Input.is_key_pressed(KEY_1): active_weapon_index = 0
+	elif Input.is_key_pressed(KEY_2): active_weapon_index = 1
+	elif Input.is_key_pressed(KEY_3): active_weapon_index = 2
+	elif Input.is_key_pressed(KEY_4): active_weapon_index = 3
+	elif Input.is_key_pressed(KEY_5): active_weapon_index = 4
+
+	var current_action = weapon_slots[active_weapon_index]
+	var can_afford = current_action == null or ammo >= current_action.ammo_cost
+	
+	if Input.is_action_just_pressed("ui_fire") and weapon_cooldowns[active_weapon_index] <= 0 and can_afford:
 		shoot_cannons()
 	
 	if input_dir.y < 0: # Forward (up arrow)
-		ship_speed = move_toward(ship_speed, max_speed, acceleration * delta)
+		ship_speed = move_toward(ship_speed, max_speed * current_speed_buff, acceleration * current_speed_buff * delta)
 	elif input_dir.y > 0: # Reverse (down arrow)
 		ship_speed = move_toward(ship_speed, -max_reverse_speed, acceleration * 0.8 * delta) # Brakes quickly to slow reverse
 	else: # Braking naturally when no input
@@ -209,9 +250,7 @@ func _handle_player_input(delta):
 	
 	move_and_slide()
 	
-	# Ultra-optimized generic animation (No Topography Sampling)
-	global_position.y = 0.0
-	
+
 	var mesh_node = get_node_or_null("sloup")
 	var t = Time.get_ticks_msec() / 1000.0
 	
@@ -220,13 +259,15 @@ func _handle_player_input(delta):
 	
 	if mesh_node:
 		# --- REALISTIC HEELING (La Gîte) ---
-		# Le bateau penche sur le côté en fonction de la force du vent latéral
 		var side_pressure = forward.cross(wind_vec3).y * wind_speed
-		var target_heeling = side_pressure * 0.08 # Intensité de l'inclinaison
+		var target_heeling = side_pressure * 0.08 
 		
 		var heeling_rot = (cos(t * 1.0) * 0.08) + target_heeling
-		mesh_node.rotation = Vector3(sin(t * 1.5) * 0.10, mesh_node.rotation.y, heeling_rot)
-		mesh_node.position = Vector3(mesh_node.position.x, sin(t * 2.0) * 0.5, mesh_node.position.z)
+		# Combinaison : Plongée (X) + Mouvement Vagues (X) + Gîte (Z)
+		var pitch_wave = sin(t * 1.2) * 0.08
+		mesh_node.rotation = Vector3(pitch_wave + current_dive_tilt, mesh_node.rotation.y, heeling_rot)
+		# Flottaison légère
+		mesh_node.position = Vector3(mesh_node.position.x, sin(t * 2.0) * 0.4, mesh_node.position.z)
 	
 	# Visual Steering for Mast and Wheel
 	var target_steer = input_dir.x
@@ -316,22 +357,54 @@ func _handle_player_input(delta):
 		# The gimbal's rotation was set in the editor/scene, and we just preserve it.
 
 func shoot_cannons():
-	cooldown_timer = max_cooldown
-	ammo -= 2 # 1 left, 1 right
+	var action = weapon_slots[active_weapon_index]
+	if not action: return
 	
-	var projectile_speed = 200.0
+	# LOGIQUE MODULAIRE : On ne bloque QUE les armes offensives sous l'eau
+	if action.type == WeaponData.ActionType.CANNON or action.type == WeaponData.ActionType.GRAPPLE:
+		if is_diving or (action.has_method("is_action_blocked") and action.is_action_blocked(self)):
+			return
+	
+	weapon_cooldowns[active_weapon_index] = action.cooldown
+	ammo -= action.ammo_cost
+	
+	# LOGIQUE D'EXÉCUTION
+	match action.type:
+		WeaponData.ActionType.CANNON:
+			_fire_cannons(action)
+		WeaponData.ActionType.GRAPPLE:
+			_use_grapple(action)
+		WeaponData.ActionType.DIVE, WeaponData.ActionType.SKILL:
+			if action.has_method("activate"):
+				action.activate(self)
+			else:
+				_use_skill(action)
+
+
+func _fire_cannons(weapon: WeaponData):
+	var projectile_speed = weapon.projectile_speed
 	
 	# Port (Left)
 	var port_marker = get_node_or_null("Cannons/PortCannon1")
 	if port_marker:
-		_fire_projectile(port_marker, -global_transform.basis.x, projectile_speed)
+		_fire_projectile(port_marker, -global_transform.basis.x, projectile_speed, weapon)
 	
 	# Starboard (Right)
 	var starboard_marker = get_node_or_null("Cannons/StarboardCannon1")
 	if starboard_marker:
-		_fire_projectile(starboard_marker, global_transform.basis.x, projectile_speed)
+		_fire_projectile(starboard_marker, global_transform.basis.x, projectile_speed, weapon)
 
-func _fire_projectile(marker: Marker3D, direction: Vector3, speed: float):
+func _use_grapple(action: WeaponData):
+	print("Utilisation du Grappin: ", action.weapon_name)
+	# Ici on pourrait tirer un projectile spécial "Grappin"
+	_fire_cannons(action) # Pour l'instant on tire juste pour le visuel
+
+func _use_skill(action: WeaponData):
+	print("Utilisation Compétence: ", action.weapon_name)
+	skill_timer = action.skill_duration
+	current_speed_buff = action.speed_buff
+
+func _fire_projectile(marker: Marker3D, direction: Vector3, speed: float, weapon: WeaponData = null):
 	var proj = ProjectileScene.instantiate() as Projectile
 	get_tree().get_root().add_child(proj)
 	proj.global_position = marker.global_position
@@ -343,9 +416,18 @@ func _fire_projectile(marker: Marker3D, direction: Vector3, speed: float):
 	proj.velocity = velocity + (direction.normalized() * speed)
 	proj.velocity.y += 12.0
 	
-	proj.damage = damage
+	proj.damage = weapon.damage if weapon else damage
 	proj.is_player_owned = is_player
 	proj.owner_ship = get_path()
+	
+	# Color the projectile if weapon has a color
+	if weapon and proj.has_node("MeshInstance3D"):
+		var mesh = proj.get_node("MeshInstance3D") as MeshInstance3D
+		var mat = StandardMaterial3D.new()
+		mat.albedo_color = weapon.projectile_color
+		mat.metallic = 0.8
+		mat.roughness = 0.2
+		mesh.material_override = mat
 	
 	# Smoke Effect - Attached, directed outwards
 	var smoke = SmokeScene.instantiate() as Node3D

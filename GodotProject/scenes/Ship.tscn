@@ -1,13 +1,17 @@
-[gd_scene load_steps=4 format=3 uid="uid://ship"]
+[gd_scene load_steps=7 format=3 uid="uid://ship"]
 
 [ext_resource type="Script" uid="uid://b7ljuujup7t27" path="res://scripts/Ship.gd" id="1_ship"]
 [ext_resource type="PackedScene" uid="uid://bovohk447k3lq" path="res://scenes/sloup.tscn" id="2_gjfe0"]
+[ext_resource type="Script" uid="uid://cexkxjymb314v" path="res://scripts/WeaponData.gd" id="2_ky8oh"]
+[ext_resource type="Resource" path="res://resources/weapons/Standard.tres" id="3_maf36"]
+[ext_resource type="Resource" path="res://resources/skills/Dive.tres" id="4_maf36"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_gjfe0"]
 size = Vector3(31.756836, 0.19650269, 0.51792717)
 
 [node name="Ship" type="CharacterBody3D"]
 script = ExtResource("1_ship")
+weapon_slots = Array[ExtResource("2_ky8oh")]([ExtResource("3_maf36"), null, null, null, ExtResource("4_maf36")])
 sail_inflation_left = -2.5
 sail_offset_left = -0.8
 sail_inflation_right = -2.5
