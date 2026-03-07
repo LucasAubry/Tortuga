@@ -17,21 +17,20 @@ func activate(ship: Node3D):
 		print("<<< Skill Dive Toggle: ", ship.is_diving, " >>>")
 
 # --- LOGIQUE PAR FRAME ---
+var _underwater_tint: ColorRect = null
+
 func process_tick(ship: Node3D, delta: float):
-	# On évite que l'IA ne fasse n'importe quoi (si besoin)
 	if not ship.get("is_player"): return
 	
 	var target_depth = DIVE_DEPTH if ship.is_diving else 0.0
-	
-	# Transition de la profondeur (Basée sur l'inclinaison pour le réalisme)
-	# Plus le bateau est incliné, plus il plonge/remonte vite (effet d'inertie)
 	var anim_factor = clamp(abs(ship.current_dive_tilt) / 0.65, 0.05, 1.0)
 	var lerp_speed = anim_factor * 1.5
 	
 	ship.current_dive_depth = lerp(ship.current_dive_depth, target_depth, delta * lerp_speed)
-	
-	# VERROUILLAGE : Toujours appliquer la profondeur calculée
 	ship.global_position.y = ship.current_dive_depth
+	
+	# --- GESTION DES EFFETS VISUELS ---
+	_update_vfx(ship, delta)
 	
 	# --- GESTION DE L'INDICATEUR ---
 	var indicator = ship.get_node_or_null("SurfaceIndicator")
@@ -55,11 +54,28 @@ func process_tick(ship: Node3D, delta: float):
 	var target_tilt = clamp(-depth_diff * 0.025, -0.65, 0.65)
 	ship.current_dive_tilt = lerp(ship.current_dive_tilt, target_tilt, delta * 2.5)
 
-# --- BLOCAGE D'ACTIONS ---
-func is_action_blocked(ship: Node3D) -> bool:
-	var s = ship as Ship
-	if not s: return false
-	return s.current_dive_depth < SURFACING_THRESHOLD
+# --- SYSTÈME D'EFFETS (VFX) ---
+func _update_vfx(ship: Node3D, delta: float):
+	# Désactivation si on est à la surface
+	if ship.current_dive_depth >= -1.0:
+		if _underwater_tint: _underwater_tint.color.a = 0.0
+		return
+
+	# 1. Overlay Bleu Simple (ColorRect)
+	if _underwater_tint == null:
+		var canvas = CanvasLayer.new()
+		canvas.layer = 10
+		
+		_underwater_tint = ColorRect.new()
+		_underwater_tint.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		_underwater_tint.color = Color(0.05, 0.2, 0.4, 0.0) # Bleu marin doux
+		_underwater_tint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		canvas.add_child(_underwater_tint)
+		ship.add_child(canvas)
+	
+	# Intensité TRÈS DOUCE (max 0.25 d'alpha pour ne pas boucher la vue)
+	var target_alpha = clamp(abs(ship.current_dive_depth) / 60.0, 0.0, 0.25)
+	_underwater_tint.color.a = lerp(_underwater_tint.color.a, target_alpha, delta * 2.0)
 
 # --- OUTILS ---
 func _create_indicator(ship: Node3D):
