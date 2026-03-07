@@ -1,6 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://b73hyfrtx14yh"]
+[gd_scene load_steps=7 format=3 uid="uid://b73hyfrtx14yh"]
 
 [ext_resource type="Script" uid="uid://cyamacup26l8o" path="res://scripts/HUD.gd" id="1_hud"]
+[ext_resource type="Texture2D" uid="uid://bohjg0v2snpn0" path="res://assets/hud/hud_vent.png" id="2_7hsmw"]
 [ext_resource type="PackedScene" uid="uid://cd6jlhtfvi368" path="res://scenes/MinimapUI.tscn" id="2_mini"]
 [ext_resource type="Texture2D" uid="uid://gsmfxfugyae" path="res://assets/hud/hud_hp.png" id="3_hp"]
 
@@ -16,13 +17,87 @@ corner_radius_bottom_left = 4
 [node name="HUD" type="CanvasLayer"]
 script = ExtResource("1_hud")
 
+[node name="WindBox" type="TextureRect" parent="."]
+custom_minimum_size = Vector2(135, 90)
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = -58.0
+offset_top = -177.0
+offset_right = 200.0
+offset_bottom = -5.0
+grow_vertical = 0
+scale = Vector2(1.0882118, 1.0882118)
+texture = ExtResource("2_7hsmw")
+expand_mode = 1
+
+[node name="Circle" type="ColorRect" parent="WindBox"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.890198
+offset_top = -53.83712
+offset_right = -20.890198
+offset_bottom = -23.837124
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(3.49224, 3.5333593)
+color = Color(0.30980393, 0.27058825, 0.39215687, 1)
+
+[node name="ArrowPivot" type="Control" parent="WindBox"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_top = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(2.8600304, 2.8600304)
+
+[node name="ArrowLabel" type="Label" parent="WindBox/ArrowPivot"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -27.333334
+offset_right = 20.0
+offset_bottom = 22.666666
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 32
+text = "↑"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="WindSpeedLabel" type="Label" parent="WindBox"]
+layout_mode = 0
+offset_left = -5.513631
+offset_top = 22.973469
+offset_right = 244.4864
+offset_bottom = 61.973473
+scale = Vector2(1.0915445, 1.1583138)
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 28
+text = "0 km/h"
+horizontal_alignment = 1
+
 [node name="MarginContainer" type="MarginContainer" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 20
+theme_override_constants/margin_left = 0
 theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 20
 theme_override_constants/margin_bottom = 0
@@ -43,70 +118,6 @@ text = "SETTINGS"
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 8
-
-[node name="WindBox" type="ColorRect" parent="MarginContainer/BottomLeft"]
-custom_minimum_size = Vector2(130, 130)
-layout_mode = 2
-color = Color(0.1, 0.1, 0.15, 0.9)
-
-[node name="WindSpeedLabel" type="Label" parent="MarginContainer/BottomLeft/WindBox"]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_left = 10.0
-offset_top = 5.0
-offset_bottom = 28.0
-grow_horizontal = 2
-theme_override_font_sizes/font_size = 20
-text = "VENT
-Force: 0.6"
-
-[node name="ArrowPivot" type="Control" parent="MarginContainer/BottomLeft/WindBox"]
-layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_top = -30.0
-offset_bottom = -30.0
-grow_horizontal = 2
-grow_vertical = 0
-scale = Vector2(1.5, 1.5)
-
-[node name="Circle" type="ColorRect" parent="MarginContainer/BottomLeft/WindBox/ArrowPivot"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -15.0
-offset_top = -15.0
-offset_right = 15.0
-offset_bottom = 15.0
-grow_horizontal = 2
-grow_vertical = 2
-color = Color(0.3, 0.3, 0.3, 1)
-
-[node name="ArrowLabel" type="Label" parent="MarginContainer/BottomLeft/WindBox/ArrowPivot"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -25.0
-offset_right = 20.0
-offset_bottom = 25.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 32
-text = "↑"
-horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="BottomCenter" type="Control" parent="MarginContainer"]
 layout_mode = 2

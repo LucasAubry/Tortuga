@@ -7,7 +7,7 @@ extends CanvasLayer
 
 var map_scale: float = 0.05
 var map_offset: Vector2 = Vector2.ZERO
-var island_markers: Array[ColorRect] = []
+var island_markers: Array[Control] = []
 
 func _ready():
 	visible = false
@@ -96,19 +96,51 @@ func _find_islands_recursive(node: Node, tracked: Array = []):
 		_find_islands_recursive(child, tracked)
 
 func _create_ile_marker(ile: Node):
-	var marker = ColorRect.new()
-	marker.color = Color(0.4, 0.3, 0.1, 1.0) # Darker brown for better parchment contrast
+	var marker_container = Control.new()
+	map_container.add_child(marker_container)
+	island_markers.append(marker_container)
+	marker_container.set_meta("island", ile)
+
+	# 1. Le point coloré (plus petit)
+	var dot = ColorRect.new()
+	var size = 10.0
+	dot.custom_minimum_size = Vector2(size, size)
+	dot.size = Vector2(size, size)
+	dot.position = Vector2(-size/2, -size/2)
+	marker_container.add_child(dot)
 	
-	# Size based on Island logic
-	var size = 20.0
-	marker.custom_minimum_size = Vector2(size, size)
-	marker.size = Vector2(size, size)
+	# 2. L'étiquette de texte
+	var label = Label.new()
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 12)
+	label.add_theme_color_override("font_outline_color", Color(0,0,0,0.8))
+	label.add_theme_constant_override("outline_size", 4)
+	label.position = Vector2(-60, 8)
+	label.custom_minimum_size = Vector2(120, 20)
+	marker_container.add_child(label)
 	
-	map_container.add_child(marker)
-	island_markers.append(marker)
-	
-	# Store the island reference as meta data for positioning
-	marker.set_meta("island", ile)
+	# Configuration selon le type d'île
+	if ile is Ile:
+		match ile.ile_type:
+			0: # CITY
+				dot.color = Color(0.2, 0.8, 0.2)
+				label.text = "VILLE"
+			1: # MERCHANT
+				dot.color = Color(1.0, 0.9, 0.2)
+				label.text = "MARCHAND"
+			2: # SHIPWRIGHT
+				dot.color = Color(0.2, 0.4, 1.0)
+				label.text = "CHANTIER"
+			3: # FISHERMAN
+				dot.color = Color(1.0, 0.2, 0.2)
+				label.text = "PECHERIE"
+			_:
+				dot.color = Color(0.8, 0.7, 0.5)
+				label.text = "ILE"
+	else:
+		dot.color = Color(0.5, 0.5, 0.5)
+		label.text = "ZONE"
 
 func _update_map():
 	# Calculate offset based on UI container size so (0,0) is center
@@ -120,13 +152,14 @@ func _update_map():
 			var ile = marker.get_meta("island")
 			if is_instance_valid(ile):
 				var pos = Vector2(ile.global_position.x, ile.global_position.z)
-				marker.position = map_offset + (pos * map_scale) - (marker.size / 2.0)
+				marker.position = map_offset + (pos * map_scale)
 				
 	# Update Player position
 	var player = _find_player()
 	if player:
 		var pos = Vector2(player.global_position.x, player.global_position.z)
-		player_marker.position = map_offset + (pos * map_scale) - (player_marker.size / 2.0)
+		var target_pos = map_offset + (pos * map_scale) - (player_marker.size / 2.0)
+		player_marker.position = target_pos
 		# Rotation of the player icon
 		player_marker.rotation = -player.rotation.y + PI/2.0
 		# No longer outputting string coords per task list

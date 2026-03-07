@@ -4,8 +4,8 @@ extends CanvasLayer
 @onready var hp_bar = %ProgressBar
 @onready var label_hp = %LabelHP
 @onready var label_ammo = $MarginContainer/TopLeft/LabelAmmo
-@onready var wind_speed_label = $MarginContainer/BottomLeft/WindBox/WindSpeedLabel
-@onready var arrow_pivot = $MarginContainer/BottomLeft/WindBox/ArrowPivot
+@onready var wind_speed_label = $WindBox/WindSpeedLabel
+@onready var arrow_pivot = $WindBox/ArrowPivot
 @onready var settings_btn = $MarginContainer/BottomRight/SettingsBtn
 @onready var label_gold = $MarginContainer/TopLeft/LabelGold
 @onready var label_wood = $MarginContainer/TopLeft/LabelWood
@@ -82,7 +82,7 @@ func _process(delta):
 	var wind_2d = Vector2(wind_dir.x, wind_dir.y)
 	arrow_pivot.rotation = wind_2d.angle() + (PI / 2.0)
 	
-	wind_speed_label.text = "VENT\nForce: %.1f" % wind_speed_val
+	wind_speed_label.text = "%.0f km/h" % (wind_speed_val * 25.0)
 	
 	_update_enemy_bars()
 	

@@ -51,6 +51,7 @@ var upgrades_purchased: int = 0
 @export var sail_inflation_right: float = 2.5
 @export var sail_offset_right: float = 0.3
 @export var sail_lerp_speed: float = 1.2
+@export var mast_lerp_speed: float = 0.7
 
 var gimbal_node: Node3D
 var spring_arm: SpringArm3D
@@ -223,10 +224,9 @@ func _handle_player_input(delta):
 		var side_pressure = forward.cross(wind_vec3).y * wind_speed
 		var target_heeling = side_pressure * 0.08 # Intensité de l'inclinaison
 		
-		mesh_node.position.y = sin(t * 2.0) * 0.5
-		mesh_node.rotation.x = sin(t * 1.5) * 0.10
-		# On combine le tangage naturel avec l'inclinaison du vent
-		mesh_node.rotation.z = lerp(mesh_node.rotation.z, (cos(t * 1.0) * 0.08) + target_heeling, delta * 2.0)
+		var heeling_rot = (cos(t * 1.0) * 0.08) + target_heeling
+		mesh_node.rotation = Vector3(sin(t * 1.5) * 0.10, mesh_node.rotation.y, heeling_rot)
+		mesh_node.position = Vector3(mesh_node.position.x, sin(t * 2.0) * 0.5, mesh_node.position.z)
 	
 	# Visual Steering for Mast and Wheel
 	var target_steer = input_dir.x
@@ -256,7 +256,7 @@ func _handle_player_input(delta):
 			flutter = sin(Time.get_ticks_msec() * 0.01) * 0.02
 		
 		# Interpolation très fluide pour donner du poids au mât
-		current_sail_angle = lerp_angle(current_sail_angle, target_mast_angle + flutter, delta * sail_lerp_speed)
+		current_sail_angle = lerp_angle(current_sail_angle, target_mast_angle + flutter, delta * mast_lerp_speed)
 		
 		# Appliquer la rotation locale au mât (en remplaçant toute la rotation pour éviter l'accumulation)
 		visual_mast.rotation = base_mast_rot
@@ -293,11 +293,11 @@ func _handle_player_input(delta):
 			
 			# Appliquer le bombage via l'échelle (scale.x)
 			var target_scale = base_sails_scale
-			target_scale.x *= target_inflation * side_sign
+			target_scale = Vector3(base_sails_scale.x * target_inflation * side_sign, base_sails_scale.y, base_sails_scale.z)
 			
-			# Appliquer le décalage spécifique au côté
+			# Calcul du décalage spécifique au côté
 			var target_pos = base_sails_pos
-			target_pos.x = base_sails_pos.x + target_offset
+			target_pos = Vector3(base_sails_pos.x + target_offset, base_sails_pos.y, base_sails_pos.z)
 				
 			# Interpolation avec vitesse ajustable
 			visual_sails.scale = lerp(visual_sails.scale, target_scale, delta * sail_lerp_speed)

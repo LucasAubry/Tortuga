@@ -1,0 +1,8 @@
+res://scripts/HUD.gd
+res://scenes/Ship.tscn
+res://scenes/World.tscn
+res://scenes/Island.tscn
+res://scripts/GameConfig.gd
+res://scripts/Ship.gd
+res://scenes/Projectile.tscn
+res://scripts/WindManager.gd

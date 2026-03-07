@@ -1,0 +1,13 @@
+res://scripts/MapUI.gd
+res://scenes/World.tscn
+res://scenes/iles.tscn
+res://scenes/HUD.tscn
+res://scripts/Ship.gd
+res://scripts/HUD.gd
+res://scripts/MinimapUI.gd
+res://scenes/MapUI.tscn
+res://scenes/MinimapUI.tscn
+res://scenes/SmokeEffect.tscn
+res://scenes/Ship.tscn
+res://scripts/SmokeEffect.gd
+res://scenes/sloup.tscn

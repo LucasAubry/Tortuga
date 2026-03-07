@@ -11,6 +11,7 @@ script = ExtResource("1_ship")
 sail_inflation_left = -2.5
 sail_offset_left = -0.8
 sail_inflation_right = -2.5
+sail_offset_right = 0.0
 
 [node name="sloup" parent="." instance=ExtResource("2_gjfe0")]
 

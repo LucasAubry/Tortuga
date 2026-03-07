@@ -2,3 +2,7 @@ res://scenes/Ship.tscn
 res://scenes/sloup.tscn
 res://scripts/Ship.gd
 res://scenes/World.tscn
+res://scenes/MapUI.tscn
+res://scripts/MapUI.gd
+res://scenes/HUD.tscn
+res://scripts/HUD.gd
