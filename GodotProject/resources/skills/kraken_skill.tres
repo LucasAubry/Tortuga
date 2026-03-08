@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="KrakenSkill" load_steps=3 format=3 uid="uid://doploauaaas08"]
+
+[ext_resource type="Texture2D" uid="uid://cwijtha18teyc" path="res://assets/skills/kraken_icon.png" id="1_icon"]
+[ext_resource type="Script" uid="uid://b51mnq5mxhuan" path="res://scripts/skills/KrakenSkill.gd" id="2_ke25s"]
+
+[resource]
+script = ExtResource("2_ke25s")
+type = 5
+weapon_name = "Kraken"
+damage = 50.0
+cooldown = 45.0
+ammo_cost = 5
+icon = ExtResource("1_icon")
+skill_duration = 30.0

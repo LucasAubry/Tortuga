@@ -24,12 +24,22 @@ func _physics_process(delta):
 		queue_free()
 
 func _on_body_entered(body: Node3D):
-	if body is Ship:
-		# Prevent hitting own ship initially
-		if body.is_player == is_player_owned:
+	# Supporte les hitbox de tentacules (metadata tentacle_root)
+	if body.has_meta("tentacle_root"):
+		var tentacle = body.get_meta("tentacle_root")
+		if is_instance_valid(tentacle) and tentacle.has_method("take_damage"):
+			tentacle.call("take_damage", damage, get_node(owner_ship) if not owner_ship.is_empty() else null)
+			queue_free()
+			return
+
+	# On évite le body is Ship pour casser la dépendance circulaire
+	if body.has_method("take_damage"):
+		# On utilise .get() pour plus de sécurité lors du lancement
+		var is_player = body.get("is_player") if "is_player" in body else false
+		if is_player == is_player_owned:
 			return
 			
-		body.take_damage(damage, get_node(owner_ship) if not owner_ship.is_empty() else null)
+		body.call("take_damage", damage, get_node(owner_ship) if not owner_ship.is_empty() else null)
 		queue_free()
 	elif body is Ile:
 		queue_free()

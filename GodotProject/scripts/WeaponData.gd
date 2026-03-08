@@ -1,7 +1,7 @@
 class_name WeaponData
 extends Resource
 
-enum ActionType { CANNON, GRAPPLE, SKILL, DIVE }
+enum ActionType { CANNON, GRAPPLE, SKILL, DIVE, WIND_CONTROL, KRAKEN }
 
 @export var type: ActionType = ActionType.CANNON
 @export var weapon_name: String = "Standard"

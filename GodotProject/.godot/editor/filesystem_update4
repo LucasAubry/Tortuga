@@ -1,10 +1,9 @@
+res://resources/skills/kraken_skill.tres
+res://scenes/tentacule_kraken.tscn
+res://scripts/KrakenTentacle.gd
+res://scripts/skills/KrakenSkill.gd
+res://shaders/outline.gdshader
+res://scripts/Projectile.gd
+res://scenes/World.tscn
 res://scripts/HUD.gd
 res://scripts/Ship.gd
-res://scenes/HUD.tscn
-res://scenes/Ship.tscn
-res://scenes/World.tscn
-res://resources/weapons/Lourd.tres
-res://resources/weapons/Standard.tres
-res://scripts/WeaponData.gd
-res://resources/skills/Plongee.tres
-res://scripts/skills/Dive.gd

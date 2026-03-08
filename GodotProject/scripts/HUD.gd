@@ -20,6 +20,7 @@ var player_ship: Ship
 var enemy_hp_bars: Dictionary = {}
 
 func _ready():
+	add_to_group("hud")
 	_scale_fonts(self, 24)
 	player_ship = _find_player_ship(get_tree().get_root())
 	
@@ -143,8 +144,13 @@ func _process(delta):
 			
 			var sb = panel.get_theme_stylebox("panel") as StyleBoxFlat
 			
-			# Détectier si l'action est bloquée (Canon/Grappin en plongée)
-			var is_blocked = player_ship.is_diving and weapon and (weapon.type == WeaponData.ActionType.CANNON or weapon.type == WeaponData.ActionType.GRAPPLE)
+			# Détection si l'action est bloquée (Canon/Grappin/Vent en plongée)
+			# Le Kraken est utilisable même sous l'eau
+			var is_blocked = player_ship.is_diving and weapon and (
+				weapon.type == WeaponData.ActionType.CANNON or 
+				weapon.type == WeaponData.ActionType.GRAPPLE or
+				weapon.type == WeaponData.ActionType.WIND_CONTROL
+			)
 			
 			if i == player_ship.active_weapon_index:
 				# Bordure Dorée (Actif)
@@ -165,16 +171,23 @@ func _process(delta):
 				if icon_rect and weapon: icon_rect.modulate = Color(0.7, 0.7, 0.7, 0.8)
 	
 	# Wind UI Update based on Player location
-	var local_wind = {"direction": Vector2(1,0), "speed": 1.0}
-	if is_instance_valid(player_ship):
-		local_wind = GameConfig.get_wind_at(player_ship.global_position)
-		
-	var wind_dir = local_wind["direction"]
-	var wind_speed_val = local_wind["speed"]
+	var wind_dir = Vector2(1, 0)
+	var wind_speed_val = 1.0
 	
+	if is_instance_valid(player_ship):
+		# On lit le vent PHYSIQUE calculé par le vaisseau (prend en compte le boost progressif)
+		var wv3 = player_ship.current_wind_vec_phys
+		if wv3.length_squared() > 0.001:
+			var wv2 = Vector2(wv3.x, wv3.z)
+			wind_speed_val = wv2.length()
+			wind_dir = wv2.normalized()
+		else:
+			var local_wind = GameConfig.get_wind_at(player_ship.global_position)
+			wind_dir = local_wind["direction"]
+			wind_speed_val = local_wind["speed"]
+		
 	# Align the UI arrow exactly with the 3D wind vector
-	var wind_2d = Vector2(wind_dir.x, wind_dir.y)
-	arrow_pivot.rotation = wind_2d.angle() + (PI / 2.0)
+	arrow_pivot.rotation = wind_dir.angle() + (PI / 2.0)
 	
 	wind_speed_label.text = "%.0f km/h" % (wind_speed_val * 25.0)
 	
@@ -243,3 +256,90 @@ func _scale_fonts(node: Node, font_size: int):
 		node.add_theme_font_size_override("font_size", font_size)
 	for child in node.get_children():
 		_scale_fonts(child, font_size)
+
+# ─────────────────────────────────────────────
+# ÉCRAN DE MORT
+# ─────────────────────────────────────────────
+func show_death_screen():
+	# Éviter le double affichage
+	if get_node_or_null("DeathScreen"): return
+
+	# Overlay sombre semi-transparent
+	var overlay = ColorRect.new()
+	overlay.name = "DeathScreen"
+	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	overlay.color = Color(0.05, 0, 0, 0.82)
+	add_child(overlay)
+
+	# Conteneur centré
+	var vbox = VBoxContainer.new()
+	vbox.set_anchors_preset(Control.PRESET_CENTER)
+	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
+	vbox.custom_minimum_size = Vector2(420, 280)
+	vbox.position = Vector2(-210, -140)  # centrage manuel
+	overlay.add_child(vbox)
+
+	# Titre « NAUFRAGE »
+	var title = Label.new()
+	title.text = "☠  NAUFRAGE  ☠"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 48)
+	title.add_theme_color_override("font_color", Color(1, 0.18, 0.18))
+	title.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 1))
+	title.add_theme_constant_override("shadow_offset_x", 3)
+	title.add_theme_constant_override("shadow_offset_y", 3)
+	vbox.add_child(title)
+
+	# Espace
+	var spacer = Control.new()
+	spacer.custom_minimum_size = Vector2(0, 30)
+	vbox.add_child(spacer)
+
+	# Sous-titre
+	var sub = Label.new()
+	sub.text = "Votre navire a coulé..."
+	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	sub.add_theme_font_size_override("font_size", 24)
+	sub.add_theme_color_override("font_color", Color(0.85, 0.75, 0.6))
+	vbox.add_child(sub)
+
+	var spacer2 = Control.new()
+	spacer2.custom_minimum_size = Vector2(0, 40)
+	vbox.add_child(spacer2)
+
+	# Bouton REJOUER
+	var btn = Button.new()
+	btn.text = "⚓  REJOUER"
+	btn.custom_minimum_size = Vector2(260, 60)
+	btn.add_theme_font_size_override("font_size", 30)
+
+	# Style du bouton
+	var sb_normal = StyleBoxFlat.new()
+	sb_normal.bg_color = Color(0.7, 0.1, 0.1)
+	sb_normal.corner_radius_top_left = 10
+	sb_normal.corner_radius_top_right = 10
+	sb_normal.corner_radius_bottom_left = 10
+	sb_normal.corner_radius_bottom_right = 10
+	sb_normal.set_border_width_all(2)
+	sb_normal.border_color = Color(1, 0.4, 0.4)
+
+	var sb_hover = sb_normal.duplicate() as StyleBoxFlat
+	sb_hover.bg_color = Color(0.9, 0.15, 0.15)
+	sb_hover.shadow_color = Color(1, 0.2, 0.2, 0.5)
+	sb_hover.shadow_size = 12
+
+	btn.add_theme_stylebox_override("normal", sb_normal)
+	btn.add_theme_stylebox_override("hover", sb_hover)
+	btn.add_theme_stylebox_override("pressed", sb_normal)
+	btn.add_theme_color_override("font_color", Color.WHITE)
+
+	vbox.add_child(btn)
+
+	# Centrage du vbox à l'écran
+	await get_tree().process_frame
+	vbox.position = (get_viewport().get_visible_rect().size / 2.0) - (vbox.size / 2.0)
+
+	# Action du bouton : recharge la scène
+	btn.pressed.connect(func():
+		get_tree().reload_current_scene()
+	)

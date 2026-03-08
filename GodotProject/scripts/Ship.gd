@@ -49,10 +49,21 @@ var current_speed_buff: float = 1.0
 @export var current_dive_depth: float = 0.0
 @export var current_dive_tilt: float = 0.0
 @export var dive_delay_timer: float = 0.0
+@export var is_wind_boost_active: bool = false
+@export var wind_boost_timer: float = 0.0
+var current_wind_vec_phys: Vector3 = Vector3.ZERO
+var wind_boost_intensity: float = 0.0
+
+# Knockback physique (impact tentacule, collision, etc.)
+var knockback_velocity: Vector3 = Vector3.ZERO
+var knockback_decay: float = 3.5  # plus grand = décroit plus vite
+
+# Naufrage
+var is_sinking: bool = false
 
 # Camera variables
 @export var mouse_sensitivity: float = 0.002
-@export var min_zoom: float = 50.0
+@export var min_zoom: float = 150.0
 @export var max_zoom: float = 5000.0
 @export var zoom_speed: float = 150.0
 
@@ -143,9 +154,6 @@ func _find_child_recursive(node: Node, target_name: String) -> Node:
 		if res: return res
 	return null
 
-func _unhandled_input(event):
-	pass
-
 func _init_stats():
 	match ship_type:
 		ShipClass.SLOOP:
@@ -163,6 +171,7 @@ func _init_stats():
 	hp = max_hp
 
 func _physics_process(delta):
+	if is_sinking: return  # Physique arrêtée pendant le naufrage
 	# Gestion des temps de recharge
 	for i in range(weapon_cooldowns.size()):
 		if weapon_cooldowns[i] > 0:
@@ -172,6 +181,11 @@ func _physics_process(delta):
 		skill_timer -= delta
 		if skill_timer <= 0:
 			current_speed_buff = 1.0
+
+	if wind_boost_timer > 0:
+		wind_boost_timer -= delta
+		if wind_boost_timer <= 0:
+			is_wind_boost_active = false
 		
 	# Mouvement physique de base
 	if is_player:
@@ -185,20 +199,53 @@ func _physics_process(delta):
 			weapon_slots[i].process_tick(self, delta)
 
 func _handle_player_input(delta):
-	# Handle Zoom
+	_handle_camera_and_weapons(delta)
+	
+	var input_dir = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
+	
+	# Mouvement (Physique et Vent)
+	var steer = input_dir.x
+	var throttle = -input_dir.y # Inversé car -1 sur l'axe Y Godot est "Haut"
+	
+	_apply_movement_physics(delta, steer, throttle)
+	_apply_visuals(delta, steer)
+
+func _unhandled_input(event: InputEvent):
+	if not is_player: return
+	
+	# BLOQUER TOUT ZOOM SI LA MAP EST OUVERTE
+	var map_open = false
+	var map_nodes = get_tree().get_nodes_in_group("map_ui")
+	for m in map_nodes:
+		if m.visible: map_open = true
+	
+	if map_open:
+		# On s'assure que si on est ici, l'événement ne fait rien
+		return
+	
+	# --- ZOOM MAC PAD / TRACKPAD / MOUSE WHEEL ---
 	if spring_arm:
+		if event.is_class("InputEventMagnificationGesture"):
+			var zoom_amount = (event.get("factor") - 1.0) * zoom_speed * 10.0
+			spring_arm.spring_length = clamp(spring_arm.spring_length - zoom_amount, min_zoom, max_zoom)
+		elif event is InputEventMouseButton and event.is_pressed():
+			if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+				spring_arm.spring_length = clamp(spring_arm.spring_length - zoom_speed, min_zoom, max_zoom)
+			elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+				spring_arm.spring_length = clamp(spring_arm.spring_length + zoom_speed, min_zoom, max_zoom)
+
+func _handle_camera_and_weapons(delta):
+	# BLOQUER SI MAP OUVERTE
+	var map_open = false
+	for map in get_tree().get_nodes_in_group("map_ui"):
+		if map.visible: map_open = true
+	
+	# Handle Zoom (Actions clavier/boutons)
+	if spring_arm and not map_open:
 		if Input.is_action_just_pressed("zoom_in"):
 			spring_arm.spring_length = clamp(spring_arm.spring_length - zoom_speed, min_zoom, max_zoom)
 		elif Input.is_action_just_pressed("zoom_out"):
 			spring_arm.spring_length = clamp(spring_arm.spring_length + zoom_speed, min_zoom, max_zoom)
-
-	var input_dir = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
-	# Rotation
-	if input_dir.x != 0:
-		rotation.y -= input_dir.x * turn_speed * delta
-	
-	# Acceleration & Reversing
-	var max_reverse_speed = max_speed * 0.15 # Reverse is only 15% of max forward speed
 	
 	# Weapon Selection
 	if Input.is_key_pressed(KEY_1): active_weapon_index = 0
@@ -212,135 +259,137 @@ func _handle_player_input(delta):
 	
 	if Input.is_action_just_pressed("ui_fire") and weapon_cooldowns[active_weapon_index] <= 0 and can_afford:
 		shoot_cannons()
+
+func _apply_movement_physics(delta, steer, throttle):
+	# Rotation de base
+	if steer != 0:
+		rotation.y -= steer * turn_speed * delta
 	
-	if input_dir.y < 0: # Forward (up arrow)
+	var max_reverse_speed = max_speed * 0.15
+	
+	if throttle > 0: # Accélérer
 		ship_speed = move_toward(ship_speed, max_speed * current_speed_buff, acceleration * current_speed_buff * delta)
-	elif input_dir.y > 0: # Reverse (down arrow)
-		ship_speed = move_toward(ship_speed, -max_reverse_speed, acceleration * 0.8 * delta) # Brakes quickly to slow reverse
-	else: # Braking naturally when no input
-		ship_speed = move_toward(ship_speed, 0, acceleration * 0.6 * delta) # Much stronger natural drag
+	elif throttle < 0: # Reculer
+		ship_speed = move_toward(ship_speed, -max_reverse_speed, acceleration * 0.8 * delta)
+	else: # Freinage naturel
+		ship_speed = move_toward(ship_speed, 0, acceleration * 0.6 * delta)
 		
-	var forward = transform.basis.z # Vector oriented forward relative to model
-	forward.y = 0 # Strip any downward angle so the ship never drives into the water
+	var forward = transform.basis.z
+	forward.y = 0
 	forward = forward.normalized()
 	
 	# Wind Physics influence based on local position
 	var local_wind = GameConfig.get_wind_at(global_position)
 	var wind_dir = local_wind["direction"]
-	var wind_speed = local_wind["speed"]
-	var wind_vec = Vector3(wind_dir.x, 0, wind_dir.y) * wind_speed
+	var effective_wind_speed = local_wind["speed"]
 	
-	var wind_push = forward.dot(wind_vec) # Faster if wind is behind us
+	# COMPÉTENCE : CONTRÔLE DU VENT (Progressivité accrue)
+	var target_intensity = 1.0 if is_wind_boost_active else 0.0
+	# Lerp de l'intensité (0.8 = assez lent, très progressif)
+	wind_boost_intensity = lerp(wind_boost_intensity, target_intensity, delta * 0.8)
 	
-	# Massive speed multiplier based on wind: e.g. from 0.2x (against) to 1.8x (with wind)
-	var speed_modifier = 1.0 + (wind_push * 0.4)
-	var current_max = max(max_speed * speed_modifier, max_speed * 0.25)
+	var target_wind_vec = Vector3(wind_dir.x, 0, wind_dir.y) * effective_wind_speed
+	# On mélange le vent normal avec le vent de boost (8.0 arrière)
+	var boost_wind_vec = forward * 8.0
+	var blended_wind_vec = target_wind_vec.lerp(boost_wind_vec, wind_boost_intensity)
 	
-	# Apply modifier to actual driving velocity
-	var effective_speed = ship_speed * speed_modifier
-	velocity = forward * min(effective_speed, current_max)
-	# Absolutely no gravity or vertical drift
-	velocity.y = 0 
+	# Transition finale du vecteur pour éviter les saccades physiques
+	if current_wind_vec_phys == Vector3.ZERO:
+		current_wind_vec_phys = blended_wind_vec
+	current_wind_vec_phys = current_wind_vec_phys.lerp(blended_wind_vec, delta * 1.5)
 	
-	# Add slight sideways drift from wind if not moving backwards
-	if ship_speed > 0:
-		var drift = wind_vec - (forward * wind_push)
+	# IGNORE LE VENT SOUS L'EAU (Vitesse fixe)
+	var is_underwater = current_dive_depth < -5.0
+	var wind_push = forward.dot(current_wind_vec_phys) if not is_underwater else 0.0
+	var speed_modifier = 1.0 + (wind_push * 0.4) if not is_underwater else 1.0
+	
+	# Calcul de la vitesse finale avec boost progressif
+	var base_effective_speed = ship_speed * speed_modifier
+	var boost_max_multiplier = 1.0 + (wind_boost_intensity * 0.8) # Jusqu'à +80% de vitesse
+	var effective_speed = base_effective_speed * boost_max_multiplier
+	
+	velocity = forward * min(effective_speed, 1200.0)
+	velocity.y = 0
+
+	if ship_speed > 0 and not is_underwater:
+		var drift = current_wind_vec_phys - (forward * wind_push)
 		velocity += drift * 0.1
 		velocity.y = 0
-	
+
+	# --- KNOCKBACK PHYSIQUE (tentacule, collision) ---
+	if knockback_velocity.length_squared() > 1.0:
+		velocity += knockback_velocity
+		knockback_velocity = knockback_velocity.lerp(Vector3.ZERO, delta * knockback_decay)
+	else:
+		knockback_velocity = Vector3.ZERO
+
 	move_and_slide()
 	
 
+func _apply_visuals(delta, steer):
+	if is_sinking: return  # Le tween de naufrage gère les visuels
 	var mesh_node = get_node_or_null("sloup")
+	if not mesh_node: return
+	
 	var t = Time.get_ticks_msec() / 1000.0
+	var forward = transform.basis.z
 	
-	# Wind Data for animations
-	var wind_vec3 = Vector3(wind_dir.x, 0, wind_dir.y) 
+	var wind_vec3 = Vector3(0, 0, 0)
+	var wind_speed_val = 0.0
 	
-	if mesh_node:
-		# --- REALISTIC HEELING (La Gîte) ---
-		var side_pressure = forward.cross(wind_vec3).y * wind_speed
-		var target_heeling = side_pressure * 0.08 
-		
-		var heeling_rot = (cos(t * 1.0) * 0.08) + target_heeling
-		# Combinaison : Plongée (X) + Mouvement Vagues (X) + Gîte (Z)
-		var pitch_wave = sin(t * 1.2) * 0.08
-		mesh_node.rotation = Vector3(pitch_wave + current_dive_tilt, mesh_node.rotation.y, heeling_rot)
-		# Flottaison légère
-		mesh_node.position = Vector3(mesh_node.position.x, sin(t * 2.0) * 0.4, mesh_node.position.z)
+	# Récupère le vent physique actuel (déjà interpolé dans _physics_process)
+	if "current_wind_vec_phys" in self:
+		wind_vec3 = get("current_wind_vec_phys")
+		wind_speed_val = wind_vec3.length()
+	else:
+		var local_wind = GameConfig.get_wind_at(global_position)
+		wind_vec3 = Vector3(local_wind["direction"].x, 0, local_wind["direction"].y) * local_wind["speed"]
+		wind_speed_val = local_wind["speed"]
+	
+	# --- REALISTIC HEELING (La Gîte) ---
+	var side_pressure = forward.cross(wind_vec3).y * wind_speed_val
+	var target_heeling = side_pressure * 0.08 
+	
+	var heeling_rot = (cos(t * 1.0) * 0.08) + target_heeling
+	var pitch_wave = sin(t * 1.2) * 0.08
+	mesh_node.rotation = Vector3(pitch_wave + current_dive_tilt, mesh_node.rotation.y, heeling_rot)
+	mesh_node.position = Vector3(mesh_node.position.x, sin(t * 2.0) * 0.4, mesh_node.position.z)
 	
 	# Visual Steering for Mast and Wheel
-	var target_steer = input_dir.x
-	current_steer_angle = lerp(current_steer_angle, target_steer, delta * 3.0)
+	current_steer_angle = lerp(current_steer_angle, steer, delta * 3.0)
 	
 	if visual_wheel:
 		visual_wheel.transform.basis = Basis.from_euler(base_wheel_rot)
-		# Dans un vrai bateau, on tourne beaucoup la barre pour un petit virage
 		visual_wheel.rotate_object_local(Vector3(0, 0, 1), -current_steer_angle * 8.0)
 	
 	if visual_mast:
 		visual_mast.transform.basis = Basis.from_euler(base_mast_rot)
 		
-		# Mast & Sail Logic: Sur un vrai sloop, tout le mât pivote pour orienter la voile
-		
-		# Calcul du vent relatif par rapport au bateau
 		var wind_world_angle = atan2(wind_vec3.x, wind_vec3.z)
 		var ship_world_angle = global_rotation.y
 		var relative_wind_angle = wrapf(wind_world_angle - (ship_world_angle + PI), -PI, PI)
 		
-		# On oriente le mât entier vers 1/2 de l'angle du vent pour garder la prise
 		var target_mast_angle = clamp(relative_wind_angle * 0.45, -deg_to_rad(70), deg_to_rad(70))
-		
-		# On ajoute un léger tremblement si le vent est fort ou change (plus vivant)
 		var flutter = 0.0
-		if abs(relative_wind_angle) > PI * 0.8: # Vent de face (virements)
+		if abs(relative_wind_angle) > PI * 0.8:
 			flutter = sin(Time.get_ticks_msec() * 0.01) * 0.02
 		
-		# Interpolation très fluide pour donner du poids au mât
 		current_sail_angle = lerp_angle(current_sail_angle, target_mast_angle + flutter, delta * mast_lerp_speed)
-		
-		# Appliquer la rotation locale au mât (en remplaçant toute la rotation pour éviter l'accumulation)
 		visual_mast.rotation = base_mast_rot
 		visual_mast.rotate_object_local(Vector3(0, 1, 0), current_sail_angle)
 		
-		# --- DYNAMIC SAIL BOMBAGE (Inversion selon le vent) ---
 		if visual_sails:
-			# On garde la rotation de base sans écraser l'échelle (scale)
 			visual_sails.rotation = base_sails_rot
-			
-			# Détecter de quel côté le vent frappe le mât (dans son espace local)
-			# On prend le vecteur vent dans le monde et on l'amène dans le repère du mât
 			var mast_basis = visual_mast.global_transform.basis
 			var mast_local_wind = mast_basis.inverse() * wind_vec3
 			
-			# side_sign : détermine si la voile bombe à gauche (1) ou à droite (-1)
-			# Nouvel ajustement de l'inversion
-			var side_sign = -1.0
-			if mast_local_wind.x < 0:
-				side_sign = 1.0
+			var side_sign = 1.0 if mast_local_wind.x < 0 else -1.0
+			var target_inflation = sail_inflation_left if side_sign > 0 else sail_inflation_right
+			var target_offset = sail_offset_left if side_sign > 0 else sail_offset_right
 			
-			# Paramètres différents selon le côté du bombage
-			var target_inflation = 1.0
-			var target_offset = 0.0
-			
-			if side_sign > 0:
-				# Côté Gauche (Positif)
-				target_inflation = sail_inflation_left
-				target_offset = sail_offset_left
-			else:
-				# Côté Droit (Négatif)
-				target_inflation = sail_inflation_right
-				target_offset = sail_offset_right
-			
-			# Appliquer le bombage via l'échelle (scale.x)
-			var target_scale = base_sails_scale
-			target_scale = Vector3(base_sails_scale.x * target_inflation * side_sign, base_sails_scale.y, base_sails_scale.z)
-			
-			# Calcul du décalage spécifique au côté
-			var target_pos = base_sails_pos
-			target_pos = Vector3(base_sails_pos.x + target_offset, base_sails_pos.y, base_sails_pos.z)
+			var target_scale = Vector3(base_sails_scale.x * target_inflation * side_sign, base_sails_scale.y, base_sails_scale.z)
+			var target_pos = Vector3(base_sails_pos.x + target_offset, base_sails_pos.y, base_sails_pos.z)
 				
-			# Interpolation avec vitesse ajustable
 			visual_sails.scale = lerp(visual_sails.scale, target_scale, delta * sail_lerp_speed)
 			visual_sails.position = lerp(visual_sails.position, target_pos, delta * sail_lerp_speed)
 
@@ -360,8 +409,11 @@ func shoot_cannons():
 	var action = weapon_slots[active_weapon_index]
 	if not action: return
 	
-	# LOGIQUE MODULAIRE : On ne bloque QUE les armes offensives sous l'eau
-	if action.type == WeaponData.ActionType.CANNON or action.type == WeaponData.ActionType.GRAPPLE:
+	# LOGIQUE MODULAIRE : On ne bloque QUE les armes offensives et le vent sous l'eau
+	# Le Kraken peut être invoqué même en plongée
+	if action.type == WeaponData.ActionType.CANNON or \
+	   action.type == WeaponData.ActionType.GRAPPLE or \
+	   action.type == WeaponData.ActionType.WIND_CONTROL:
 		if is_diving or (action.has_method("is_action_blocked") and action.is_action_blocked(self)):
 			return
 	
@@ -374,7 +426,7 @@ func shoot_cannons():
 			_fire_cannons(action)
 		WeaponData.ActionType.GRAPPLE:
 			_use_grapple(action)
-		WeaponData.ActionType.DIVE, WeaponData.ActionType.SKILL:
+		WeaponData.ActionType.DIVE, WeaponData.ActionType.SKILL, WeaponData.ActionType.WIND_CONTROL, WeaponData.ActionType.KRAKEN:
 			if action.has_method("activate"):
 				action.activate(self)
 			else:
@@ -443,60 +495,122 @@ var ai_target_pos: Vector3
 func _handle_ai(delta):
 	ai_state_timer -= delta
 	if ai_state_timer <= 0:
-		# Pick a new random direction to wander
-		ai_state_timer = randf_range(3.0, 8.0)
-		var rand_x = randf_range(-1000, 1000)
-		var rand_z = randf_range(-1000, 1000)
-		ai_target_pos = Vector3(rand_x, global_position.y, rand_z)
+		ai_state_timer = randf_range(5.0, 12.0)
+		var rand_x = randf_range(-1500, 1500)
+		var rand_z = randf_range(-1500, 1500)
+		ai_target_pos = Vector3(rand_x, 0, rand_z)
 	
-	# Steer towards target position
 	var direction = (ai_target_pos - global_position).normalized()
 	var forward = transform.basis.z
-	
-	# Calculate angle to target
 	var angle_to = forward.signed_angle_to(direction, Vector3.UP)
 	
-	# Turn towards target
-	if abs(angle_to) > 0.1:
-		rotation.y += sign(angle_to) * turn_speed * 0.5 * delta
-		
-	# Move forward
-	ship_speed = move_toward(ship_speed, max_speed * 0.5, acceleration * delta)
-	velocity = forward * ship_speed
-	move_and_slide()
+	# On simule les entrées "Throttle" et "Steer" pour l'IA
+	var steer = clamp(-angle_to * 2.0, -1.0, 1.0)
+	var throttle = 0.6 # L'IA navigue à vitesse de croisière
 	
-	if gimbal_node:
-		gimbal_node.global_position = global_position
+	# On applique exactement la même physique et le même visuel que le joueur
+	_apply_movement_physics(delta, steer, throttle)
+	_apply_visuals(delta, steer)
+
+func apply_knockback(from_pos: Vector3, force: float):
+	# Direction du knockback : s'éloigner de la tentacule, horizontalement
+	var dir = (global_position - from_pos)
+	dir.y = 0
+	if dir.length_squared() < 0.001:
+		dir = -transform.basis.z  # fallback : repousser vers l'avant
+	dir = dir.normalized()
+
+	knockback_velocity = dir * force
+
+	# Camera shake si c'est le joueur
+	if is_player and spring_arm:
+		_camera_shake(0.35, 18.0)
+
+func _camera_shake(duration: float, intensity: float):
+	var original_offset = spring_arm.position
+	var elapsed := 0.0
+	var tween = create_tween()
+	tween.tween_method(func(t: float):
+		var decay = 1.0 - (t / duration)
+		spring_arm.position = original_offset + Vector3(
+			randf_range(-1, 1) * intensity * decay,
+			randf_range(-1, 1) * intensity * 0.3 * decay,
+			0
+		)
+	, 0.0, duration, duration)
+	tween.tween_callback(func(): spring_arm.position = original_offset)
 
 func take_damage(amount: float, attacker: Ship):
+	if is_sinking: return  # Ignore les dégâts pendant le naufrage
 	hp -= amount
 	if hp <= 0:
-		die()
+		_start_sinking()
 
 func heal(amount: float):
 	hp = min(hp + amount, max_hp)
 
-func die():
+func _start_sinking():
+	if is_sinking: return
+	is_sinking = true
+	set_physics_process(false)
+	knockback_velocity = Vector3.ZERO
+	velocity = Vector3.ZERO
+
+	print("🌊 Naufrage de ", name, "...")
+
+	var mesh = get_node_or_null("sloup")
+	if not mesh:
+		_on_sink_complete()
+		return
+
+	# Repart d'une rotation propre pour éviter les conflits avec _apply_visuals
+	mesh.rotation = Vector3.ZERO
+
+	var tilt_dir = 1.0 if randf() > 0.5 else -1.0
+	var duration = 4.0
+
+	var tw = create_tween()
+	tw.set_parallel(true)
+
+	# 1. Chavirement latéral progressif (80°)
+	tw.tween_property(mesh, "rotation:z",
+		deg_to_rad(80.0) * tilt_dir, duration
+	).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+
+	# 2. Inclinaison avant (proue plonge en premier)
+	tw.tween_property(mesh, "rotation:x",
+		deg_to_rad(22.0), duration * 0.70
+	).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+
+	# 3. Descente dans l'eau (accélère au fur et à mesure)
+	tw.tween_property(mesh, "position:y",
+		-90.0, duration
+	).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+
+	# 4. Fin : death screen ou loot
+	tw.chain().tween_callback(_on_sink_complete)
+
+func _on_sink_complete():
+	if is_player:
+		# Affiche l'écran de mort après le naufrage
+		get_tree().call_group("hud", "show_death_screen")
+		return
+
+	# Ennemi : dépose du loot
 	var drop_count = randi() % 3 + 1
 	var spread = 15.0
-	
 	for i in range(drop_count):
 		var loot = LootScene.instantiate() as Loot
 		get_tree().get_root().add_child(loot)
-		
-		# Random position around shipwreck
 		var offset_x = (randf() * 2.0 - 1.0) * spread
 		var offset_z = (randf() * 2.0 - 1.0) * spread
 		loot.global_position = global_position + Vector3(offset_x, 5.0, offset_z)
-		
-		# Random type and amount
-		var loot_type = randi() % 5 
+		var loot_type = randi() % 5
 		var amount = 10 + (randi() % 20)
-		if loot_type == 0: amount *= 5 # More gold
-		
+		if loot_type == 0: amount *= 5
 		loot.setup(loot_type, amount)
-	
 	queue_free()
+
 
 func _get_water_height(pos: Vector3, time_val: float) -> float:
 	var wave_speed = 0.8

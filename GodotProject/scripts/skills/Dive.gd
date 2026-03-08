@@ -24,7 +24,7 @@ func process_tick(ship: Node3D, delta: float):
 	
 	var target_depth = DIVE_DEPTH if ship.is_diving else 0.0
 	var anim_factor = clamp(abs(ship.current_dive_tilt) / 0.65, 0.05, 1.0)
-	var lerp_speed = anim_factor * 1.5
+	var lerp_speed = anim_factor * 0.8
 	
 	ship.current_dive_depth = lerp(ship.current_dive_depth, target_depth, delta * lerp_speed)
 	ship.global_position.y = ship.current_dive_depth

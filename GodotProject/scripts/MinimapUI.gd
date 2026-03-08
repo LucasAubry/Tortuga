@@ -5,6 +5,7 @@ extends Control
 
 var minimap_scale: float = 0.5 # Zoom level
 var island_markers: Dictionary = {}
+var enemy_markers: Dictionary = {}
 
 func _ready():
 	# Initial scan for islands
@@ -20,23 +21,53 @@ func _process(_delta):
 	
 	# Update island markers relative to player
 	for node in island_markers.keys():
-		if is_instance_valid(node):
-			var marker = island_markers[node]
-			var node_pos = Vector2(node.global_position.x, node.global_position.z)
-			var relative_pos = (node_pos - player_pos) * minimap_scale
-			marker.position = relative_pos - (marker.size / 2.0)
+		_update_marker_pos(node, island_markers[node], player_pos)
+	
+	# Update/Create enemy markers
+	var enemies = get_tree().get_nodes_in_group("enemies")
+	for enemy in enemies:
+		if not is_instance_valid(enemy): continue
+		
+		# Skip enemies that are diving too deep (stealth)
+		if enemy.get("current_dive_depth") != null and enemy.current_dive_depth < -10.0:
+			if enemy_markers.has(enemy):
+				enemy_markers[enemy].visible = false
+			continue
 			
-			# Rotation of the player icon
-			if player_marker:
-				player_marker.rotation = -player.rotation.y + PI/2.0
-			
-			# Circular clipping: hide if outside the 200px radius of the radar (fits 400x400 hole)
+		if not enemy_markers.has(enemy):
+			_create_enemy_marker(enemy)
+		
+		_update_marker_pos(enemy, enemy_markers[enemy], player_pos)
+		
+	# Cleanup dead enemies
+	for enemy in enemy_markers.keys():
+		if not is_instance_valid(enemy):
+			enemy_markers[enemy].queue_free()
+			enemy_markers.erase(enemy)
 
-			marker.visible = relative_pos.length() < 200.0
-		else:
-			# Cleanup if island is destroyed
-			island_markers[node].queue_free()
-			island_markers.erase(node)
+	# Rotation of the player icon
+	if player_marker:
+		player_marker.rotation = -player.rotation.y + PI/2.0
+
+func _update_marker_pos(node: Node3D, marker: Control, player_pos: Vector2):
+	if is_instance_valid(node):
+		var node_pos = Vector2(node.global_position.x, node.global_position.z)
+		var relative_pos = (node_pos - player_pos) * minimap_scale
+		marker.position = relative_pos - (marker.size / 2.0)
+		
+		# Circular clipping: hide if outside the 200px radius of the radar
+		marker.visible = relative_pos.length() < 200.0
+	else:
+		# Cleanup processed in main loops
+		pass
+
+func _create_enemy_marker(enemy: Node3D):
+	var marker = ColorRect.new()
+	marker.custom_minimum_size = Vector2(12, 12)
+	marker.size = Vector2(12, 12)
+	marker.color = Color(1.0, 0.0, 0.0) # Ennemis en rouge
+	island_container.add_child(marker)
+	enemy_markers[enemy] = marker
 
 func _populate_islands():
 	_find_islands_recursive(get_tree().get_root())

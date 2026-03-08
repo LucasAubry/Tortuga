@@ -40,40 +40,51 @@ func _ready():
 		multimesh.set_instance_color(i, Color(1, 1, 1, 0))
 
 func _process(delta):
-	if not player:
-		var world = get_tree().current_scene
-		if world:
-			var ship = world.get_node_or_null("Ship")
-			if ship and ship.get("is_player"):
-				player = ship
-				
-	if player:
-		var speed = player.get("ship_speed")
-		if speed != null and speed > 15.0:
-			# Spawn new foam particles at the bow to simulate breaking water
-			var spawn_rate = int((speed / 150.0) * 6.0) + 1 
+	# On cherche tous les navires (joueur et ennemis)
+	var ships = get_tree().get_nodes_in_group("player") + get_tree().get_nodes_in_group("enemies")
+	
+	# Fallback robuste : si les groupes sont vides (ex: chargement), on cherche par nom
+	if ships.is_empty():
+		var scene_root = get_tree().current_scene
+		if scene_root:
+			for child in scene_root.get_children():
+				if child.has_method("take_damage"): # Signature d'un navire
+					ships.append(child)
+	
+	for ship in ships:
+		if not is_instance_valid(ship): continue
+		
+		# On autorise l'écume dès qu'on s'approche de la surface (-10m au lieu de -5m)
+		# Cela permet d'avoir les particules déjà présentes PILE au moment où on sort
+		var depth = ship.get("current_dive_depth")
+		if depth != null and depth < -10.0: 
+			continue
+		
+		var speed = ship.get("ship_speed")
+		if speed != null and speed > 5.0:
+			# Calcul du nombre de particules à spawn selon la vitesse
+			var spawn_rate = int((speed / 100.0) * 8.0) + 1
 			for i in range(spawn_rate):
 				var p = particles[particle_index]
 				
-				var forward = player.transform.basis.z
-				forward.y = 0
-				forward = forward.normalized()
-				var right = Vector3(-forward.z, 0, forward.x)
+				# Direction du navire
+				var ship_basis = ship.global_transform.basis
+				var forward = ship_basis.z.normalized()
+				var right = ship_basis.x.normalized()
 				
-				# V-Shape Bow Wake logic
-				var bow_pos = player.global_position + Vector3(0, 0.5, 0) + (forward * 5.0)
-				var side = 1.0 if (particle_index % 2 == 0) else -1.0 # Alternate left and right
+				# Position à l'avant (bow)
+				var bow_pos = ship.global_position + Vector3(0, 0.4, 0) + (forward * 5.0)
+				var side = 1.0 if (particle_index % 2 == 0) else -1.0
 				
-				# Start slightly off-center from the hull
-				p.pos = bow_pos + (right * side * 1.0)
+				# Initialisation de la particule
+				p.pos = bow_pos + (right * side * 1.5)
 				p.life = 1.5 + randf_range(0.0, 1.0)
 				p.max_life = p.life
-				p.scale = randf_range(0.3, 1.2)
+				p.scale = randf_range(0.5, 2.0)
 				
-				# Move diagonally outward relative to ship orientation
-				# Softer push outward (5-10), less forward inheritance (0.1x)
-				p.vel = (forward * speed * 0.1) + (right * side * randf_range(5.0, 10.0))
-				p.vel.y = randf_range(0.2, 0.8) # softer splash upward
+				# Vélocité : un peu vers l'avant et pas mal sur les côtés
+				p.vel = (forward * speed * 0.15) + (right * side * randf_range(6.0, 12.0))
+				p.vel.y = randf_range(0.5, 2.0)
 				
 				particle_index = (particle_index + 1) % MAX_PARTICLES
 

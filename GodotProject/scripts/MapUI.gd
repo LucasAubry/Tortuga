@@ -8,6 +8,7 @@ extends CanvasLayer
 var map_scale: float = 0.05
 var map_offset: Vector2 = Vector2.ZERO
 var island_markers: Array[Control] = []
+var enemy_markers: Dictionary = {}
 
 func _ready():
 	visible = false
@@ -50,13 +51,28 @@ func _process(delta):
 	if visible:
 		_update_map()
 
-func _unhandled_input(event):
+func _unhandled_input(event: InputEvent):
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_P or event.keycode == KEY_M:
 			if visible:
 				hide_map()
 			else:
 				show_map()
+	
+	# ZOOM SUR LA MAP
+	if visible:
+		if event is InputEventMouseButton:
+			if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+				map_scale = clamp(map_scale + 0.02, 0.01, 1.5)
+				get_viewport().set_input_as_handled()
+			elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+				map_scale = clamp(map_scale - 0.02, 0.01, 1.5)
+				get_viewport().set_input_as_handled()
+		
+		elif event.is_class("InputEventMagnificationGesture"):
+			# Pinch Mac sur la map
+			map_scale = clamp(map_scale * event.get("factor"), 0.01, 1.5)
+			get_viewport().set_input_as_handled()
 
 func show_map():
 	visible = true
@@ -67,6 +83,10 @@ func hide_map():
 	for marker in island_markers:
 		marker.queue_free()
 	island_markers.clear()
+	
+	for enemy in enemy_markers:
+		enemy_markers[enemy].queue_free()
+	enemy_markers.clear()
 
 func _populate_islands():
 	# Always do a recursive scan to ensure markers bind reliably to our generic Ile.gd definitions
@@ -154,6 +174,31 @@ func _update_map():
 				var pos = Vector2(ile.global_position.x, ile.global_position.z)
 				marker.position = map_offset + (pos * map_scale)
 				
+	# Update Enemy positions
+	var enemies = get_tree().get_nodes_in_group("enemies")
+	for enemy in enemies:
+		if not is_instance_valid(enemy): continue
+		
+		# Stealth check for diving enemies
+		if enemy.get("current_dive_depth") != null and enemy.current_dive_depth < -15.0:
+			if enemy_markers.has(enemy):
+				enemy_markers[enemy].visible = false
+			continue
+			
+		if not enemy_markers.has(enemy):
+			_create_enemy_marker_map(enemy)
+		
+		var marker = enemy_markers[enemy]
+		var pos = Vector2(enemy.global_position.x, enemy.global_position.z)
+		marker.position = map_offset + (pos * map_scale) - (marker.size / 2.0)
+		marker.visible = true
+		
+	# Cleanup dead enemies on map
+	for enemy in enemy_markers.keys():
+		if not is_instance_valid(enemy):
+			enemy_markers[enemy].queue_free()
+			enemy_markers.erase(enemy)
+
 	# Update Player position
 	var player = _find_player()
 	if player:
@@ -163,6 +208,14 @@ func _update_map():
 		# Rotation of the player icon
 		player_marker.rotation = -player.rotation.y + PI/2.0
 		# No longer outputting string coords per task list
+
+func _create_enemy_marker_map(enemy: Node3D):
+	var marker = ColorRect.new()
+	marker.custom_minimum_size = Vector2(8, 8)
+	marker.size = Vector2(8, 8)
+	marker.color = Color(1.0, 0.1, 0.1) # Rouge vif pour les ennemis
+	map_container.add_child(marker)
+	enemy_markers[enemy] = marker
 
 func _find_player() -> Ship:
 	return _find_player_recursive(get_tree().get_root())

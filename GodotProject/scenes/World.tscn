@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://world"]
+[gd_scene load_steps=23 format=3 uid="uid://world"]
 
 [ext_resource type="PackedScene" uid="uid://ship" path="res://scenes/Ship.tscn" id="1_kqs1s"]
 [ext_resource type="PackedScene" uid="uid://b73hyfrtx14yh" path="res://scenes/HUD.tscn" id="2_hud"]
@@ -10,6 +10,11 @@
 [ext_resource type="Script" uid="uid://63ild0f6hv6l" path="res://scripts/WakeManager.gd" id="11_wake"]
 [ext_resource type="PackedScene" uid="uid://57e5pj3ul0v1" path="res://scenes/iles.tscn" id="12_mesh"]
 [ext_resource type="PackedScene" uid="uid://island" path="res://scenes/Ile.tscn" id="13_ile"]
+[ext_resource type="Script" uid="uid://cexkxjymb314v" path="res://scripts/WeaponData.gd" id="14_weapon_script"]
+[ext_resource type="Resource" uid="uid://djo4qwdrn425a" path="res://resources/weapons/Standard.tres" id="15_standard_weapon"]
+[ext_resource type="Resource" path="res://resources/skills/Dive.tres" id="16_dive"]
+[ext_resource type="Resource" path="res://resources/skills/WindControl.tres" id="17_wind_control"]
+[ext_resource type="Resource" uid="uid://doploauaaas08" path="res://resources/skills/kraken_skill.tres" id="18_kraken"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_xwyq"]
 sky_horizon_color = Color(0.646, 0.656, 0.67, 1)
@@ -119,8 +124,15 @@ subdivide_depth = 200
 environment = SubResource("Environment_xwyq")
 
 [node name="Ship" parent="." instance=ExtResource("1_kqs1s")]
-transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 42.957836, 0)
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
+collision_layer = 3
 is_player = true
+weapon_slots = Array[ExtResource("14_weapon_script")]([ExtResource("15_standard_weapon"), ExtResource("16_dive"), ExtResource("17_wind_control"), ExtResource("18_kraken"), null])
+
+[node name="EnemyShip" parent="." instance=ExtResource("1_kqs1s")]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 300, 0, 300)
+collision_layer = 3
+weapon_slots = Array[ExtResource("14_weapon_script")]([ExtResource("15_standard_weapon"), null, null, null, null])
 
 [node name="OceanFloor" type="StaticBody3D" parent="."]
 

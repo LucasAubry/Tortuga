@@ -41,9 +41,17 @@ func _process(delta):
 				player = ship
 
 	# Get wind based on player position (similar to global wind in Raylib)
-	var wind = GameConfig.get_wind_at(player.global_position if player else Vector3.ZERO)
-	var wind_dir = wind["direction"]
-	var wind_strength = wind["speed"]
+	var wind_dir = Vector2.ZERO
+	var wind_strength = 1.0
+	
+	if player and player.get("is_wind_boost_active"):
+		var forward = player.global_transform.basis.z
+		wind_dir = Vector2(forward.x, forward.z).normalized()
+		wind_strength = 8.0 # Très rapide visuellement
+	else:
+		var wind = GameConfig.get_wind_at(player.global_position if player else Vector3.ZERO)
+		wind_dir = wind["direction"]
+		wind_strength = wind["speed"]
 	
 	var wind_vec3 = Vector3(wind_dir.x, 0, wind_dir.y)
 	var basis: Basis
