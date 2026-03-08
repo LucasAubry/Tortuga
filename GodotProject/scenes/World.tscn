@@ -1,19 +1,20 @@
-[gd_scene load_steps=23 format=3 uid="uid://world"]
+[gd_scene load_steps=24 format=3 uid="uid://world"]
 
 [ext_resource type="PackedScene" uid="uid://ship" path="res://scenes/Ship.tscn" id="1_kqs1s"]
 [ext_resource type="PackedScene" uid="uid://b73hyfrtx14yh" path="res://scenes/HUD.tscn" id="2_hud"]
-[ext_resource type="PackedScene" path="res://scenes/MapUI.tscn" id="4_map"]
-[ext_resource type="PackedScene" path="res://scenes/QuestMenu.tscn" id="5_quest"]
-[ext_resource type="PackedScene" path="res://scenes/TabMenu.tscn" id="6_tab"]
-[ext_resource type="PackedScene" path="res://scenes/SettingsMenu.tscn" id="7_set"]
+[ext_resource type="PackedScene" uid="uid://dsyamwtg77c6r" path="res://scenes/MapUI.tscn" id="4_map"]
+[ext_resource type="PackedScene" uid="uid://dbhw67e7ytc20" path="res://scenes/menu/QuestMenu.tscn" id="5_quest"]
+[ext_resource type="PackedScene" uid="uid://bbjdqads8j7tu" path="res://scenes/menu/TabMenu.tscn" id="6_tab"]
+[ext_resource type="PackedScene" path="res://scenes/menu/SettingsMenu.tscn" id="7_set"]
+[ext_resource type="PackedScene" uid="uid://bbun7x1juo4jl" path="res://scenes/menu/KrakenMenu.tscn" id="8_kraken_menu"]
 [ext_resource type="Script" uid="uid://blqfq2pyvw0iy" path="res://scripts/WindManager.gd" id="10_wind"]
 [ext_resource type="Script" uid="uid://63ild0f6hv6l" path="res://scripts/WakeManager.gd" id="11_wake"]
 [ext_resource type="PackedScene" uid="uid://57e5pj3ul0v1" path="res://scenes/iles.tscn" id="12_mesh"]
 [ext_resource type="PackedScene" uid="uid://island" path="res://scenes/Ile.tscn" id="13_ile"]
 [ext_resource type="Script" uid="uid://cexkxjymb314v" path="res://scripts/WeaponData.gd" id="14_weapon_script"]
 [ext_resource type="Resource" uid="uid://djo4qwdrn425a" path="res://resources/weapons/Standard.tres" id="15_standard_weapon"]
-[ext_resource type="Resource" path="res://resources/skills/Dive.tres" id="16_dive"]
-[ext_resource type="Resource" path="res://resources/skills/WindControl.tres" id="17_wind_control"]
+[ext_resource type="Resource" uid="uid://dfhwf6k7rlq1j" path="res://resources/skills/Dive.tres" id="16_dive"]
+[ext_resource type="Resource" uid="uid://ddwmeu16ucgvt" path="res://resources/skills/WindControl.tres" id="17_wind_control"]
 [ext_resource type="Resource" uid="uid://doploauaaas08" path="res://resources/skills/kraken_skill.tres" id="18_kraken"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_xwyq"]
@@ -160,13 +161,14 @@ mesh = SubResource("PlaneMesh_32lhk")
 [node name="HUD" parent="." instance=ExtResource("2_hud")]
 
 [node name="MapUI" parent="." instance=ExtResource("4_map")]
-visible = true
 
 [node name="QuestMenu" parent="." instance=ExtResource("5_quest")]
 
 [node name="TabMenu" parent="." instance=ExtResource("6_tab")]
 
 [node name="SettingsMenu" parent="." instance=ExtResource("7_set")]
+
+[node name="KrakenMenu" parent="." instance=ExtResource("8_kraken_menu")]
 
 [node name="Node3D" type="Node3D" parent="."]
 
@@ -196,3 +198,10 @@ transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -150, -22.754028, -150)
 [node name="Zone_Fisherman" parent="Node3D" instance=ExtResource("13_ile")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -150, 20, -150)
 ile_type = 3
+
+[node name="IleMesh_Kraken" parent="Node3D" instance=ExtResource("12_mesh")]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, -22.754028, -250)
+
+[node name="Zone_Kraken" parent="Node3D" instance=ExtResource("13_ile")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 20, -250)
+ile_type = 4

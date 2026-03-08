@@ -25,7 +25,12 @@ func activate(ship: Node3D):
 	pass
 
 # Appelé à chaque frame de physique (optionnel)
+# S'exécute AVANT move_and_slide — idéal pour modifier velocity (ex: WindControl)
 func process_tick(ship: Node3D, delta: float):
+	pass
+
+# Appelé APRÈS move_and_slide — idéal pour modifier la position directement (ex: Dive)
+func post_physics_tick(ship: Node3D, delta: float):
 	pass
 
 # Retourne TRUE si l'arme peut tirer (permet de bloquer selon l'état du bateau)

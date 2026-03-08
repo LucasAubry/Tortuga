@@ -58,6 +58,20 @@ func _ready():
 		anim_player.animation_finished.connect(_on_animation_finished)
 	else:
 		state = "idle"
+	
+	# Appliquer la personnalisation du Kraken
+	apply_visual_config()
+
+func apply_visual_config():
+	# On cherche le dossier Skeleton3D qui contient tous les meshes
+	var skeleton = _find_skeleton(self)
+	if not skeleton: return
+	
+	var config = GameConfig.kraken_tentacle_parts
+	for mesh_name in config.keys():
+		var mesh_node = skeleton.find_child(mesh_name, true, false)
+		if mesh_node and mesh_node is MeshInstance3D:
+			mesh_node.visible = config[mesh_name]
 
 # ─── _process ───────────────────────────────────────────────────────────────
 func _process(delta):

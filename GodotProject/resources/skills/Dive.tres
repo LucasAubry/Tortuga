@@ -1,17 +1,15 @@
-[gd_resource type="Resource" script_class="Dive" load_steps=3 format=3 uid="uid://dive_skill"]
-[ext_resource type="Texture2D" uid="uid://dive_icon" path="res://assets/skills/dive.png" id="1_icon"]
-[ext_resource type="Script" path="res://scripts/skills/Dive.gd" id="2_script"]
+[gd_resource type="Resource" script_class="Dive" load_steps=3 format=3 uid="uid://dfhwf6k7rlq1j"]
+
+[ext_resource type="Texture2D" uid="uid://bdw4ffmjn4eby" path="res://assets/skills/dive.png" id="1_icon"]
+[ext_resource type="Script" uid="uid://silq0tn2l3fu" path="res://scripts/skills/Dive.gd" id="2_script"]
 
 [resource]
 script = ExtResource("2_script")
 type = 3
 weapon_name = "Plongée Furtive"
 damage = 0.0
-cooldown = 8.0
+cooldown = 6.0
 ammo_cost = 0
 projectile_speed = 0.0
-projectile_color = Color(1, 1, 1, 1)
 icon = ExtResource("1_icon")
-pull_force = 50.0
-skill_duration = 5.0
 speed_buff = 1.0

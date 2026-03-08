@@ -77,3 +77,21 @@ const GalleonHP = 300.0
 const SloopCooldown = 1.0
 const BrigantineCooldown = 1.5
 const GalleonCooldown = 2.0
+# Kraken Tentacle Customization
+var kraken_tentacle_parts = {
+	"TentacleV1": true,
+	"TentacleV2": false,
+	"TentacleV3": false,
+	"TentacleV4": false,
+	"TentacleV5": false,
+	"Spine": false,
+	"ArmorV1": false,
+	"ArmorV2": false,
+	"TipSpike": false,
+	"SpikesBack1": false,
+	"SpikesBack2": false,
+	"SpikesSides": false,
+	"SpikesFront1": false,
+	"SpikesFront2": false,
+	"Thorns": false
+}

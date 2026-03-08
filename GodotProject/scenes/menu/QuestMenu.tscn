@@ -1,0 +1,158 @@
+[gd_scene load_steps=6 format=3 uid="uid://dbhw67e7ytc20"]
+
+[ext_resource type="Script" uid="uid://c1841ejrtp8tf" path="res://scripts/QuestMenu.gd" id="1_quest"]
+[ext_resource type="Texture2D" uid="uid://bo1flu3sf35gb" path="res://assets/ui/burnt_map.png" id="burnt_map_tex"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_sep"]
+bg_color = Color(0.3, 0.15, 0.05, 0.6)
+border_width_bottom = 2
+border_color = Color(0.3, 0.15, 0.05, 0.6)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn"]
+bg_color = Color(0.35, 0.18, 0.08, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.2, 0.1, 0.05, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_h"]
+bg_color = Color(0.45, 0.22, 0.1, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.2, 0.1, 0.05, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 8
+
+[node name="QuestMenu" type="CanvasLayer"]
+process_mode = 3
+layer = 15
+script = ExtResource("1_quest")
+
+[node name="Overlay" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.4)
+
+[node name="BurntMap" type="TextureRect" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -450.0
+offset_top = -425.0
+offset_right = 450.0
+offset_bottom = 425.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("burnt_map_tex")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="MarginContainer" type="MarginContainer" parent="BurntMap"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 61.0
+offset_bottom = 61.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 120
+theme_override_constants/margin_top = 100
+theme_override_constants/margin_right = 120
+theme_override_constants/margin_bottom = 100
+
+[node name="VBox" type="VBoxContainer" parent="BurntMap/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="Title" type="Label" parent="BurntMap/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.1, 0.05, 1)
+theme_override_colors/font_outline_color = Color(1, 1, 1, 0.4)
+theme_override_constants/outline_size = 2
+theme_override_font_sizes/font_size = 36
+text = "ÎLE PIRATE"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="BurntMap/MarginContainer/VBox"]
+layout_mode = 2
+theme_override_styles/separator = SubResource("StyleBoxFlat_sep")
+
+[node name="QuestsList" type="VBoxContainer" parent="BurntMap/MarginContainer/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 15
+
+[node name="Quest1" type="HBoxContainer" parent="BurntMap/MarginContainer/VBox/QuestsList"]
+layout_mode = 2
+
+[node name="Q1Desc" type="Label" parent="BurntMap/MarginContainer/VBox/QuestsList/Quest1"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.25, 0.12, 0.05, 1)
+theme_override_font_sizes/font_size = 20
+text = "Livrer 10 Bois ➔ Récompense: 50 Or"
+
+[node name="BtnQ1" type="Button" parent="BurntMap/MarginContainer/VBox/QuestsList/Quest1"]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_h")
+text = "Accepter / Valider"
+
+[node name="Quest2" type="HBoxContainer" parent="BurntMap/MarginContainer/VBox/QuestsList"]
+layout_mode = 2
+
+[node name="Q2Desc" type="Label" parent="BurntMap/MarginContainer/VBox/QuestsList/Quest2"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.25, 0.12, 0.05, 1)
+theme_override_font_sizes/font_size = 20
+text = "Acheter 20 Boulets ➔ Coût: 200 Or"
+
+[node name="BtnQ2" type="Button" parent="BurntMap/MarginContainer/VBox/QuestsList/Quest2"]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_h")
+text = "Acheter"
+
+[node name="Quest3" type="HBoxContainer" parent="BurntMap/MarginContainer/VBox/QuestsList"]
+layout_mode = 2
+
+[node name="Q3Desc" type="Label" parent="BurntMap/MarginContainer/VBox/QuestsList/Quest3"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.25, 0.12, 0.05, 1)
+theme_override_font_sizes/font_size = 20
+text = "Réparer Navire (Full PV) ➔ Coût: 50 Bois"
+
+[node name="BtnQ3" type="Button" parent="BurntMap/MarginContainer/VBox/QuestsList/Quest3"]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_h")
+text = "Réparer"
+
+[node name="CloseBtn" type="Button" parent="BurntMap/MarginContainer/VBox"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_btn_h")
+text = "⚓  REPRENDRE LA MER"

@@ -26,8 +26,8 @@ func process_tick(ship: Node3D, delta: float):
 	var anim_factor = clamp(abs(ship.current_dive_tilt) / 0.65, 0.05, 1.0)
 	var lerp_speed = anim_factor * 0.8
 	
+	# Calcul de la profondeur cible (la position sera appliquée dans post_physics_tick)
 	ship.current_dive_depth = lerp(ship.current_dive_depth, target_depth, delta * lerp_speed)
-	ship.global_position.y = ship.current_dive_depth
 	
 	# --- GESTION DES EFFETS VISUELS ---
 	_update_vfx(ship, delta)
@@ -53,6 +53,11 @@ func process_tick(ship: Node3D, delta: float):
 	var depth_diff = target_depth - ship.current_dive_depth
 	var target_tilt = clamp(-depth_diff * 0.025, -0.65, 0.65)
 	ship.current_dive_tilt = lerp(ship.current_dive_tilt, target_tilt, delta * 2.5)
+
+# --- APPLICATION DE LA POSITION (après move_and_slide pour ne pas être écrasé) ---
+func post_physics_tick(ship: Node3D, delta: float):
+	if not ship.get("is_player"): return
+	ship.global_position.y = ship.current_dive_depth
 
 # --- SYSTÈME D'EFFETS (VFX) ---
 func _update_vfx(ship: Node3D, delta: float):

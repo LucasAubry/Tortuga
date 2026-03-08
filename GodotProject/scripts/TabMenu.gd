@@ -1,21 +1,14 @@
 class_name TabMenu
 extends CanvasLayer
 
-@onready var label_speed = $ColorRect/MarginContainer/VBox/HBox/StatsPanel/LabelSpeed
-@onready var label_damage = $ColorRect/MarginContainer/VBox/HBox/StatsPanel/LabelDamage
-@onready var label_reload = $ColorRect/MarginContainer/VBox/HBox/StatsPanel/LabelReload
-@onready var label_upgrades = $ColorRect/MarginContainer/VBox/HBox/StatsPanel/LabelUpgrades
+@onready var label_speed = $BurntMap/LabelSpeed
+@onready var label_damage = $BurntMap/LabelDamage
+@onready var label_reload = $BurntMap/LabelReload
+@onready var label_upgrades = $BurntMap/LabelUpgrades
 
 func _ready():
 	visible = false
 	add_to_group("tab_menu")
-	_scale_fonts(self, 26)
-
-func _apply_font_recursive(node: Node, font: Font):
-	if node is Label:
-		node.add_theme_font_override("font", font)
-	for child in node.get_children():
-		_apply_font_recursive(child, font)
 
 func _unhandled_input(event):
 	if event is InputEventKey and event.pressed and not event.echo:
@@ -52,9 +45,3 @@ func _find_player_recursive(node: Node) -> Ship:
 		var res = _find_player_recursive(child)
 		if res: return res
 	return null
-
-func _scale_fonts(node: Node, font_size: int):
-	if node is Label or node is Button:
-		node.add_theme_font_size_override("font_size", font_size)
-	for child in node.get_children():
-		_scale_fonts(child, font_size)

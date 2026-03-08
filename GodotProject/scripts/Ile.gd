@@ -1,7 +1,7 @@
 class_name Ile
 extends StaticBody3D
 
-enum IleType { CITY, MERCHANT, SHIPWRIGHT, FISHERMAN }
+enum IleType { CITY, MERCHANT, SHIPWRIGHT, FISHERMAN, KRAKEN_FARMER }
 @export var ile_type: IleType = IleType.CITY
 
 @export var inner_radius: float = 50.0
@@ -9,6 +9,7 @@ enum IleType { CITY, MERCHANT, SHIPWRIGHT, FISHERMAN }
 @export var is_merchant: bool = false
 @export var is_shipwright: bool = false
 @export var is_fisherman: bool = false
+@export var is_kraken_farmer: bool = false
 @export var is_capital_platform: bool = false
 @export var is_solid_capital_island: bool = false
 
@@ -54,6 +55,8 @@ func _ready():
 		icon.text = "[ CHANTIER ]"
 	elif ile_type == IleType.FISHERMAN:
 		icon.text = "[ PECHEUR ]"
+	elif ile_type == IleType.KRAKEN_FARMER:
+		icon.text = "[ ELEVEUR DE KRAKEN ]"
 		
 	icon.pixel_size = 0.5
 	icon.billboard = BaseMaterial3D.BILLBOARD_ENABLED
@@ -80,6 +83,8 @@ func _on_port_area_body_entered(body: Node3D):
 		GameManager.parked_island = self
 		if ile_type == IleType.MERCHANT:
 			print("Player entered MERCHANT port at ", global_position, " - Press 'E' to trade!")
+		elif ile_type == IleType.KRAKEN_FARMER:
+			print("Player entered KRAKEN FARMER port - Press 'E' to customize your Kraken!")
 		else:
 			print("Player entered port at ", global_position)
 
@@ -113,6 +118,11 @@ func _on_marker_clicked(camera, event, position, normal, shape_idx):
 					var tmenu = world_node.get_node_or_null("TabMenu")
 					if tmenu and tmenu.has_method("show_menu"):
 						tmenu.show_menu()
+				elif ile_type == IleType.KRAKEN_FARMER:
+					GameManager.state = GameManager.GameState.KRAKEN_MENU
+					var kmenu = world_node.get_node_or_null("KrakenMenu")
+					if kmenu and kmenu.has_method("show_menu"):
+						kmenu.show_menu()
 					
 				print("Opened interface for island type: ", ile_type)
 			else:

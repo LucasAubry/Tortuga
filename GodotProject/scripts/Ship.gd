@@ -193,10 +193,25 @@ func _physics_process(delta):
 	else:
 		_handle_ai(delta)
 		
-	# LOGIQUE MODULAIRE (Exécutée à la fin pour appliquer les modifications de position/visuel)
+	# LOGIQUE MODULAIRE (Exécutée après le mouvement de base pour modifier velocity/visuel)
 	for i in range(weapon_slots.size()):
 		if weapon_slots[i] and weapon_slots[i].has_method("process_tick"):
 			weapon_slots[i].process_tick(self, delta)
+	
+	# --- KNOCKBACK PHYSIQUE (tentacule, collision) --- Appliqué après tous les skills
+	if knockback_velocity.length_squared() > 1.0:
+		velocity += knockback_velocity
+		knockback_velocity = knockback_velocity.lerp(Vector3.ZERO, delta * knockback_decay)
+	else:
+		knockback_velocity = Vector3.ZERO
+	
+	# move_and_slide FINAL (après que tous les skills aient modifié velocity)
+	move_and_slide()
+	
+	# POST-PHYSIQUE (exécuté après move_and_slide pour les skills qui modifient la position)
+	for i in range(weapon_slots.size()):
+		if weapon_slots[i] and weapon_slots[i].has_method("post_physics_tick"):
+			weapon_slots[i].post_physics_tick(self, delta)
 
 func _handle_player_input(delta):
 	_handle_camera_and_weapons(delta)
@@ -278,52 +293,38 @@ func _apply_movement_physics(delta, steer, throttle):
 	forward.y = 0
 	forward = forward.normalized()
 	
-	# Wind Physics influence based on local position
-	var local_wind = GameConfig.get_wind_at(global_position)
-	var wind_dir = local_wind["direction"]
-	var effective_wind_speed = local_wind["speed"]
+	# --- VENT DE BASE (Fallback si aucun WindControl n'est équipé) ---
+	# Si un WindControl est dans les slots, c'est LUI qui calcule velocity via process_tick.
+	# Sinon, on applique le vent normal ici.
+	var has_wind_skill = false
+	for slot in weapon_slots:
+		if slot and slot.type == WeaponData.ActionType.WIND_CONTROL:
+			has_wind_skill = true
+			break
 	
-	# COMPÉTENCE : CONTRÔLE DU VENT (Progressivité accrue)
-	var target_intensity = 1.0 if is_wind_boost_active else 0.0
-	# Lerp de l'intensité (0.8 = assez lent, très progressif)
-	wind_boost_intensity = lerp(wind_boost_intensity, target_intensity, delta * 0.8)
-	
-	var target_wind_vec = Vector3(wind_dir.x, 0, wind_dir.y) * effective_wind_speed
-	# On mélange le vent normal avec le vent de boost (8.0 arrière)
-	var boost_wind_vec = forward * 8.0
-	var blended_wind_vec = target_wind_vec.lerp(boost_wind_vec, wind_boost_intensity)
-	
-	# Transition finale du vecteur pour éviter les saccades physiques
-	if current_wind_vec_phys == Vector3.ZERO:
-		current_wind_vec_phys = blended_wind_vec
-	current_wind_vec_phys = current_wind_vec_phys.lerp(blended_wind_vec, delta * 1.5)
-	
-	# IGNORE LE VENT SOUS L'EAU (Vitesse fixe)
-	var is_underwater = current_dive_depth < -5.0
-	var wind_push = forward.dot(current_wind_vec_phys) if not is_underwater else 0.0
-	var speed_modifier = 1.0 + (wind_push * 0.4) if not is_underwater else 1.0
-	
-	# Calcul de la vitesse finale avec boost progressif
-	var base_effective_speed = ship_speed * speed_modifier
-	var boost_max_multiplier = 1.0 + (wind_boost_intensity * 0.8) # Jusqu'à +80% de vitesse
-	var effective_speed = base_effective_speed * boost_max_multiplier
-	
-	velocity = forward * min(effective_speed, 1200.0)
-	velocity.y = 0
-
-	if ship_speed > 0 and not is_underwater:
-		var drift = current_wind_vec_phys - (forward * wind_push)
-		velocity += drift * 0.1
+	if not has_wind_skill:
+		var local_wind = GameConfig.get_wind_at(global_position)
+		var wind_dir = local_wind["direction"]
+		var effective_wind_speed = local_wind["speed"]
+		
+		var target_wind_vec = Vector3(wind_dir.x, 0, wind_dir.y) * effective_wind_speed
+		
+		if current_wind_vec_phys == Vector3.ZERO:
+			current_wind_vec_phys = target_wind_vec
+		current_wind_vec_phys = current_wind_vec_phys.lerp(target_wind_vec, delta * 1.5)
+		
+		var is_underwater = current_dive_depth < -5.0
+		var wind_push = forward.dot(current_wind_vec_phys) if not is_underwater else 0.0
+		var speed_modifier = 1.0 + (wind_push * 0.4) if not is_underwater else 1.0
+		
+		velocity = forward * min(ship_speed * speed_modifier, 1200.0)
 		velocity.y = 0
+		
+		if ship_speed > 0 and not is_underwater:
+			var drift = current_wind_vec_phys - (forward * wind_push)
+			velocity += drift * 0.1
+			velocity.y = 0
 
-	# --- KNOCKBACK PHYSIQUE (tentacule, collision) ---
-	if knockback_velocity.length_squared() > 1.0:
-		velocity += knockback_velocity
-		knockback_velocity = knockback_velocity.lerp(Vector3.ZERO, delta * knockback_decay)
-	else:
-		knockback_velocity = Vector3.ZERO
-
-	move_and_slide()
 	
 
 func _apply_visuals(delta, steer):

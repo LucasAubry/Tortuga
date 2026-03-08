@@ -1,10 +1,10 @@
 class_name QuestMenu
 extends CanvasLayer
 
-@onready var btn_q1 = $ColorRect/MarginContainer/VBox/QuestsList/Quest1/BtnQ1
-@onready var btn_q2 = $ColorRect/MarginContainer/VBox/QuestsList/Quest2/BtnQ2
-@onready var btn_q3 = $ColorRect/MarginContainer/VBox/QuestsList/Quest3/BtnQ3
-@onready var close_btn = $ColorRect/MarginContainer/VBox/CloseBtn
+@onready var btn_q1 = $BurntMap/MarginContainer/VBox/QuestsList/Quest1/BtnQ1
+@onready var btn_q2 = $BurntMap/MarginContainer/VBox/QuestsList/Quest2/BtnQ2
+@onready var btn_q3 = $BurntMap/MarginContainer/VBox/QuestsList/Quest3/BtnQ3
+@onready var close_btn = $BurntMap/MarginContainer/VBox/CloseBtn
 
 func _ready():
 	visible = false
@@ -18,7 +18,9 @@ func _process(delta):
 		# Check if we can open
 		if GameManager.parked_island != null:
 			var island = GameManager.parked_island
-			if island.get("island_type") != null and island.island_type == 1: # 1 == MERCHANT
+			var type = island.ile_type
+			# 0:CITY, 1:MERCHANT, 3:FISHERMAN are handled by QuestMenu
+			if type == 0 or type == 1 or type == 3:
 				show_menu()
 	elif Input.is_action_just_pressed("act") and visible:
 		# If user re-presses act, don't immediately toggle if they just clicked something, but okay we can close
@@ -31,10 +33,21 @@ func _unhandled_input(event):
 func show_menu():
 	visible = true
 	get_tree().paused = true
+	_update_title()
 
 func hide_menu():
 	visible = false
 	get_tree().paused = false
+
+func _update_title():
+	var title_lbl = $BurntMap/MarginContainer/VBox/Title
+	if GameManager.parked_island:
+		var type = GameManager.parked_island.ile_type
+		match type:
+			0: title_lbl.text = "VILLE DE TORTUGA"
+			1: title_lbl.text = "COMPTOIR MARCHAND"
+			2: title_lbl.text = "CHANTIER NAVAL"
+			3: title_lbl.text = "CABANE DU PÊCHEUR"
 
 func _get_player() -> Ship:
 	return _find_player_recursive(get_tree().get_root())

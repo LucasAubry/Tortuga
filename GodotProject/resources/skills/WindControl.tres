@@ -1,6 +1,7 @@
-[gd_resource type="Resource" script_class="WindControl" load_steps=3 format=3 uid="uid://wind_control_skill"]
-[ext_resource type="Texture2D" uid="uid://wind_icon" path="res://assets/skills/wind_control.png" id="1_icon"]
-[ext_resource type="Script" path="res://scripts/skills/WindControl.gd" id="2_script"]
+[gd_resource type="Resource" script_class="WindControl" load_steps=3 format=3 uid="uid://ddwmeu16ucgvt"]
+
+[ext_resource type="Texture2D" uid="uid://c73q8ekkpmjof" path="res://assets/skills/wind_control.png" id="1_icon"]
+[ext_resource type="Script" uid="uid://b4un4ec5b5ypy" path="res://scripts/skills/WindControl.gd" id="2_script"]
 
 [resource]
 script = ExtResource("2_script")
@@ -10,8 +11,6 @@ damage = 0.0
 cooldown = 15.0
 ammo_cost = 0
 projectile_speed = 0.0
-projectile_color = Color(1, 1, 1, 1)
 icon = ExtResource("1_icon")
-pull_force = 50.0
 skill_duration = 8.0
 speed_buff = 1.0

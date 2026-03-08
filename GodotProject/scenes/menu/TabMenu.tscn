@@ -1,0 +1,132 @@
+[gd_scene load_steps=3 format=3 uid="uid://bbjdqads8j7tu"]
+
+[ext_resource type="Script" uid="uid://2o71ghgl5g8c" path="res://scripts/TabMenu.gd" id="1_tab"]
+[ext_resource type="Texture2D" uid="uid://bo1flu3sf35gb" path="res://assets/ui/burnt_map.png" id="burnt_map_tex"]
+
+[node name="TabMenu" type="CanvasLayer"]
+process_mode = 3
+layer = 12
+script = ExtResource("1_tab")
+
+[node name="Overlay" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.4)
+
+[node name="BurntMap" type="TextureRect" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -450.0
+offset_top = -425.0
+offset_right = 450.0
+offset_bottom = 425.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("burnt_map_tex")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Titre" type="Label" parent="BurntMap"]
+layout_mode = 0
+offset_left = 150.0
+offset_top = 155.0
+offset_right = 750.0
+offset_bottom = 208.0
+theme_override_colors/font_color = Color(0.2, 0.1, 0.05, 1)
+theme_override_font_sizes/font_size = 38
+text = "JOURNAL DE BORD"
+horizontal_alignment = 1
+
+[node name="SectionStats" type="Label" parent="BurntMap"]
+layout_mode = 0
+offset_left = 100.0
+offset_top = 294.0
+offset_right = 409.0
+offset_bottom = 334.0
+theme_override_colors/font_color = Color(0.25, 0.12, 0.05, 1)
+theme_override_font_sizes/font_size = 26
+text = "── États du Navire ──"
+
+[node name="LabelSpeed" type="Label" parent="BurntMap"]
+layout_mode = 0
+offset_left = 100.0
+offset_top = 354.0
+offset_right = 420.0
+offset_bottom = 384.0
+theme_override_colors/font_color = Color(0.3, 0.15, 0.05, 1)
+theme_override_font_sizes/font_size = 20
+text = "Vitesse Max: 10 kts"
+
+[node name="LabelDamage" type="Label" parent="BurntMap"]
+layout_mode = 0
+offset_left = 100.0
+offset_top = 394.0
+offset_right = 420.0
+offset_bottom = 424.0
+theme_override_colors/font_color = Color(0.3, 0.15, 0.05, 1)
+theme_override_font_sizes/font_size = 20
+text = "Dégâts Canons: 25"
+
+[node name="LabelReload" type="Label" parent="BurntMap"]
+layout_mode = 0
+offset_left = 100.0
+offset_top = 434.0
+offset_right = 420.0
+offset_bottom = 464.0
+theme_override_colors/font_color = Color(0.3, 0.15, 0.05, 1)
+theme_override_font_sizes/font_size = 20
+text = "Temps de recharge: 1.5s"
+
+[node name="LabelUpgrades" type="Label" parent="BurntMap"]
+layout_mode = 0
+offset_left = 100.0
+offset_top = 474.0
+offset_right = 420.0
+offset_bottom = 504.0
+theme_override_colors/font_color = Color(0.3, 0.15, 0.05, 1)
+theme_override_font_sizes/font_size = 20
+text = "Améliorations: 0"
+
+[node name="SectionMissions" type="Label" parent="BurntMap"]
+layout_mode = 0
+offset_left = 480.0
+offset_top = 294.0
+offset_right = 800.0
+offset_bottom = 334.0
+theme_override_colors/font_color = Color(0.25, 0.12, 0.05, 1)
+theme_override_font_sizes/font_size = 26
+text = "── Missions ──"
+
+[node name="Mission1" type="Label" parent="BurntMap"]
+layout_mode = 0
+offset_left = 480.0
+offset_top = 354.0
+offset_right = 800.0
+offset_bottom = 394.0
+theme_override_colors/font_color = Color(0.3, 0.15, 0.05, 0.9)
+theme_override_font_sizes/font_size = 18
+text = "- Explorer l'océan"
+
+[node name="Mission2" type="Label" parent="BurntMap"]
+layout_mode = 0
+offset_left = 480.0
+offset_top = 399.0
+offset_right = 800.0
+offset_bottom = 439.0
+theme_override_colors/font_color = Color(0.3, 0.15, 0.05, 0.9)
+theme_override_font_sizes/font_size = 18
+text = "- Couler les ennemis"
+
+[node name="Mission3" type="Label" parent="BurntMap"]
+layout_mode = 0
+offset_left = 480.0
+offset_top = 444.0
+offset_right = 800.0
+offset_bottom = 484.0
+theme_override_colors/font_color = Color(0.3, 0.15, 0.05, 0.9)
+theme_override_font_sizes/font_size = 18
+text = "- Récupérer le butin"
