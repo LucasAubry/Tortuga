@@ -5,10 +5,13 @@ extends CanvasLayer
 @onready var label_damage = $BurntMap/LabelDamage
 @onready var label_reload = $BurntMap/LabelReload
 @onready var label_upgrades = $BurntMap/LabelUpgrades
+@onready var close_btn = $BurntMap/CloseBtn
 
 func _ready():
 	visible = false
 	add_to_group("tab_menu")
+	if close_btn:
+		close_btn.pressed.connect(hide_menu)
 
 func _unhandled_input(event):
 	if event is InputEventKey and event.pressed and not event.echo:

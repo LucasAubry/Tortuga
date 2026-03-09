@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://b73hyfrtx14yh"]
+[gd_scene load_steps=9 format=3 uid="uid://b73hyfrtx14yh"]
 
 [ext_resource type="Script" uid="uid://cyamacup26l8o" path="res://scripts/HUD.gd" id="1_hud"]
 [ext_resource type="Texture2D" uid="uid://bohjg0v2snpn0" path="res://assets/hud/hud_vent.png" id="2_7hsmw"]
@@ -13,6 +13,20 @@ corner_radius_top_left = 4
 corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xp_bg"]
+bg_color = Color(0.15, 0.05, 0.2, 0.5)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xp_fill"]
+bg_color = Color(0.6, 0.2, 0.8, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
 
 [node name="HUD" type="CanvasLayer"]
 script = ExtResource("1_hud")
@@ -141,6 +155,39 @@ grow_vertical = 0
 texture = ExtResource("3_hp")
 expand_mode = 1
 stretch_mode = 5
+
+[node name="KrakenXPBar" type="ProgressBar" parent="MarginContainer/BottomCenter/TextureRect"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.52
+anchor_top = 0.73
+anchor_right = 0.93
+anchor_bottom = 0.77
+offset_left = -67.99994
+offset_top = -71.599976
+offset_right = -408.0
+offset_bottom = -71.599976
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_xp_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_xp_fill")
+value = 45.0
+show_percentage = false
+
+[node name="LabelKrakenLvl" type="Label" parent="MarginContainer/BottomCenter/TextureRect"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.94
+anchor_top = 0.73
+anchor_right = 1.0
+anchor_bottom = 0.77
+offset_top = -71.0
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.6, 0.2, 0.8, 1)
+theme_override_font_sizes/font_size = 20
+text = "LVL 1"
 
 [node name="ProgressBar" type="ProgressBar" parent="MarginContainer/BottomCenter/TextureRect"]
 unique_name_in_owner = true

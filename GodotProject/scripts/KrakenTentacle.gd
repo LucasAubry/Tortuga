@@ -32,8 +32,12 @@ var attack_anims = [
 
 # ─── _ready ─────────────────────────────────────────────────────────────────
 func _ready():
+	# Bonus basés sur l'équipement actif (voir GameConfig.gd)
+	max_health += GameConfig.get_kraken_armor_hp_bonus()
+	attack_damage += GameConfig.get_kraken_spike_damage_bonus()
+		
 	health = max_health
-	print("🐙 Tentacule apparue en: ", global_position)
+	print("🐙 Tentacule apparue — PV: ", health, " Dégâts: ", attack_damage)
 
 	# Empêcher la caméra de passer à travers la tentacule
 	var player = get_tree().get_first_node_in_group("player")
@@ -63,15 +67,34 @@ func _ready():
 	apply_visual_config()
 
 func apply_visual_config():
-	# On cherche le dossier Skeleton3D qui contient tous les meshes
+	# Mapping: skill ID → nom du MeshInstance3D dans la scène
+	var id_to_mesh = {
+		"TentacleV1": "ventouse",
+		"TentacleV2": "piquant",
+		"TentacleV3": "lisse",
+		"TentacleV4": "vertèbre",
+		"TentacleV5": "plante",
+		"ArmorV1": "écailles dorsale",
+		"ArmorV2": "armure dorsale",
+		"ArmorV3": "armure longue dorsale",
+		"TipSpike": "dart",
+		"SpikesBack1": "pique dorsale",
+		"SpikesBack2": "double pique dorsale",
+		"SpikesSides": "pique latérale",
+		"SpikesFront1": "pique intérieur",
+		"SpikesFront2": "double pique intérieur",
+		"Thorns": "pique profond",
+	}
+	
 	var skeleton = _find_skeleton(self)
 	if not skeleton: return
 	
 	var config = GameConfig.kraken_tentacle_parts
-	for mesh_name in config.keys():
+	for skill_id in config.keys():
+		var mesh_name = id_to_mesh.get(skill_id, skill_id)
 		var mesh_node = skeleton.find_child(mesh_name, true, false)
 		if mesh_node and mesh_node is MeshInstance3D:
-			mesh_node.visible = config[mesh_name]
+			mesh_node.visible = config[skill_id]
 
 # ─── _process ───────────────────────────────────────────────────────────────
 func _process(delta):

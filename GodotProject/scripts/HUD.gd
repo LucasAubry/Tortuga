@@ -12,6 +12,8 @@ extends CanvasLayer
 @onready var label_food = $MarginContainer/TopLeft/LabelFood
 @onready var label_water = $MarginContainer/TopLeft/LabelWater
 @onready var weapon_slots_container = $WeaponSlots
+@onready var kraken_xp_bar = %KrakenXPBar
+@onready var label_kraken_lvl = %LabelKrakenLvl
 
 var weapon_slot_panels: Array[PanelContainer] = []
 var weapon_slot_icons: Array[TextureRect] = []
@@ -115,6 +117,13 @@ func _process(delta):
 			
 		if is_instance_valid(label_water):
 			label_water.text = "EAU: %d" % player_ship.water
+			
+		# Mise à jour XP Kraken
+		if is_instance_valid(kraken_xp_bar):
+			kraken_xp_bar.max_value = GameConfig.get_kraken_xp_for_level(GameConfig.kraken_level)
+			kraken_xp_bar.value = GameConfig.kraken_xp
+		if is_instance_valid(label_kraken_lvl):
+			label_kraken_lvl.text = "LVL %d" % GameConfig.kraken_level
 			
 		# Update weapons UI (Glow and Icons)
 		for i in range(weapon_slot_panels.size()):

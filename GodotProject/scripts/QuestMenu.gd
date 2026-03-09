@@ -4,7 +4,7 @@ extends CanvasLayer
 @onready var btn_q1 = $BurntMap/MarginContainer/VBox/QuestsList/Quest1/BtnQ1
 @onready var btn_q2 = $BurntMap/MarginContainer/VBox/QuestsList/Quest2/BtnQ2
 @onready var btn_q3 = $BurntMap/MarginContainer/VBox/QuestsList/Quest3/BtnQ3
-@onready var close_btn = $BurntMap/MarginContainer/VBox/CloseBtn
+@onready var close_btn = $BurntMap/CloseBtn
 
 func _ready():
 	visible = false

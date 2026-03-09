@@ -1,7 +1,33 @@
-[gd_scene load_steps=3 format=3 uid="uid://bbun7x1juo4jl"]
+[gd_scene load_steps=5 format=3 uid="uid://bbun7x1juo4jl"]
 
 [ext_resource type="Script" uid="uid://o3iphg16o2gl" path="res://scripts/KrakenMenu.gd" id="1_kraken"]
 [ext_resource type="Texture2D" uid="uid://bo1flu3sf35gb" path="res://assets/ui/burnt_map.png" id="burnt_map_tex"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0w1s8"]
+bg_color = Color(0.35, 0.18, 0.08, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.2, 0.1, 0.05, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ac5iy"]
+bg_color = Color(0.45, 0.22, 0.1, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.2, 0.1, 0.05, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 8
 
 [node name="KrakenMenu" type="CanvasLayer"]
 process_mode = 3
@@ -33,9 +59,9 @@ stretch_mode = 5
 [node name="Titre" type="Label" parent="BurntMap"]
 layout_mode = 0
 offset_left = 150.0
-offset_top = 155.0
+offset_top = 159.0
 offset_right = 750.0
-offset_bottom = 208.0
+offset_bottom = 212.0
 theme_override_colors/font_color = Color(0.2, 0.1, 0.05, 1)
 theme_override_font_sizes/font_size = 38
 text = "ÉLEVEUR DE KRAKEN"
@@ -43,21 +69,22 @@ horizontal_alignment = 1
 
 [node name="SousTitre" type="Label" parent="BurntMap"]
 layout_mode = 0
-offset_left = 150.0
-offset_top = 220.0
-offset_right = 750.0
-offset_bottom = 260.0
+offset_left = 148.0
+offset_top = 199.0
+offset_right = 748.0
+offset_bottom = 239.0
 theme_override_colors/font_color = Color(0.3, 0.15, 0.05, 0.8)
 theme_override_font_sizes/font_size = 20
-text = "Choisissez les parties visibles de vos tentacules"
+text = "Amelioration du Kraken"
 horizontal_alignment = 1
 
 [node name="PartsContainer" type="ScrollContainer" parent="BurntMap"]
 layout_mode = 0
-offset_left = 80.0
-offset_top = 280.0
-offset_right = 820.0
-offset_bottom = 680.0
+offset_left = 118.0
+offset_top = 296.0
+offset_right = 858.0
+offset_bottom = 696.0
+scale = Vector2(0.88, 0.9600012)
 
 [node name="PartsGrid" type="GridContainer" parent="BurntMap/PartsContainer"]
 layout_mode = 2
@@ -67,11 +94,14 @@ theme_override_constants/v_separation = 12
 columns = 2
 
 [node name="CloseBtn" type="Button" parent="BurntMap"]
+custom_minimum_size = Vector2(0, 60)
 layout_mode = 0
-offset_left = 200.0
-offset_top = 627.0
-offset_right = 700.0
-offset_bottom = 697.0
-theme_override_colors/font_color = Color(1, 0.9, 0.7, 1)
-theme_override_font_sizes/font_size = 26
+offset_left = 120.0
+offset_top = 770.0
+offset_right = 780.0
+offset_bottom = 830.0
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_0w1s8")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_0w1s8")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ac5iy")
 text = "⚓  REPRENDRE LA MER"

@@ -77,7 +77,34 @@ const GalleonHP = 300.0
 const SloopCooldown = 1.0
 const BrigantineCooldown = 1.5
 const GalleonCooldown = 2.0
-# Kraken Tentacle Customization
+# ─────────────────────────────────────────────
+# KRAKEN — CONFIGURATION FACILE À MODIFIER
+# ─────────────────────────────────────────────
+
+# Progression
+var kraken_xp: float = 0.0
+var kraken_level: int = 1
+var kraken_skill_points: int = 50
+
+# ── BONUS ARMURES (VIE en plus par tentacule) ──
+const ARMOR_V1_HP_BONUS = 2       # Mesh: "écailles dorsale"
+const ARMOR_V2_HP_BONUS = 3       # Mesh: "armure dorsale"
+const ARMOR_V3_HP_BONUS = 5       # Mesh: "armure longue dorsale"
+
+# ── BONUS PIQUES (DÉGÂTS en plus par attaque) ──
+const SPIKE_TipSpike_DMG = 10.0       # Mesh: "dart"
+const SPIKE_SpikesBack1_DMG = 10.0    # Mesh: "pique dorsale"
+const SPIKE_SpikesBack2_DMG = 10.0    # Mesh: "double pique dorsale"
+const SPIKE_SpikesSides_DMG = 15.0    # Mesh: "pique latérale"
+const SPIKE_SpikesFront1_DMG = 15.0   # Mesh: "pique intérieur"
+const SPIKE_SpikesFront2_DMG = 20.0   # Mesh: "double pique intérieur"
+const SPIKE_Thorns_DMG = 25.0         # Mesh: "pique profond"
+
+# ── XP par niveau (formule) ──
+const KRAKEN_XP_BASE = 100.0
+const KRAKEN_XP_MULTIPLIER = 1.5
+
+# Kraken Tentacle Customization (Current Visibility/Selection)
 var kraken_tentacle_parts = {
 	"TentacleV1": true,
 	"TentacleV2": false,
@@ -87,6 +114,7 @@ var kraken_tentacle_parts = {
 	"Spine": false,
 	"ArmorV1": false,
 	"ArmorV2": false,
+	"ArmorV3": false,
 	"TipSpike": false,
 	"SpikesBack1": false,
 	"SpikesBack2": false,
@@ -95,3 +123,54 @@ var kraken_tentacle_parts = {
 	"SpikesFront2": false,
 	"Thorns": false
 }
+
+# Kraken Skill Tree (Unlocked Status)
+var kraken_unlocked_skills = {
+	"TentacleV1": true,
+	"TentacleV2": false,
+	"TentacleV3": false,
+	"TentacleV4": false,
+	"TentacleV5": false,
+	"ArmorV1": false,
+	"ArmorV2": false,
+	"ArmorV3": false,
+	"TipSpike": false,
+	"SpikesBack1": false,
+	"SpikesBack2": false,
+	"SpikesSides": false,
+	"SpikesFront1": false,
+	"SpikesFront2": false,
+	"Thorns": false
+}
+
+func get_kraken_xp_for_level(lvl: int) -> float:
+	return lvl * KRAKEN_XP_BASE * KRAKEN_XP_MULTIPLIER
+
+func add_kraken_xp(amount: float):
+	kraken_xp += amount
+	while kraken_xp >= get_kraken_xp_for_level(kraken_level):
+		kraken_xp -= get_kraken_xp_for_level(kraken_level)
+		kraken_level += 1
+		kraken_skill_points += 1
+		print("Kraken Leveled Up! Level: ", kraken_level)
+
+# Retourne le bonus total de dégâts des piques actives
+func get_kraken_spike_damage_bonus() -> float:
+	var total = 0.0
+	var config = kraken_tentacle_parts
+	if config.get("TipSpike", false): total += SPIKE_TipSpike_DMG
+	if config.get("SpikesBack1", false): total += SPIKE_SpikesBack1_DMG
+	if config.get("SpikesBack2", false): total += SPIKE_SpikesBack2_DMG
+	if config.get("SpikesSides", false): total += SPIKE_SpikesSides_DMG
+	if config.get("SpikesFront1", false): total += SPIKE_SpikesFront1_DMG
+	if config.get("SpikesFront2", false): total += SPIKE_SpikesFront2_DMG
+	if config.get("Thorns", false): total += SPIKE_Thorns_DMG
+	return total
+
+# Retourne le bonus total de PV des armures actives
+func get_kraken_armor_hp_bonus() -> int:
+	var total = 0
+	if kraken_tentacle_parts.get("ArmorV1", false): total += ARMOR_V1_HP_BONUS
+	if kraken_tentacle_parts.get("ArmorV2", false): total += ARMOR_V2_HP_BONUS
+	if kraken_tentacle_parts.get("ArmorV3", false): total += ARMOR_V3_HP_BONUS
+	return total

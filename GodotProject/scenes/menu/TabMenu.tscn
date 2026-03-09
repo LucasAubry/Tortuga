@@ -1,7 +1,33 @@
-[gd_scene load_steps=3 format=3 uid="uid://bbjdqads8j7tu"]
+[gd_scene load_steps=5 format=3 uid="uid://bbjdqads8j7tu"]
 
 [ext_resource type="Script" uid="uid://2o71ghgl5g8c" path="res://scripts/TabMenu.gd" id="1_tab"]
 [ext_resource type="Texture2D" uid="uid://bo1flu3sf35gb" path="res://assets/ui/burnt_map.png" id="burnt_map_tex"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_5x6b5"]
+bg_color = Color(0.35, 0.18, 0.08, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.2, 0.1, 0.05, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mnwqo"]
+bg_color = Color(0.45, 0.22, 0.1, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.2, 0.1, 0.05, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 8
 
 [node name="TabMenu" type="CanvasLayer"]
 process_mode = 3
@@ -43,9 +69,9 @@ horizontal_alignment = 1
 
 [node name="SectionStats" type="Label" parent="BurntMap"]
 layout_mode = 0
-offset_left = 100.0
+offset_left = 135.0
 offset_top = 294.0
-offset_right = 409.0
+offset_right = 444.0
 offset_bottom = 334.0
 theme_override_colors/font_color = Color(0.25, 0.12, 0.05, 1)
 theme_override_font_sizes/font_size = 26
@@ -53,9 +79,9 @@ text = "── États du Navire ──"
 
 [node name="LabelSpeed" type="Label" parent="BurntMap"]
 layout_mode = 0
-offset_left = 100.0
+offset_left = 135.0
 offset_top = 354.0
-offset_right = 420.0
+offset_right = 455.0
 offset_bottom = 384.0
 theme_override_colors/font_color = Color(0.3, 0.15, 0.05, 1)
 theme_override_font_sizes/font_size = 20
@@ -63,9 +89,9 @@ text = "Vitesse Max: 10 kts"
 
 [node name="LabelDamage" type="Label" parent="BurntMap"]
 layout_mode = 0
-offset_left = 100.0
+offset_left = 135.0
 offset_top = 394.0
-offset_right = 420.0
+offset_right = 455.0
 offset_bottom = 424.0
 theme_override_colors/font_color = Color(0.3, 0.15, 0.05, 1)
 theme_override_font_sizes/font_size = 20
@@ -73,9 +99,9 @@ text = "Dégâts Canons: 25"
 
 [node name="LabelReload" type="Label" parent="BurntMap"]
 layout_mode = 0
-offset_left = 100.0
+offset_left = 135.0
 offset_top = 434.0
-offset_right = 420.0
+offset_right = 455.0
 offset_bottom = 464.0
 theme_override_colors/font_color = Color(0.3, 0.15, 0.05, 1)
 theme_override_font_sizes/font_size = 20
@@ -83,9 +109,9 @@ text = "Temps de recharge: 1.5s"
 
 [node name="LabelUpgrades" type="Label" parent="BurntMap"]
 layout_mode = 0
-offset_left = 100.0
+offset_left = 135.0
 offset_top = 474.0
-offset_right = 420.0
+offset_right = 455.0
 offset_bottom = 504.0
 theme_override_colors/font_color = Color(0.3, 0.15, 0.05, 1)
 theme_override_font_sizes/font_size = 20
@@ -130,3 +156,16 @@ offset_bottom = 484.0
 theme_override_colors/font_color = Color(0.3, 0.15, 0.05, 0.9)
 theme_override_font_sizes/font_size = 18
 text = "- Récupérer le butin"
+
+[node name="CloseBtn" type="Button" parent="BurntMap"]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 0
+offset_left = 119.0
+offset_top = 770.0
+offset_right = 779.0
+offset_bottom = 830.0
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_5x6b5")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_5x6b5")
+theme_override_styles/hover = SubResource("StyleBoxFlat_mnwqo")
+text = "⚓  REPRENDRE LA MER"
