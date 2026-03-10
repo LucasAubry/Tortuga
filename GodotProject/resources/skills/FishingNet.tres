@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="FishingNet" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/skills/FishingNet.gd" id="1_net"]
+[ext_resource type="Texture2D" path="res://assets/skills/fishing_net.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_net")
+snare_duration = 4.0
+weapon_name = "Filet de Pêche"
+ammo_cost = 0
+cooldown = 10.0
+damage = 0.0
+projectile_count = 1
+projectile_spread = 0.0
+projectile_speed = 100.0
+projectile_scale = 1.0
+projectile_color = Color(1, 1, 1, 1)
+icon = ExtResource("2_icon")

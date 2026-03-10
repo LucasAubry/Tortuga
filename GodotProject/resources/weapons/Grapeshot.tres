@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=3 format=3 uid="uid://m1htuta6frw3"]
+
+[ext_resource type="Texture2D" uid="uid://dfrtfdgk4pkhh" path="res://assets/weapon/grapeshot.png" id="1_icon"]
+[ext_resource type="Script" uid="uid://cexkxjymb314v" path="res://scripts/WeaponData.gd" id="2_script"]
+
+[resource]
+script = ExtResource("2_script")
+weapon_name = "Mitraille"
+damage = 8.0
+cooldown = 1.5
+ammo_cost = 5
+projectile_speed = 250.0
+projectile_color = Color(0.3, 0.3, 0.3, 1)
+projectile_count = 5
+projectile_scale = 1.5
+projectile_spread = 0.35
+icon = ExtResource("1_icon")

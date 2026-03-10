@@ -1,12 +1,3 @@
-res://scenes/menu/KrakenMenu.tscn
-res://scenes/tentacule_kraken.tscn
 res://scenes/World.tscn
-res://scenes/HUD.tscn
-res://scripts/GameConfig.gd
-res://scripts/HUD.gd
-res://scripts/KrakenMenu.gd
-res://scripts/KrakenTentacle.gd
-res://scenes/menu/QuestMenu.tscn
-res://scenes/menu/TabMenu.tscn
-res://scripts/QuestMenu.gd
-res://scripts/TabMenu.gd
+res://scripts/Ship.gd
+res://scenes/Ship.tscn

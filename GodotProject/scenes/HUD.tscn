@@ -5,15 +5,6 @@
 [ext_resource type="PackedScene" uid="uid://cd6jlhtfvi368" path="res://scenes/MinimapUI.tscn" id="2_mini"]
 [ext_resource type="Texture2D" uid="uid://gsmfxfugyae" path="res://assets/hud/hud_hp.png" id="3_hp"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_bg"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fill"]
-bg_color = Color(0.2, 0.8, 0.2, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xp_bg"]
 bg_color = Color(0.15, 0.05, 0.2, 0.5)
 corner_radius_top_left = 2
@@ -27,6 +18,15 @@ corner_radius_top_left = 2
 corner_radius_top_right = 2
 corner_radius_bottom_right = 2
 corner_radius_bottom_left = 2
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_bg"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fill"]
+bg_color = Color(0.2, 0.8, 0.2, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
 
 [node name="HUD" type="CanvasLayer"]
 script = ExtResource("1_hud")
@@ -146,10 +146,10 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -828.0
-offset_top = -502.0
-offset_right = 872.0
-offset_bottom = 168.0
+offset_left = -830.0
+offset_top = -240.0
+offset_right = 870.0
+offset_bottom = 430.0
 grow_horizontal = 2
 grow_vertical = 0
 texture = ExtResource("3_hp")
@@ -164,12 +164,13 @@ anchor_left = 0.52
 anchor_top = 0.73
 anchor_right = 0.93
 anchor_bottom = 0.77
-offset_left = -67.99994
-offset_top = -71.599976
-offset_right = -408.0
-offset_bottom = -71.599976
+offset_left = -353.99994
+offset_top = -390.1
+offset_right = -693.39124
+offset_bottom = -394.89996
 grow_horizontal = 2
 grow_vertical = 2
+scale = Vector2(1.8399999, 1)
 theme_override_styles/background = SubResource("StyleBoxFlat_xp_bg")
 theme_override_styles/fill = SubResource("StyleBoxFlat_xp_fill")
 value = 45.0
@@ -183,9 +184,13 @@ anchor_left = 0.94
 anchor_top = 0.73
 anchor_right = 1.0
 anchor_bottom = 0.77
-offset_top = -71.0
+offset_left = -799.0
+offset_top = -345.1
+offset_right = -799.0
+offset_bottom = -274.1
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.6, 0.2, 0.8, 1)
+scale = Vector2(1.2155082, 1.2)
+theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 20
 text = "LVL 1"
 
@@ -197,12 +202,13 @@ anchor_left = 0.52
 anchor_top = 0.78
 anchor_right = 0.93
 anchor_bottom = 0.88
-offset_left = -67.99994
-offset_top = -71.599976
-offset_right = -408.0
-offset_bottom = -116.599976
+offset_left = -76.99994
+offset_top = -331.59998
+offset_right = -455.2478
+offset_bottom = -367.64752
 grow_horizontal = 2
 grow_vertical = 2
+scale = Vector2(1.1199926, 0.83999753)
 theme_override_styles/background = SubResource("StyleBoxEmpty_bg")
 theme_override_styles/fill = SubResource("StyleBoxFlat_fill")
 value = 75.0
@@ -217,11 +223,12 @@ anchor_left = 0.5
 anchor_top = 0.63
 anchor_right = 0.91
 anchor_bottom = 0.78
-offset_left = -200.0
-offset_top = -48.099976
-offset_right = -200.0
-offset_bottom = -48.099976
+offset_left = -82.99994
+offset_top = -305.1
+offset_right = -83.0
+offset_bottom = -305.1
 grow_horizontal = 2
+scale = Vector2(0.87999755, 0.87999755)
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 36
@@ -273,10 +280,10 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -500.0
-offset_top = -120.0
-offset_right = 500.0
-offset_bottom = -20.0
+offset_left = -511.0
+offset_top = -115.0
+offset_right = 489.0
+offset_bottom = -15.0
 grow_horizontal = 2
 grow_vertical = 0
 

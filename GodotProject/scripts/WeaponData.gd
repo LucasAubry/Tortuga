@@ -10,6 +10,9 @@ enum ActionType { CANNON, GRAPPLE, SKILL, DIVE, WIND_CONTROL, KRAKEN }
 @export var ammo_cost: int = 2
 @export var projectile_speed: float = 200.0
 @export var projectile_color: Color = Color.WHITE
+@export var projectile_count: int = 1       # Nombre de boulets par tir (1 = normal, 5+ = mitraille)
+@export var projectile_scale: float = 2.2   # Taille des boulets (plus petit = petit boulet)
+@export var projectile_spread: float = 0.0  # Dispersion en radians (0 = aucune)
 @export var icon: Texture2D
 
 @export_group("Grapple Specific")

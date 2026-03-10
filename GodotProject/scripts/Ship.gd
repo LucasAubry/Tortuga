@@ -53,10 +53,14 @@ var current_speed_buff: float = 1.0
 @export var wind_boost_timer: float = 0.0
 var current_wind_vec_phys: Vector3 = Vector3.ZERO
 var wind_boost_intensity: float = 0.0
+var is_underwater: bool = false
+var _hit_smoke_particles: CPUParticles3D = null
 
-# Knockback physique (impact tentacule, collision, etc.)
+# Knockback et CC (Immobilisation)
 var knockback_velocity: Vector3 = Vector3.ZERO
-var knockback_decay: float = 3.5  # plus grand = décroit plus vite
+var knockback_decay: float = 3.5
+var immobilization_timer: float = 0.0
+var _immobilized_icon: Node3D = null
 
 # Naufrage
 var is_sinking: bool = false
@@ -99,6 +103,84 @@ func _ready():
 		add_to_group("player")
 	else:
 		add_to_group("enemies")
+		
+	_setup_damage_smoke()
+	_setup_immobilized_icon()
+
+func _setup_immobilized_icon():
+	var net_scene = load("res://assets/skills/fishing-net.glb")
+	if net_scene:
+		_immobilized_icon = net_scene.instantiate()
+		add_child(_immobilized_icon)
+		_immobilized_icon.name = "ImmobilizedNet3D"
+		_immobilized_icon.scale = Vector3(6.0, 6.0, 6.0) # Beaucoup plus gros pour être bien visible de loin
+		
+		var zone_node = get_node_or_null("StatusEffectsZone")
+		if zone_node:
+			_immobilized_icon.position = zone_node.position
+		else:
+			_immobilized_icon.position = Vector3(0, 48, 0)
+		
+		_immobilized_icon.visible = false
+
+func _setup_damage_smoke():
+	# Création du node de fumée noire persistante
+	_hit_smoke_particles = CPUParticles3D.new()
+	add_child(_hit_smoke_particles)
+	_hit_smoke_particles.name = "HealthSmoke"
+	
+	# 1. NUAGE SOBRE ET RÉPARTI (Look MMO)
+	_hit_smoke_particles.emitting = false
+	_hit_smoke_particles.amount = 700 # Plus sobre
+	_hit_smoke_particles.lifetime = 6.0
+	_hit_smoke_particles.randomness = 0.5
+	
+	# ÉMISSION SUR TOUT LE PONT DU BATEAU (Configurable via DamageSmokeZone dans l'éditeur)
+	_hit_smoke_particles.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
+	
+	var zone_node = get_node_or_null("DamageSmokeZone")
+	if zone_node:
+		_hit_smoke_particles.position = zone_node.position
+		_hit_smoke_particles.emission_box_extents = zone_node.scale
+	else:
+		_hit_smoke_particles.position = Vector3(0, 4, 0)
+		_hit_smoke_particles.emission_box_extents = Vector3(5, 1, 15) # Couvre tout le bateau par défaut
+	
+	_hit_smoke_particles.direction = Vector3(0, 1, 0)
+	_hit_smoke_particles.spread = 10.0 # Moins conique, monte plus droit
+	_hit_smoke_particles.gravity = Vector3(0, 3, 0)
+	_hit_smoke_particles.initial_velocity_min = 1.0
+	_hit_smoke_particles.initial_velocity_max = 4.0
+	
+	_hit_smoke_particles.angle_max = 360.0
+	_hit_smoke_particles.local_coords = true
+	
+	# Mesh un peu plus gros pour une meilleure visibilité
+	var sphere = SphereMesh.new()
+	sphere.radial_segments = 6
+	sphere.rings = 4
+	sphere.radius = 2.5
+	sphere.height = 5.0
+	
+	var mat = StandardMaterial3D.new()
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.vertex_color_use_as_albedo = true
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	sphere.material = mat
+	_hit_smoke_particles.mesh = sphere
+	
+	# Expansion progressive et douce
+	var curve = Curve.new()
+	curve.add_point(Vector2(0, 0.7)) # Commence plus gros
+	curve.add_point(Vector2(1, 6.0))
+	_hit_smoke_particles.scale_amount_curve = curve
+	
+	var gradient = Gradient.new()
+	gradient.set_color(0, Color(1, 1, 1, 0))    
+	gradient.set_color(1, Color(1, 1, 1, 0.5)) # Plus transparent
+	_hit_smoke_particles.color_ramp = gradient
+	
+	# (La position est déjà gérée plus haut via zone_node)
 
 func _init_weapons():
 	# On ne fait plus d'initialisation automatique par code.
@@ -186,6 +268,9 @@ func _physics_process(delta):
 		wind_boost_timer -= delta
 		if wind_boost_timer <= 0:
 			is_wind_boost_active = false
+			
+	if immobilization_timer > 0:
+		immobilization_timer -= delta
 		
 	# Mouvement physique de base
 	if is_player:
@@ -207,6 +292,45 @@ func _physics_process(delta):
 	
 	# move_and_slide FINAL (après que tous les skills aient modifié velocity)
 	move_and_slide()
+	
+	_update_damage_visuals(delta)
+
+func _update_damage_visuals(delta):
+	if not _hit_smoke_particles: return
+	
+	var hp_ratio = hp / max_hp
+	
+	# Fume uniquement si HP <= 35%
+	if (hp <= 35.0 or hp_ratio < 0.35) and not is_sinking and not is_underwater:
+		if not _hit_smoke_particles.emitting:
+			_hit_smoke_particles.emitting = true
+		
+		# Couleur fixe : Gris foncé / Noir sobre
+		var grad = _hit_smoke_particles.color_ramp as Gradient
+		grad.set_color(1, Color(0.1, 0.1, 0.1, 0.5)) # Gris foncé vaporeux
+	else:
+		if _hit_smoke_particles.emitting:
+			_hit_smoke_particles.emitting = false
+	
+	# Gestion de l'icône d'immobilisation (Maintenant un filet 3D)
+	if _immobilized_icon:
+		if immobilization_timer > 0:
+			_immobilized_icon.visible = true
+			# Animation de flotte et rotation
+			var t = float(Time.get_ticks_msec()) / 1000.0
+			
+			var base_y = 48.0
+			var zone_node = get_node_or_null("StatusEffectsZone")
+			if zone_node:
+				base_y = zone_node.position.y
+				_immobilized_icon.position.x = zone_node.position.x
+				_immobilized_icon.position.z = zone_node.position.z
+			
+			_immobilized_icon.position.y = base_y
+			# Rotation lente pour montrer la 3D
+			_immobilized_icon.rotation.y += delta * 2.0
+		else:
+			_immobilized_icon.visible = false
 	
 	# POST-PHYSIQUE (exécuté après move_and_slide pour les skills qui modifient la position)
 	for i in range(weapon_slots.size()):
@@ -276,6 +400,11 @@ func _handle_camera_and_weapons(delta):
 		shoot_cannons()
 
 func _apply_movement_physics(delta, steer, throttle):
+	# Si le bateau est immobilisé (ex: par un filet de pêche), on bloque les commandes
+	if immobilization_timer > 0:
+		steer = 0.0
+		throttle = 0.0
+		
 	# Rotation de base
 	if steer != 0:
 		rotation.y -= steer * turn_speed * delta
@@ -313,7 +442,7 @@ func _apply_movement_physics(delta, steer, throttle):
 			current_wind_vec_phys = target_wind_vec
 		current_wind_vec_phys = current_wind_vec_phys.lerp(target_wind_vec, delta * 1.5)
 		
-		var is_underwater = current_dive_depth < -5.0
+		is_underwater = current_dive_depth < -5.0
 		var wind_push = forward.dot(current_wind_vec_phys) if not is_underwater else 0.0
 		var speed_modifier = 1.0 + (wind_push * 0.4) if not is_underwater else 1.0
 		
@@ -436,21 +565,32 @@ func shoot_cannons():
 
 func _fire_cannons(weapon: WeaponData):
 	var projectile_speed = weapon.projectile_speed
+	var count = weapon.projectile_count if weapon.projectile_count > 0 else 1
+	var spread = weapon.projectile_spread
 	
 	# Port (Left)
 	var port_marker = get_node_or_null("Cannons/PortCannon1")
 	if port_marker:
-		_fire_projectile(port_marker, -global_transform.basis.x, projectile_speed, weapon)
+		for i in range(count):
+			var dir = -global_transform.basis.x
+			if spread > 0 and count > 1:
+				var angle_offset = randf_range(-spread, spread)
+				dir = dir.rotated(Vector3.UP, angle_offset)
+			_fire_projectile(port_marker, dir, projectile_speed, weapon)
 	
 	# Starboard (Right)
 	var starboard_marker = get_node_or_null("Cannons/StarboardCannon1")
 	if starboard_marker:
-		_fire_projectile(starboard_marker, global_transform.basis.x, projectile_speed, weapon)
+		for i in range(count):
+			var dir = global_transform.basis.x
+			if spread > 0 and count > 1:
+				var angle_offset = randf_range(-spread, spread)
+				dir = dir.rotated(Vector3.UP, angle_offset)
+			_fire_projectile(starboard_marker, dir, projectile_speed, weapon)
 
 func _use_grapple(action: WeaponData):
 	print("Utilisation du Grappin: ", action.weapon_name)
-	# Ici on pourrait tirer un projectile spécial "Grappin"
-	_fire_cannons(action) # Pour l'instant on tire juste pour le visuel
+	_fire_cannons(action)
 
 func _use_skill(action: WeaponData):
 	print("Utilisation Compétence: ", action.weapon_name)
@@ -462,12 +602,16 @@ func _fire_projectile(marker: Marker3D, direction: Vector3, speed: float, weapon
 	get_tree().get_root().add_child(proj)
 	proj.global_position = marker.global_position
 	
-	# Increase the visibility of cannonballs reasonably
-	proj.scale = Vector3(2.2, 2.2, 2.2)
+	# Taille du boulet (petit pour mitraille, normal sinon)
+	var s = weapon.projectile_scale if weapon else 2.2
+	proj.scale = Vector3(s, s, s)
 	
-	# Combine velocity and give them a lighter upward arc thrust 
+	# Velocity avec léger arc vers le haut + variation pour mitraille
 	proj.velocity = velocity + (direction.normalized() * speed)
 	proj.velocity.y += 12.0
+	if weapon and weapon.projectile_count > 1:
+		proj.velocity.y += randf_range(-4.0, 8.0) # Variation verticale
+		proj.velocity += Vector3(randf_range(-10, 10), 0, randf_range(-10, 10))
 	
 	proj.damage = weapon.damage if weapon else damage
 	proj.is_player_owned = is_player
@@ -482,12 +626,10 @@ func _fire_projectile(marker: Marker3D, direction: Vector3, speed: float, weapon
 		mat.roughness = 0.2
 		mesh.material_override = mat
 	
-	# Smoke Effect - Attached, directed outwards
+	# Smoke Effect
 	var smoke = SmokeScene.instantiate() as Node3D
 	marker.add_child(smoke)
-	# Start at muzzle
 	smoke.position = Vector3.ZERO
-	# look_at needs to be correctly directed outwards from the ship
 	smoke.look_at(smoke.global_position + direction.normalized(), Vector3.UP)
 
 var ai_state_timer: float = 0.0
@@ -527,6 +669,11 @@ func apply_knockback(from_pos: Vector3, force: float):
 	if is_player and spring_arm:
 		_camera_shake(0.35, 18.0)
 
+func apply_immobilization(duration: float):
+	# Applique un root/immobilisation pour la durée spécifiée
+	immobilization_timer = max(immobilization_timer, duration)
+	print("⚓ " + name + " est immobilisé pour " + str(duration) + " secondes !")
+
 func _camera_shake(duration: float, intensity: float):
 	var original_offset = spring_arm.position
 	var elapsed := 0.0
@@ -544,8 +691,10 @@ func _camera_shake(duration: float, intensity: float):
 func take_damage(amount: float, attacker: Ship):
 	if is_sinking: return  # Ignore les dégâts pendant le naufrage
 	hp -= amount
+	
 	if hp <= 0:
 		_start_sinking()
+
 
 func heal(amount: float):
 	hp = min(hp + amount, max_hp)

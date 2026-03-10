@@ -1,10 +1,15 @@
-[gd_scene load_steps=24 format=3 uid="uid://world"]
+[gd_scene load_steps=26 format=3 uid="uid://world"]
 
 [ext_resource type="PackedScene" uid="uid://ship" path="res://scenes/Ship.tscn" id="1_kqs1s"]
 [ext_resource type="PackedScene" uid="uid://b73hyfrtx14yh" path="res://scenes/HUD.tscn" id="2_hud"]
+[ext_resource type="Resource" path="res://resources/skills/FishingNet.tres" id="3_nthub"]
+[ext_resource type="Resource" uid="uid://m1htuta6frw3" path="res://resources/weapons/Grapeshot.tres" id="4_44lqw"]
 [ext_resource type="PackedScene" uid="uid://dsyamwtg77c6r" path="res://scenes/MapUI.tscn" id="4_map"]
+[ext_resource type="Resource" uid="uid://ddwmeu16ucgvt" path="res://resources/skills/WindControl.tres" id="5_dwmkc"]
 [ext_resource type="PackedScene" uid="uid://dbhw67e7ytc20" path="res://scenes/menu/QuestMenu.tscn" id="5_quest"]
+[ext_resource type="Resource" uid="uid://doploauaaas08" path="res://resources/skills/kraken_skill.tres" id="6_30fn3"]
 [ext_resource type="PackedScene" uid="uid://bbjdqads8j7tu" path="res://scenes/menu/TabMenu.tscn" id="6_tab"]
+[ext_resource type="Resource" uid="uid://dfhwf6k7rlq1j" path="res://resources/skills/Dive.tres" id="7_dgldv"]
 [ext_resource type="PackedScene" path="res://scenes/menu/SettingsMenu.tscn" id="7_set"]
 [ext_resource type="PackedScene" uid="uid://bbun7x1juo4jl" path="res://scenes/menu/KrakenMenu.tscn" id="8_kraken_menu"]
 [ext_resource type="Script" uid="uid://blqfq2pyvw0iy" path="res://scripts/WindManager.gd" id="10_wind"]
@@ -13,9 +18,6 @@
 [ext_resource type="PackedScene" uid="uid://island" path="res://scenes/Ile.tscn" id="13_ile"]
 [ext_resource type="Script" uid="uid://cexkxjymb314v" path="res://scripts/WeaponData.gd" id="14_weapon_script"]
 [ext_resource type="Resource" uid="uid://djo4qwdrn425a" path="res://resources/weapons/Standard.tres" id="15_standard_weapon"]
-[ext_resource type="Resource" uid="uid://dfhwf6k7rlq1j" path="res://resources/skills/Dive.tres" id="16_dive"]
-[ext_resource type="Resource" uid="uid://ddwmeu16ucgvt" path="res://resources/skills/WindControl.tres" id="17_wind_control"]
-[ext_resource type="Resource" uid="uid://doploauaaas08" path="res://resources/skills/kraken_skill.tres" id="18_kraken"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_xwyq"]
 sky_horizon_color = Color(0.646, 0.656, 0.67, 1)
@@ -128,7 +130,7 @@ environment = SubResource("Environment_xwyq")
 transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
 collision_layer = 3
 is_player = true
-weapon_slots = Array[ExtResource("14_weapon_script")]([ExtResource("15_standard_weapon"), ExtResource("16_dive"), ExtResource("17_wind_control"), ExtResource("18_kraken"), null])
+weapon_slots = Array[ExtResource("14_weapon_script")]([ExtResource("3_nthub"), ExtResource("4_44lqw"), ExtResource("5_dwmkc"), ExtResource("6_30fn3"), ExtResource("7_dgldv")])
 
 [node name="EnemyShip" parent="." instance=ExtResource("1_kqs1s")]
 transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 300, 0, 300)

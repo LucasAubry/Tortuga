@@ -259,6 +259,16 @@ func take_damage(amount: float, _attacker = null):
 		_flash_hit()
 
 # ─── Feedback visuel — flash rouge bref ──────────────────────────────────────
+func apply_immobilization(duration: float):
+	print("🐙 Tentacule prise au filet pour ", duration, " sec !")
+	process_mode = Node.PROCESS_MODE_DISABLED
+	
+	var t = get_tree().create_timer(duration, true, false, true) # ignore_time_scale=true ? non, normal
+	t.timeout.connect(func():
+		if is_instance_valid(self):
+			process_mode = Node.PROCESS_MODE_INHERIT
+	)
+
 func _flash_hit():
 	var meshes: Array = []
 	_collect_visible_meshes(self, meshes)

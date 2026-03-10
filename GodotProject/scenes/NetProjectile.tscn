@@ -1,0 +1,16 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/NetProjectile.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://nkqr08xe8s0f" path="res://assets/skills/fishing-net.glb" id="2_mesh"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_np1"]
+size = Vector3(8.0, 2.0, 8.0)
+
+[node name="NetProjectile" type="Area3D"]
+script = ExtResource("1_script")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_np1")
+
+[node name="fishing-net" parent="." instance=ExtResource("2_mesh")]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, 0, 0)

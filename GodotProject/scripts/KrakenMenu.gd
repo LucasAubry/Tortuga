@@ -270,13 +270,13 @@ func _place_skill(id: String, texture: Texture, label_txt: String, dependency: S
 	name_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	name_lbl.custom_minimum_size = Vector2(160, 0)
-	name_lbl.add_theme_font_size_override("font_size", 18)
+	name_lbl.add_theme_font_size_override("font_size", 24)
 	name_lbl.add_theme_color_override("font_color", Color(0.15, 0.08, 0.03, 1) if unlocked else Color(0.2, 0.1, 0.05, 0.4))
 	
 	# Effet de la compétence (dégâts/PV)
 	var effect_lbl = Label.new()
 	effect_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	effect_lbl.add_theme_font_size_override("font_size", 15)
+	effect_lbl.add_theme_font_size_override("font_size", 19)
 	if effect != "":
 		effect_lbl.text = effect
 		effect_lbl.add_theme_color_override("font_color", Color(0.6, 0.3, 0.0, 1))
@@ -284,7 +284,7 @@ func _place_skill(id: String, texture: Texture, label_txt: String, dependency: S
 	# Statut
 	var status_lbl = Label.new()
 	status_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	status_lbl.add_theme_font_size_override("font_size", 14)
+	status_lbl.add_theme_font_size_override("font_size", 17)
 	if unlocked:
 		status_lbl.text = "⚓ ÉQUIPÉ" if active else "DISPONIBLE"
 		status_lbl.add_theme_color_override("font_color", Color(0.7, 0.6, 0.0) if active else Color(0.3, 0.4, 0.3))

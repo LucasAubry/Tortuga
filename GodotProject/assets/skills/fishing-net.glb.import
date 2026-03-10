@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://nitisyweea7h"
-path="res://.godot/imported/sans_nom.glb-3edb6cb274afed83daee85a77b083ca4.scn"
+uid="uid://nkqr08xe8s0f"
+path="res://.godot/imported/fishing-net.glb-292b1045b49fe26e9b3cc65f5b65dc39.scn"
 
 [deps]
 
-source_file="res://assets/skills/sans_nom.glb"
-dest_files=["res://.godot/imported/sans_nom.glb-3edb6cb274afed83daee85a77b083ca4.scn"]
+source_file="res://assets/skills/fishing-net.glb"
+dest_files=["res://.godot/imported/fishing-net.glb-292b1045b49fe26e9b3cc65f5b65dc39.scn"]
 
 [params]
 
