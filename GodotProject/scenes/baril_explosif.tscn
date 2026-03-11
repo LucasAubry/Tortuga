@@ -83,14 +83,15 @@ blend_shape_mode = 0
 shadow_mesh = SubResource("ArrayMesh_22jin")
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1ohkw"]
-radius = 3.6762695
-height = 8.6640625
+radius = 4.777832
+height = 9.555664
 
 [node name="baril explosif" type="Area3D"]
 transform = Transform3D(1, 0, 0, 0, -0.0013962225, 0.99999905, 0, -0.99999905, -0.0013962225, 0, 0, 0)
 collision_layer = 0
 script = ExtResource("1_script")
 damage = 60.0
+knockback_force = 500.0
 
 [node name="Cylinder" type="MeshInstance3D" parent="."]
 transform = Transform3D(250, 0, 0, 0, -2.9802322e-05, 250, 0, -250, -2.9802322e-05, 0.016179703, 0, 0)
@@ -98,5 +99,5 @@ mesh = SubResource("ArrayMesh_ojgcg")
 skeleton = NodePath("")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.019958511, 1.0913936e-11)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.019958515, 1.2732926e-11)
 shape = SubResource("CapsuleShape3D_1ohkw")

@@ -6,9 +6,6 @@ const BarrelScene = preload("res://scenes/baril_explosif.tscn")
 func _init():
 	type = ActionType.CANNON
 	weapon_name = "Baril Explosif"
-	cooldown = 8.0 # Refroidissement avant de pouvoir en larguer un autre
-	damage = 85.0
-	ammo_cost = 10
 
 func activate(ship: Node3D):
 	# On cherche si on a assez de munitions
@@ -25,7 +22,9 @@ func activate(ship: Node3D):
 	
 	# Création du baril
 	var barrel = BarrelScene.instantiate()
-	ship.get_parent().add_child(barrel)
+	
+	# Ajout à la racine du monde (Map) pour qu'il soit indépendant des autres nœuds
+	ship.get_tree().current_scene.add_child(barrel)
 	
 	# Positionnement derrière le bateau
 	var fwd = ship.global_transform.basis.z.normalized()

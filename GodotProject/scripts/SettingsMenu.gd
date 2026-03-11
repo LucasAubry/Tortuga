@@ -15,7 +15,7 @@ func _ready():
 	option_lang.item_selected.connect(_on_lang_changed)
 	option_preset.item_selected.connect(_on_preset_changed)
 	
-	# --- ADD CEL SHADER TOGGLE ---
+	# --- ADD CEL SHADER ET FPS SETTINGS ---
 	var graphics_box = $ColorRect/MarginContainer/VBox/HBoxControls/GraphicsCol
 	if graphics_box:
 		var check = CheckButton.new()
@@ -29,6 +29,18 @@ func _ready():
 		check_fps.button_pressed = GameConfig.show_fps
 		check_fps.toggled.connect(_on_fps_toggled)
 		graphics_box.add_child(check_fps)
+		
+		var label_cap = Label.new()
+		label_cap.text = "Limiteur FPS"
+		graphics_box.add_child(label_cap)
+		
+		var option_fps_cap = OptionButton.new()
+		option_fps_cap.add_item("Illimité (VSync)")
+		option_fps_cap.add_item("60 FPS")
+		option_fps_cap.add_item("30 FPS")
+		option_fps_cap.selected = GameConfig.fps_limit_index
+		option_fps_cap.item_selected.connect(_on_fps_cap_changed)
+		graphics_box.add_child(option_fps_cap)
 	
 	# Font assignment removed
 
@@ -85,3 +97,14 @@ func _on_fps_toggled(enabled: bool):
 	GameConfig.show_fps = enabled
 	GameConfig.fps_toggled.emit(enabled)
 	print("FPS Toggled: ", enabled)
+
+func _on_fps_cap_changed(idx: int):
+	GameConfig.fps_limit_index = idx
+	match idx:
+		0:
+			Engine.max_fps = 0 # Illimité (Dépend du VSync du projet)
+		1:
+			Engine.max_fps = 60
+		2:
+			Engine.max_fps = 30
+	print("FPS Limit changed to index: ", idx, " (Max FPS: ", Engine.max_fps, ")")

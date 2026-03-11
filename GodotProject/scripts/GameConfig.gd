@@ -7,6 +7,7 @@ var wind_direction: Vector2 = Vector2(1, 0).normalized()
 var wind_speed: float = 1.0
 var enable_cel_shader: bool = true
 var show_fps: bool = false
+var fps_limit_index: int = 0 # 0 = Illimité, 1 = 60, 2 = 30
 
 # Noise for global wind zones
 var wind_angle_noise = FastNoiseLite.new()
@@ -17,6 +18,15 @@ func _ready():
 	wind_angle_noise.frequency = 0.00005 # Extremely massive zones (changes very slowly)
 	wind_speed_noise.seed = 5678
 	wind_speed_noise.frequency = 0.0001
+	
+	# Applique la limite FPS de base au démarrage
+	_apply_fps_limit()
+
+func _apply_fps_limit():
+	match fps_limit_index:
+		0: Engine.max_fps = 0 # 0 = Illimité dans Godot
+		1: Engine.max_fps = 60
+		2: Engine.max_fps = 30
 
 func get_wind_at(pos: Vector3) -> Dictionary:
 	# Add completely dynamic variation based on running time

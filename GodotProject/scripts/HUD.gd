@@ -287,6 +287,7 @@ func _scale_fonts(node: Node, font_size: int):
 	for child in node.get_children():
 		_scale_fonts(child, font_size)
 
+
 # ─────────────────────────────────────────────
 # ÉCRAN DE MORT
 # ─────────────────────────────────────────────
@@ -337,43 +338,86 @@ func show_death_screen():
 	spacer2.custom_minimum_size = Vector2(0, 40)
 	vbox.add_child(spacer2)
 
-	# Bouton REJOUER
-	var btn = Button.new()
-	btn.text = "⚓  REJOUER"
-	btn.custom_minimum_size = Vector2(260, 60)
-	btn.add_theme_font_size_override("font_size", 30)
+	# Bouton RESPAWN
+	var btn_respawn = Button.new()
+	btn_respawn.text = "⚓  RESPAWN"
+	btn_respawn.custom_minimum_size = Vector2(260, 60)
+	btn_respawn.add_theme_font_size_override("font_size", 30)
 
 	# Style du bouton
 	var sb_normal = StyleBoxFlat.new()
-	sb_normal.bg_color = Color(0.7, 0.1, 0.1)
+	sb_normal.bg_color = Color(0.2, 0.6, 0.2)
 	sb_normal.corner_radius_top_left = 10
 	sb_normal.corner_radius_top_right = 10
 	sb_normal.corner_radius_bottom_left = 10
 	sb_normal.corner_radius_bottom_right = 10
 	sb_normal.set_border_width_all(2)
-	sb_normal.border_color = Color(1, 0.4, 0.4)
+	sb_normal.border_color = Color(0.4, 0.8, 0.4)
 
 	var sb_hover = sb_normal.duplicate() as StyleBoxFlat
-	sb_hover.bg_color = Color(0.9, 0.15, 0.15)
-	sb_hover.shadow_color = Color(1, 0.2, 0.2, 0.5)
+	sb_hover.bg_color = Color(0.3, 0.8, 0.3)
+	sb_hover.shadow_color = Color(0.2, 1, 0.2, 0.5)
 	sb_hover.shadow_size = 12
 
-	btn.add_theme_stylebox_override("normal", sb_normal)
-	btn.add_theme_stylebox_override("hover", sb_hover)
-	btn.add_theme_stylebox_override("pressed", sb_normal)
-	btn.add_theme_color_override("font_color", Color.WHITE)
+	btn_respawn.add_theme_stylebox_override("normal", sb_normal)
+	btn_respawn.add_theme_stylebox_override("hover", sb_hover)
+	btn_respawn.add_theme_stylebox_override("pressed", sb_normal)
+	btn_respawn.add_theme_color_override("font_color", Color.WHITE)
 
-	vbox.add_child(btn)
+	vbox.add_child(btn_respawn)
+
+	var spacer3 = Control.new()
+	spacer3.custom_minimum_size = Vector2(0, 15)
+	vbox.add_child(spacer3)
+
+	# Bouton REJOUER
+	var btn_reload = Button.new()
+	btn_reload.text = "🔄  RECHARGER LA PARTIE"
+	btn_reload.custom_minimum_size = Vector2(260, 60)
+	btn_reload.add_theme_font_size_override("font_size", 20)
+
+	# Style du bouton
+	var sb_normal2 = StyleBoxFlat.new()
+	sb_normal2.bg_color = Color(0.7, 0.1, 0.1)
+	sb_normal2.corner_radius_top_left = 10
+	sb_normal2.corner_radius_top_right = 10
+	sb_normal2.corner_radius_bottom_left = 10
+	sb_normal2.corner_radius_bottom_right = 10
+	sb_normal2.set_border_width_all(2)
+	sb_normal2.border_color = Color(1, 0.4, 0.4)
+
+	var sb_hover2 = sb_normal2.duplicate() as StyleBoxFlat
+	sb_hover2.bg_color = Color(0.9, 0.15, 0.15)
+	sb_hover2.shadow_color = Color(1, 0.2, 0.2, 0.5)
+	sb_hover2.shadow_size = 12
+
+	btn_reload.add_theme_stylebox_override("normal", sb_normal2)
+	btn_reload.add_theme_stylebox_override("hover", sb_hover2)
+	btn_reload.add_theme_stylebox_override("pressed", sb_normal2)
+	btn_reload.add_theme_color_override("font_color", Color.WHITE)
+
+	vbox.add_child(btn_reload)
 
 	# Centrage du vbox à l'écran
 	await get_tree().process_frame
 	vbox.position = (get_viewport().get_visible_rect().size / 2.0) - (vbox.size / 2.0)
 
-	# Action du bouton : recharge la scène
-	btn.pressed.connect(func():
-		get_tree().reload_current_scene()
+	# Action Respawn
+	btn_respawn.pressed.connect(func():
+		for ship in get_tree().get_nodes_in_group("player"):
+			if ship.has_method("respawn"):
+				ship.respawn()
+		
+		# On enlève l'écran de mort
+		var _overlay_node = get_node_or_null("DeathScreen")
+		if _overlay_node:
+			_overlay_node.queue_free()
 	)
 
+	# Action Reload
+	btn_reload.pressed.connect(func():
+		get_tree().reload_current_scene()
+	)
 func _on_weapon_blocked(index: int):
 	# Effet visuel de blocage (rouge flash + secousse)
 	if index >= weapon_slot_panels.size(): return

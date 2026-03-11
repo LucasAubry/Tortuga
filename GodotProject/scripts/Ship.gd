@@ -287,14 +287,13 @@ func _physics_process(delta):
 		if slot and slot.has_method("process_tick"):
 			slot.process_tick(self, delta)
 	
-	# --- KNOCKBACK PHYSIQUE (tentacule, collision) --- Appliqué après tous les skills
+	# --- KNOCKBACK PHYSIQUE (tentacule, collision) --- 
 	if knockback_velocity.length_squared() > 1.0:
 		velocity += knockback_velocity
+		# L'amorti (decay) se fait ici pour la prochaine frame
 		knockback_velocity = knockback_velocity.lerp(Vector3.ZERO, delta * knockback_decay)
-	else:
-		knockback_velocity = Vector3.ZERO
 	
-	# move_and_slide FINAL (après que tous les skills aient modifié velocity)
+	# move_and_slide FINAL (après que tous les skills + knockback aient modifié velocity)
 	move_and_slide()
 	
 	_update_damage_visuals(delta)
@@ -770,10 +769,39 @@ func _start_sinking():
 	tw.chain().tween_callback(_on_sink_complete)
 
 func _on_sink_complete():
-	# Affiche l'écran de mort après le naufrage
-	get_tree().call_group("hud", "show_death_screen")
+	if is_player:
+		# Affiche l'écran de mort après le naufrage
+		get_tree().call_group("hud", "show_death_screen")
+	else:
+		queue_free()
 
-
+func respawn():
+	# Restaure l'état du bateau pour qu'il revive sur la carte
+	hp = max_hp
+	is_sinking = false
+	velocity = Vector3.ZERO
+	knockback_velocity = Vector3.ZERO
+	ship_speed = 0.0
+	
+	# Réactive la physique
+	set_physics_process(true)
+	
+	# Replace le bateau à une position de spawn (par défaut proche du centre pour l'instant)
+	# On le met au niveau de l'eau (Y=0) pour qu'il puisse toucher les barils (qui sont à Y=0)
+	global_position = Vector3(0, 0, 0)
+	global_rotation = Vector3.ZERO
+	
+	# Réinitialise les visuels (qui étaient tordus par le naufrage)
+	var mesh = get_node_or_null("sloup")
+	if mesh:
+		mesh.rotation = Vector3.ZERO
+		mesh.position = Vector3(0, 0, 0) # Remet d'aplomb
+	
+	# Réinitialise la caméra si besoin
+	if spring_arm:
+		spring_arm.position = _cam_base_pos
+	
+	print("⚓ ", name, " a réapparu sur la carte !")
 
 func _get_water_height(pos: Vector3, time_val: float) -> float:
 	var wave_speed = 0.8

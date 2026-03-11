@@ -18,7 +18,7 @@
 [ext_resource type="Texture2D" uid="uid://75585v8wmdpp" path="res://assets/water_normal.png" id="18"]
 [ext_resource type="Script" uid="uid://dftkoho5i4ub5" path="res://scripts/ShipSpawner.gd" id="19"]
 [ext_resource type="Resource" uid="uid://0cwdgeo7g7eh" path="res://resources/skills/Flamethrower.tres" id="20"]
-[ext_resource type="Resource" path="res://resources/weapons/baril_explosif.tres" id="21"]
+[ext_resource type="Resource" uid="uid://bcfqprvw8da34" path="res://resources/weapons/baril_explosif.tres" id="21"]
 
 [sub_resource type="ProceduralSkyMaterial" id="1"]
 sky_horizon_color = Color(0.646, 0.656, 0.67, 1)
