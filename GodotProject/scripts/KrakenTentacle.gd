@@ -143,21 +143,20 @@ func _try_attack():
 	var best: Node3D = null
 	var best_dist: float = detection_radius
 
-	# Joueur
-	var player = get_tree().get_first_node_in_group("player")
-	if player and is_instance_valid(player):
-		var d = _flat_dist(global_position, player.global_position)
-		if d <= detection_radius:
-			best      = player
-			best_dist = d
-
-	# Ennemis
-	for enemy in get_tree().get_nodes_in_group("enemies"):
-		if not is_instance_valid(enemy): continue
-		var d = _flat_dist(global_position, enemy.global_position)
+	# Détection : Joueur + Ennemis
+	var potential_targets = get_tree().get_nodes_in_group("ship") + get_tree().get_nodes_in_group("enemies") + get_tree().get_nodes_in_group("player")
+	
+	for target in potential_targets:
+		if not is_instance_valid(target) or target == self: continue
+		
+		# Empêcher le Kraken d'attaquer son propre invocateur
+		if has_meta("caster") and target == get_meta("caster"):
+			continue
+			
+		var d = _flat_dist(global_position, target.global_position)
 		if d < best_dist:
 			best_dist = d
-			best      = enemy
+			best      = target
 
 	if best != null:
 		_perform_attack(best)
@@ -269,22 +268,43 @@ func apply_immobilization(duration: float):
 			process_mode = Node.PROCESS_MODE_INHERIT
 	)
 
+var is_flashing: bool = false
+var flash_mat: StandardMaterial3D = null
+
 func _flash_hit():
+	if is_flashing: return
+	is_flashing = true
+	
+	if not flash_mat:
+		flash_mat = StandardMaterial3D.new()
+		flash_mat.albedo_color = Color(0.8, 0.1, 0.1, 1) # Darker red
+		flash_mat.emission_enabled = true
+		flash_mat.emission = Color(0.6, 0.05, 0.05)
+		flash_mat.emission_energy_multiplier = 0.5
+	
 	var meshes: Array = []
 	_collect_visible_meshes(self, meshes)
+		
+	var orig_mats = []
+	var edited_meshes = []
+	
 	for mi in meshes:
-		var orig = mi.get_surface_override_material(0)
-		if orig == null:
-			orig = mi.mesh.surface_get_material(0) if mi.mesh else null
-		var mat = StandardMaterial3D.new()
-		mat.albedo_color           = Color(0.95, 0.3, 0.3, 1)
-		mat.emission_enabled       = true
-		mat.emission               = Color(1.0, 0.1, 0.1)
-		mat.emission_energy_multiplier = 1.2
-		mi.set_surface_override_material(0, mat)
-		var tw = create_tween()
-		tw.tween_interval(0.18)
-		tw.tween_callback(func(): mi.set_surface_override_material(0, orig))
+		if not is_instance_valid(mi) or not mi.mesh: continue
+		orig_mats.append(mi.get_surface_override_material(0))
+		edited_meshes.append(mi)
+		mi.set_surface_override_material(0, flash_mat)
+		
+	# Utilisation d'un tween pour le reset
+	var tw = create_tween()
+	tw.tween_interval(0.15)
+	tw.set_parallel(false)
+	tw.tween_callback(func():
+		for i in range(edited_meshes.size()):
+			var mi = edited_meshes[i]
+			if is_instance_valid(mi):
+				mi.set_surface_override_material(0, orig_mats[i])
+		is_flashing = false
+	)
 
 func _collect_visible_meshes(node: Node, result: Array):
 	if node is MeshInstance3D and node.visible:

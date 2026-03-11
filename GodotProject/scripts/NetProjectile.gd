@@ -15,9 +15,9 @@ func _physics_process(delta):
 	# Pas de gravité, le filet vole tout droit
 	position += velocity * delta
 	
-	# Fait tourner le filet sur lui-même
-	rotation_degrees.x += 360.0 * delta
-	rotation_degrees.y += 180.0 * delta
+	# Fait tourner le filet sur lui-même (plus vite pour le visuel)
+	rotation_degrees.x += 480.0 * delta
+	rotation_degrees.y += 240.0 * delta
 	
 	life_time += delta
 	if life_time >= max_life_time:

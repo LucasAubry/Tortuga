@@ -7,7 +7,7 @@ func _init():
 	type = ActionType.SKILL
 	weapon_name = "Filet de Pêche"
 	# On peut utiliser projectile_speed pour la vitesse du filet
-	projectile_speed = 100.0
+	projectile_speed = 160.0
 	skill_duration = 0.0
 	cooldown = 10.0
 

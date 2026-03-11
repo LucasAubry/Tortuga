@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bmqkap4qrobob"
 path.s3tc="res://.godot/imported/Pallete.png-0c95f539cafaf2b10d29b52abc00beac.s3tc.ctex"
+path.etc2="res://.godot/imported/Pallete.png-0c95f539cafaf2b10d29b52abc00beac.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/Pallete.png"
-dest_files=["res://.godot/imported/Pallete.png-0c95f539cafaf2b10d29b52abc00beac.s3tc.ctex"]
+dest_files=["res://.godot/imported/Pallete.png-0c95f539cafaf2b10d29b52abc00beac.s3tc.ctex", "res://.godot/imported/Pallete.png-0c95f539cafaf2b10d29b52abc00beac.etc2.ctex"]
 
 [params]
 

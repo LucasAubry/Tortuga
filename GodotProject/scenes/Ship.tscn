@@ -1,9 +1,8 @@
-[gd_scene load_steps=10 format=3 uid="uid://ship"]
+[gd_scene load_steps=9 format=3 uid="uid://ship"]
 
 [ext_resource type="Script" uid="uid://b7ljuujup7t27" path="res://scripts/Ship.gd" id="1_ship"]
 [ext_resource type="PackedScene" uid="uid://bovohk447k3lq" path="res://scenes/sloup.tscn" id="2_gjfe0"]
 [ext_resource type="Script" uid="uid://cexkxjymb314v" path="res://scripts/WeaponData.gd" id="2_ky8oh"]
-[ext_resource type="Resource" uid="uid://djo4qwdrn425a" path="res://resources/weapons/Standard.tres" id="3_maf36"]
 [ext_resource type="Resource" uid="uid://m1htuta6frw3" path="res://resources/weapons/Grapeshot.tres" id="4_grape"]
 [ext_resource type="Resource" uid="uid://ddwmeu16ucgvt" path="res://resources/skills/WindControl.tres" id="5_wind"]
 [ext_resource type="Resource" uid="uid://doploauaaas08" path="res://resources/skills/kraken_skill.tres" id="6_kraken"]
@@ -14,7 +13,7 @@ size = Vector3(31.756836, 0.19650269, 0.51792717)
 
 [node name="Ship" type="CharacterBody3D"]
 script = ExtResource("1_ship")
-weapon_slots = Array[ExtResource("2_ky8oh")]([ExtResource("3_maf36"), ExtResource("4_grape"), ExtResource("5_wind"), ExtResource("6_kraken"), ExtResource("7_dive")])
+weapon_slots = Array[ExtResource("2_ky8oh")]([ExtResource("4_grape"), ExtResource("4_grape"), ExtResource("5_wind"), ExtResource("6_kraken"), ExtResource("7_dive")])
 sail_inflation_left = -2.5
 sail_offset_left = -0.8
 sail_inflation_right = -2.5
@@ -50,3 +49,6 @@ transform = Transform3D(16, 0, 0, 0, 3, 0, 0, 0, 50, 0, 4, 7.7225723)
 [node name="StatusEffectsZone" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5556812, 222.56331, 31.434385)
 gizmo_extents = 0.0
+
+[node name="FlamethrowerZone" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16.190166, 76.69509)

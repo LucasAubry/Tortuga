@@ -1,209 +1,226 @@
-[gd_scene load_steps=26 format=3 uid="uid://world"]
+[gd_scene load_steps=27 format=3 uid="uid://world"]
 
-[ext_resource type="PackedScene" uid="uid://ship" path="res://scenes/Ship.tscn" id="1_kqs1s"]
-[ext_resource type="PackedScene" uid="uid://b73hyfrtx14yh" path="res://scenes/HUD.tscn" id="2_hud"]
-[ext_resource type="Resource" path="res://resources/skills/FishingNet.tres" id="3_nthub"]
-[ext_resource type="Resource" uid="uid://m1htuta6frw3" path="res://resources/weapons/Grapeshot.tres" id="4_44lqw"]
-[ext_resource type="PackedScene" uid="uid://dsyamwtg77c6r" path="res://scenes/MapUI.tscn" id="4_map"]
-[ext_resource type="Resource" uid="uid://ddwmeu16ucgvt" path="res://resources/skills/WindControl.tres" id="5_dwmkc"]
-[ext_resource type="PackedScene" uid="uid://dbhw67e7ytc20" path="res://scenes/menu/QuestMenu.tscn" id="5_quest"]
-[ext_resource type="Resource" uid="uid://doploauaaas08" path="res://resources/skills/kraken_skill.tres" id="6_30fn3"]
-[ext_resource type="PackedScene" uid="uid://bbjdqads8j7tu" path="res://scenes/menu/TabMenu.tscn" id="6_tab"]
-[ext_resource type="Resource" uid="uid://dfhwf6k7rlq1j" path="res://resources/skills/Dive.tres" id="7_dgldv"]
-[ext_resource type="PackedScene" path="res://scenes/menu/SettingsMenu.tscn" id="7_set"]
-[ext_resource type="PackedScene" uid="uid://bbun7x1juo4jl" path="res://scenes/menu/KrakenMenu.tscn" id="8_kraken_menu"]
-[ext_resource type="Script" uid="uid://blqfq2pyvw0iy" path="res://scripts/WindManager.gd" id="10_wind"]
-[ext_resource type="Script" uid="uid://63ild0f6hv6l" path="res://scripts/WakeManager.gd" id="11_wake"]
-[ext_resource type="PackedScene" uid="uid://57e5pj3ul0v1" path="res://scenes/iles.tscn" id="12_mesh"]
-[ext_resource type="PackedScene" uid="uid://island" path="res://scenes/Ile.tscn" id="13_ile"]
-[ext_resource type="Script" uid="uid://cexkxjymb314v" path="res://scripts/WeaponData.gd" id="14_weapon_script"]
-[ext_resource type="Resource" uid="uid://djo4qwdrn425a" path="res://resources/weapons/Standard.tres" id="15_standard_weapon"]
+[ext_resource type="PackedScene" uid="uid://ship" path="res://scenes/Ship.tscn" id="1"]
+[ext_resource type="PackedScene" uid="uid://b73hyfrtx14yh" path="res://scenes/HUD.tscn" id="2"]
+[ext_resource type="Resource" uid="uid://bdmq67kapxgx6" path="res://resources/skills/FishingNet.tres" id="3_44lqw"]
+[ext_resource type="PackedScene" uid="uid://dsyamwtg77c6r" path="res://scenes/MapUI.tscn" id="4"]
+[ext_resource type="Resource" uid="uid://ddwmeu16ucgvt" path="res://resources/skills/WindControl.tres" id="5"]
+[ext_resource type="PackedScene" uid="uid://dbhw67e7ytc20" path="res://scenes/menu/QuestMenu.tscn" id="6"]
+[ext_resource type="Resource" uid="uid://doploauaaas08" path="res://resources/skills/kraken_skill.tres" id="7"]
+[ext_resource type="PackedScene" uid="uid://bbjdqads8j7tu" path="res://scenes/menu/TabMenu.tscn" id="8"]
+[ext_resource type="Resource" uid="uid://dfhwf6k7rlq1j" path="res://resources/skills/Dive.tres" id="9"]
+[ext_resource type="PackedScene" path="res://scenes/menu/SettingsMenu.tscn" id="10"]
+[ext_resource type="PackedScene" uid="uid://bbun7x1juo4jl" path="res://scenes/menu/KrakenMenu.tscn" id="11"]
+[ext_resource type="Script" uid="uid://blqfq2pyvw0iy" path="res://scripts/WindManager.gd" id="12"]
+[ext_resource type="Script" uid="uid://63ild0f6hv6l" path="res://scripts/WakeManager.gd" id="13"]
+[ext_resource type="PackedScene" uid="uid://57e5pj3ul0v1" path="res://scenes/iles.tscn" id="14"]
+[ext_resource type="PackedScene" uid="uid://island" path="res://scenes/Ile.tscn" id="15"]
+[ext_resource type="Script" uid="uid://cexkxjymb314v" path="res://scripts/WeaponData.gd" id="16"]
+[ext_resource type="Texture2D" uid="uid://75585v8wmdpp" path="res://assets/water_normal.png" id="18"]
+[ext_resource type="Script" uid="uid://dftkoho5i4ub5" path="res://scripts/ShipSpawner.gd" id="19"]
+[ext_resource type="Resource" uid="uid://0cwdgeo7g7eh" path="res://resources/skills/Flamethrower.tres" id="20"]
 
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_xwyq"]
+[sub_resource type="ProceduralSkyMaterial" id="1"]
 sky_horizon_color = Color(0.646, 0.656, 0.67, 1)
 ground_horizon_color = Color(0.646, 0.656, 0.67, 1)
 
-[sub_resource type="Sky" id="Sky_xwyq"]
-sky_material = SubResource("ProceduralSkyMaterial_xwyq")
+[sub_resource type="Sky" id="2"]
+sky_material = SubResource("1")
 
-[sub_resource type="Environment" id="Environment_xwyq"]
+[sub_resource type="Environment" id="3"]
 background_mode = 2
-sky = SubResource("Sky_xwyq")
+sky = SubResource("2")
 ambient_light_source = 3
-ambient_light_color = Color(0.501961, 0.6, 0.701961, 1)
+ambient_light_color = Color(0.5, 0.6, 0.7, 1)
 ambient_light_sky_contribution = 0.5
 tonemap_mode = 2
 tonemap_exposure = 1.1
 tonemap_white = 1.2
 glow_enabled = true
-glow_bloom = 0.2
+glow_bloom = 0.1
+glow_blend_mode = 1
 
-[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_kqs1s"]
+[sub_resource type="WorldBoundaryShape3D" id="4"]
 
-[sub_resource type="Shader" id="Shader_water"]
+[sub_resource type="Shader" id="5"]
 code = "shader_type spatial;
 render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_schlick_ggx;
 
-uniform vec4 albedo : source_color = vec4(0.0, 0.45, 0.75, 1.0);
-uniform vec4 albedo2 : source_color = vec4(0.0, 0.25, 0.55, 1.0);
-uniform float metallic : hint_range(0.0, 1.0) = 0.0;
-uniform float roughness : hint_range(0.0, 1.0) = 0.02;
+uniform sampler2D normal_texture : filter_linear_mipmap_anisotropic, repeat_enable;
+uniform vec4 color_deep : source_color = vec4(0.005, 0.05, 0.15, 1.0);
+uniform vec4 color_shallow : source_color = vec4(0.04, 0.4, 0.55, 1.0);
 uniform float wave_speed : hint_range(0.0, 5.0) = 0.5;
-uniform float wave_amplitude : hint_range(0.0, 5.0) = 1.0;
-uniform float wave_frequency : hint_range(0.0, 5.0) = 0.1;
+uniform float wave_strength : hint_range(0.0, 2.0) = 0.7;
 
-uniform vec2 island_1 = vec2(150.0, 150.0);
-uniform vec2 island_2 = vec2(-150.0, 150.0);
-uniform vec2 island_3 = vec2(150.0, -150.0);
-uniform vec2 island_4 = vec2(-150.0, -150.0);
+varying float v_height;
+varying vec3 v_world_pos;
 
-varying vec2 world_pos;
+vec3 get_wave(vec2 uv, float t, float weight, float wavelength, float speed, vec2 dir) {
+    float k = 2.0 * PI / wavelength;
+    float f = k * (dot(normalize(dir), uv) - t * speed);
+    float a = (weight * wave_strength) / k;
+    float h = sin(f) * 0.5 + 0.5;
+    h = h * h; 
+    return vec3(normalize(dir).x * a * cos(f) * 0.25, weight * h, normalize(dir).y * a * cos(f) * 0.25);
+}
 
 void vertex() {
-	// Simple sine wave displacement for the water surface
-	float time = TIME * wave_speed;
-	float wave1 = sin(VERTEX.x * wave_frequency + time) * wave_amplitude;
-	float wave2 = cos(VERTEX.z * wave_frequency * 1.5 + time * 1.2) * wave_amplitude * 0.8;
-	
-	// Distance to closest island for wave dampening
-	float d1 = distance(VERTEX.xz, island_1);
-	float d2 = distance(VERTEX.xz, island_2);
-	float d3 = distance(VERTEX.xz, island_3);
-	float d4 = distance(VERTEX.xz, island_4);
-	float min_d = min(min(d1, d2), min(d3, d4));
-	
-	// Smoothstep from 45.0m to 120.0m (waves are flat until 45m away, then rise to full at 120m)
-	float dampen = smoothstep(45.0, 120.0, min_d);
-	
-	VERTEX.y += (wave1 + wave2) * dampen;
-	world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xz;
+    v_world_pos = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xyz;
+    float t = TIME * wave_speed;
+    
+    vec3 w = vec3(0.0);
+    w += get_wave(v_world_pos.xz, t, 1.2, 140.0, 0.5, vec2(1.0, 0.2));
+    w += get_wave(v_world_pos.xz, t, 0.7, 85.0, 0.8, vec2(-0.8, 0.4));
+    w += get_wave(v_world_pos.xz, t, 0.3, 35.0, 1.5, vec2(0.5, -0.7));
+    
+    v_height = w.y;
+    VERTEX += w;
 }
 
 void fragment() {
-	// Mix color based on height/time to give it a nice gradient
-	float time = TIME * wave_speed * 0.5;
-	float wave_mask = sin(UV.x * 20.0 + time) * cos(UV.y * 20.0 + time) * 0.5 + 0.5;
-	
-	vec3 base_color = mix(albedo.rgb, albedo2.rgb, wave_mask);
-	
-	// Add Isometric Grid
-	float grid_size = 100.0;
-	vec2 grid_uv = fract(world_pos / grid_size);
-	float line_width = 0.02; // Thin grid lines
-	float grid_mask = step(grid_uv.x, line_width) + step(grid_uv.y, line_width);
-	grid_mask = clamp(grid_mask, 0.0, 1.0);
-	
-	ALBEDO = mix(base_color, vec3(0.0, 0.6, 1.0), grid_mask * 0.15);
-	// No alpha write forces it to be opaque and write to depth buffer for Cel Shader masking
-	
-	METALLIC = metallic;
-	ROUGHNESS = roughness;
+    // Smooth geometric base
+    vec3 pixel_normal = normalize(cross(dFdy(v_world_pos), dFdx(v_world_pos)));
+    
+    float t = TIME * 0.025;
+    
+    // EXPLAIN: Richer Texture layering
+    // We add more visible normal detail to create those \"glints\" and \"ripples\" that catch the light
+    vec2 uv_ripple = v_world_pos.xz * 0.06;
+    vec3 n1 = texture(normal_texture, uv_ripple + vec2(t * 0.6, t * 1.2)).rgb * 2.0 - 1.0;
+    vec3 n2 = texture(normal_texture, uv_ripple * 0.5 - vec2(t * 1.5, -t * 0.4)).rgb * 2.0 - 1.0;
+    vec3 detail_normal = normalize(n1 + n2);
+    
+    // Slightly more influence from the normal map to make the texture visible
+    vec3 final_normal = normalize(pixel_normal + detail_normal * 0.12);
+    
+    float fresnel = pow(1.0 - dot(final_normal, VIEW), 3.0);
+    vec3 ocean_color = mix(color_deep.rgb, color_shallow.rgb, clamp(fresnel + (v_height * 0.1), 0.0, 1.0));
+    
+    // Peak Foam (Slightly more descriptive)
+    float foam = smoothstep(1.4, 3.5, v_height + (n1.x * 0.2));
+    ocean_color = mix(ocean_color, vec3(0.95, 1.0, 1.0), foam * 0.45);
+    
+    ALBEDO = ocean_color;
+    NORMAL = final_normal;
+    METALLIC = 0.05;
+    ROUGHNESS = 0.06;
+    SPECULAR = 0.6;
+}
+
+void light() {
+    float dot_nl = clamp(dot(NORMAL, LIGHT), 0.0, 1.0);
+    vec3 light_influence = LIGHT_COLOR * ATTENUATION;
+    
+    vec3 H = normalize(VIEW + LIGHT);
+    float dot_nh = clamp(dot(NORMAL, H), 0.0, 1.0);
+    
+    // EXPLAIN: Enhanced Sunlight Trail & Glints
+    // By sharpening the specular and adding a bit more intensity, 
+    // the texture detail we added above will catch the sun brilliantly.
+    float spec = pow(dot_nh, 256.0) * 1.5; // Sharp glints
+    float shine = pow(dot_nh, 32.0) * 0.4; // Broad shine
+    
+    // Darken shadows even more for contrast
+    vec3 diffuse = ALBEDO * dot_nl * 0.5;
+    
+    SPECULAR_LIGHT += (shine + spec) * light_influence;
+    DIFFUSE_LIGHT += diffuse * light_influence;
 }"
 
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_water"]
+[sub_resource type="ShaderMaterial" id="6"]
 render_priority = 0
-shader = SubResource("Shader_water")
-shader_parameter/albedo = Color(0, 0.05, 0.15, 1)
-shader_parameter/albedo2 = Color(0, 0.08, 0.25, 1)
-shader_parameter/metallic = 0.1
-shader_parameter/roughness = 0.8
-shader_parameter/wave_speed = 0.8
-shader_parameter/wave_amplitude = 3.0
-shader_parameter/wave_frequency = 0.03
-shader_parameter/island_1 = Vector2(150, 150)
-shader_parameter/island_2 = Vector2(-150, 150)
-shader_parameter/island_3 = Vector2(150, -150)
-shader_parameter/island_4 = Vector2(-150, -150)
+shader = SubResource("5")
+shader_parameter/normal_texture = ExtResource("18")
+shader_parameter/color_deep = Color(0.005, 0.07, 0.15, 1)
+shader_parameter/color_shallow = Color(0.08, 0.45, 0.55, 1)
+shader_parameter/wave_speed = 0.5
+shader_parameter/wave_strength = 0.7
 
-[sub_resource type="PlaneMesh" id="PlaneMesh_32lhk"]
-material = SubResource("ShaderMaterial_water")
+[sub_resource type="PlaneMesh" id="7"]
+material = SubResource("6")
 size = Vector2(10000, 10000)
-subdivide_width = 200
-subdivide_depth = 200
+subdivide_width = 250
+subdivide_depth = 250
 
 [node name="World" type="Node3D"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_xwyq")
+environment = SubResource("3")
 
-[node name="Ship" parent="." instance=ExtResource("1_kqs1s")]
+[node name="Ship" parent="." instance=ExtResource("1")]
 transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
 collision_layer = 3
-is_player = true
-weapon_slots = Array[ExtResource("14_weapon_script")]([ExtResource("3_nthub"), ExtResource("4_44lqw"), ExtResource("5_dwmkc"), ExtResource("6_30fn3"), ExtResource("7_dgldv")])
+weapon_slots = Array[ExtResource("16")]([ExtResource("3_44lqw"), ExtResource("20"), ExtResource("5"), ExtResource("7"), ExtResource("9")])
 
-[node name="EnemyShip" parent="." instance=ExtResource("1_kqs1s")]
-transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 300, 0, 300)
-collision_layer = 3
-weapon_slots = Array[ExtResource("14_weapon_script")]([ExtResource("15_standard_weapon"), null, null, null, null])
+[node name="ShipSpawner" type="Node3D" parent="."]
+script = ExtResource("19")
 
 [node name="OceanFloor" type="StaticBody3D" parent="."]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="OceanFloor"]
-shape = SubResource("WorldBoundaryShape3D_kqs1s")
+shape = SubResource("4")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(-0.094777346, -0.54438525, -0.83346385, -0.86082345, -0.37569243, 0.34327573, -0.50000024, 0.75, -0.43301255, 0, 83, 0)
-light_color = Color(1, 0.960784, 0.882353, 1)
+transform = Transform3D(-0.09, -0.54, -0.83, -0.86, -0.37, 0.34, -0.5, 0.75, -0.43, 0, 83, 0)
+light_color = Color(1, 0.96, 0.88, 1)
 light_energy = 1.5
 shadow_enabled = true
-shadow_bias = 0.05
-directional_shadow_mode = 0
+directional_shadow_max_distance = 400.0
 
 [node name="WindManager" type="MultiMeshInstance3D" parent="."]
-script = ExtResource("10_wind")
+script = ExtResource("12")
 
 [node name="WakeManager" type="MultiMeshInstance3D" parent="."]
-script = ExtResource("11_wake")
+script = ExtResource("13")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="WaterVisual" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -8, 0)
-mesh = SubResource("PlaneMesh_32lhk")
+mesh = SubResource("7")
 
-[node name="HUD" parent="." instance=ExtResource("2_hud")]
+[node name="HUD" parent="." instance=ExtResource("2")]
 
-[node name="MapUI" parent="." instance=ExtResource("4_map")]
+[node name="MapUI" parent="." instance=ExtResource("4")]
 
-[node name="QuestMenu" parent="." instance=ExtResource("5_quest")]
+[node name="QuestMenu" parent="." instance=ExtResource("6")]
 
-[node name="TabMenu" parent="." instance=ExtResource("6_tab")]
+[node name="TabMenu" parent="." instance=ExtResource("8")]
 
-[node name="SettingsMenu" parent="." instance=ExtResource("7_set")]
+[node name="SettingsMenu" parent="." instance=ExtResource("10")]
 
-[node name="KrakenMenu" parent="." instance=ExtResource("8_kraken_menu")]
+[node name="KrakenMenu" parent="." instance=ExtResource("11")]
 
 [node name="Node3D" type="Node3D" parent="."]
 
-[node name="IleMesh_City" parent="Node3D" instance=ExtResource("12_mesh")]
-transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 150, -22.754028, 150)
+[node name="IleMesh_City" parent="Node3D" instance=ExtResource("14")]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 150, -22.75, 150)
 
-[node name="Zone_City" parent="Node3D" instance=ExtResource("13_ile")]
+[node name="Zone_City" parent="Node3D" instance=ExtResource("15")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 150, 20, 150)
 
-[node name="IleMesh_Merchant" parent="Node3D" instance=ExtResource("12_mesh")]
-transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -150, -22.754028, 150)
+[node name="IleMesh_Merchant" parent="Node3D" instance=ExtResource("14")]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -150, -22.75, 150)
 
-[node name="Zone_Merchant" parent="Node3D" instance=ExtResource("13_ile")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -150, 20, 150)
+[node name="Zone_Merchant" parent="Node3D" instance=ExtResource("15")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -150, 20, -150)
 ile_type = 1
 
-[node name="IleMesh_Shipwright" parent="Node3D" instance=ExtResource("12_mesh")]
-transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 150, -22.754028, -150)
+[node name="IleMesh_Shipwright" parent="Node3D" instance=ExtResource("14")]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 150, -22.75, -150)
 
-[node name="Zone_Shipwright" parent="Node3D" instance=ExtResource("13_ile")]
+[node name="Zone_Shipwright" parent="Node3D" instance=ExtResource("15")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 150, 20, -150)
 ile_type = 2
 
-[node name="IleMesh_Fisherman" parent="Node3D" instance=ExtResource("12_mesh")]
-transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -150, -22.754028, -150)
+[node name="IleMesh_Fisherman" parent="Node3D" instance=ExtResource("14")]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -150, -22.75, -150)
 
-[node name="Zone_Fisherman" parent="Node3D" instance=ExtResource("13_ile")]
+[node name="Zone_Fisherman" parent="Node3D" instance=ExtResource("15")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -150, 20, -150)
 ile_type = 3
 
-[node name="IleMesh_Kraken" parent="Node3D" instance=ExtResource("12_mesh")]
-transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, -22.754028, -250)
+[node name="IleMesh_Kraken" parent="Node3D" instance=ExtResource("14")]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, -22.75, -250)
 
-[node name="Zone_Kraken" parent="Node3D" instance=ExtResource("13_ile")]
+[node name="Zone_Kraken" parent="Node3D" instance=ExtResource("15")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 20, -250)
 ile_type = 4

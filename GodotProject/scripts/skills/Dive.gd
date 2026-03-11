@@ -7,6 +7,7 @@ const SURFACING_THRESHOLD: float = -2.0
 
 func _init():
 	type = ActionType.DIVE
+	can_be_used_underwater = true
 
 # --- ACTIVATION ---
 func activate(ship: Node3D):

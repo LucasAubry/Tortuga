@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bdw4ffmjn4eby"
 path.s3tc="res://.godot/imported/dive.png-6765dd4d7c673b59119b7505cccabdd6.s3tc.ctex"
+path.etc2="res://.godot/imported/dive.png-6765dd4d7c673b59119b7505cccabdd6.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/skills/dive.png"
-dest_files=["res://.godot/imported/dive.png-6765dd4d7c673b59119b7505cccabdd6.s3tc.ctex"]
+dest_files=["res://.godot/imported/dive.png-6765dd4d7c673b59119b7505cccabdd6.s3tc.ctex", "res://.godot/imported/dive.png-6765dd4d7c673b59119b7505cccabdd6.etc2.ctex"]
 
 [params]
 

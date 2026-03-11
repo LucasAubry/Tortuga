@@ -2,10 +2,12 @@ class_name Ship
 extends CharacterBody3D
 
 enum ShipClass { SLOOP, BRIGANTINE, GALLEON }
+enum Faction { PLAYER, NAVY, PIRATE, MERCHANT }
 
-@export var is_player: bool = false
+var is_player: bool = true
 @export var ship_type: ShipClass = ShipClass.SLOOP
 @export var ship_color: Color = Color.WHITE
+@export var faction: Faction = Faction.PLAYER
 
 var hp: float
 var max_hp: float
@@ -19,6 +21,9 @@ var damage: float = 25.0
 
 var ammo: int = 50
 var max_ammo: int = 100
+
+signal weapon_blocked(index: int)
+
 
 var weapon_cooldowns: Array[float] = [0.0, 0.0, 0.0, 0.0, 0.0]
 const ProjectileScene = preload("res://scenes/Projectile.tscn")
@@ -56,7 +61,7 @@ var wind_boost_intensity: float = 0.0
 var is_underwater: bool = false
 var _hit_smoke_particles: CPUParticles3D = null
 
-# Knockback et CC (Immobilisation)
+# Status Effects (Knockback & CC)
 var knockback_velocity: Vector3 = Vector3.ZERO
 var knockback_decay: float = 3.5
 var immobilization_timer: float = 0.0
@@ -82,6 +87,8 @@ var is_sinking: bool = false
 
 var gimbal_node: Node3D
 var spring_arm: SpringArm3D
+var _cam_base_pos: Vector3 = Vector3.ZERO # Stocke la position propre sans les tremblements
+var _cel_shader_mesh: MeshInstance3D = null
 
 # Visual Steering
 var visual_mast: Node3D
@@ -97,14 +104,15 @@ var current_sail_angle: float = 0.0
 
 func _ready():
 	_init_stats()
-	_init_weapons()
+	_init_components()
 	
-	if is_player:
-		add_to_group("player")
-	else:
-		add_to_group("enemies")
-		
+	add_to_group("ship")
+	add_to_group("player")
+	faction = Faction.PLAYER
 	_setup_damage_smoke()
+
+
+
 	_setup_immobilized_icon()
 
 func _setup_immobilized_icon():
@@ -124,18 +132,16 @@ func _setup_immobilized_icon():
 		_immobilized_icon.visible = false
 
 func _setup_damage_smoke():
-	# Création du node de fumée noire persistante
 	_hit_smoke_particles = CPUParticles3D.new()
 	add_child(_hit_smoke_particles)
 	_hit_smoke_particles.name = "HealthSmoke"
 	
-	# 1. NUAGE SOBRE ET RÉPARTI (Look MMO)
 	_hit_smoke_particles.emitting = false
-	_hit_smoke_particles.amount = 700 # Plus sobre
-	_hit_smoke_particles.lifetime = 6.0
-	_hit_smoke_particles.randomness = 0.5
+	_hit_smoke_particles.amount = 40 # Reduced for performance
+	_hit_smoke_particles.lifetime = 2.5
+	_hit_smoke_particles.randomness = 0.8
 	
-	# ÉMISSION SUR TOUT LE PONT DU BATEAU (Configurable via DamageSmokeZone dans l'éditeur)
+	# Emission based on DamageSmokeZone
 	_hit_smoke_particles.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
 	
 	var zone_node = get_node_or_null("DamageSmokeZone")
@@ -144,23 +150,22 @@ func _setup_damage_smoke():
 		_hit_smoke_particles.emission_box_extents = zone_node.scale
 	else:
 		_hit_smoke_particles.position = Vector3(0, 4, 0)
-		_hit_smoke_particles.emission_box_extents = Vector3(5, 1, 15) # Couvre tout le bateau par défaut
+		_hit_smoke_particles.emission_box_extents = Vector3(5, 1, 15) 
 	
 	_hit_smoke_particles.direction = Vector3(0, 1, 0)
-	_hit_smoke_particles.spread = 10.0 # Moins conique, monte plus droit
+	_hit_smoke_particles.spread = 10.0 
 	_hit_smoke_particles.gravity = Vector3(0, 3, 0)
 	_hit_smoke_particles.initial_velocity_min = 1.0
 	_hit_smoke_particles.initial_velocity_max = 4.0
-	
 	_hit_smoke_particles.angle_max = 360.0
 	_hit_smoke_particles.local_coords = true
 	
-	# Mesh un peu plus gros pour une meilleure visibilité
+	# Mesh plus petit et optimisé
 	var sphere = SphereMesh.new()
-	sphere.radial_segments = 6
+	sphere.radial_segments = 4
 	sphere.rings = 4
-	sphere.radius = 2.5
-	sphere.height = 5.0
+	sphere.radius = 1.2
+	sphere.height = 2.4
 	
 	var mat = StandardMaterial3D.new()
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
@@ -176,39 +181,40 @@ func _setup_damage_smoke():
 	_hit_smoke_particles.scale_amount_curve = curve
 	
 	var gradient = Gradient.new()
-	gradient.set_color(0, Color(1, 1, 1, 0))    
-	gradient.set_color(1, Color(1, 1, 1, 0.5)) # Plus transparent
+	gradient.set_color(0, Color(0.4, 0.4, 0.4, 0.0))    
+	gradient.set_color(1, Color(0.2, 0.2, 0.2, 0.3)) # Sombre et discret
 	_hit_smoke_particles.color_ramp = gradient
 	
 	# (La position est déjà gérée plus haut via zone_node)
 
-func _init_weapons():
-	# On ne fait plus d'initialisation automatique par code.
-	# Le joueur (vous) configure le tableau directement dans l'inspecteur de Godot.
-	# Si un slot est vide (null), le tir ne fera rien ou utilisera les stats de base.
-	pass
+func _init_components():
 		
 	# Find camera nodes
 	gimbal_node = get_node_or_null("CameraGimbal")
 	if gimbal_node:
 		spring_arm = gimbal_node.get_node_or_null("SpringArm3D")
+		if spring_arm:
+			_cam_base_pos = spring_arm.position # On mémorise la position de base
 		# Make the gimbal independent of the Ship's rotation hierarchy
 		gimbal_node.set_as_top_level(true)
 		
 		# --- BORDERLANDS CEL-SHADER (POST PROCESSING) ---
 		var cam = spring_arm.get_node_or_null("Camera3D")
 		if cam and is_player: # Only render shader for the active player's screen
-			var cel_mesh = MeshInstance3D.new()
+			_cel_shader_mesh = MeshInstance3D.new()
+			_cel_shader_mesh.name = "CelShaderMesh"
 			var quad = QuadMesh.new()
 			quad.size = Vector2(2, 2)
-			cel_mesh.mesh = quad
-			cel_mesh.custom_aabb = AABB(Vector3(-10000, -10000, -10000), Vector3(20000, 20000, 20000))
-			cel_mesh.ignore_occlusion_culling = true
+			_cel_shader_mesh.mesh = quad
+			_cel_shader_mesh.custom_aabb = AABB(Vector3(-10000, -10000, -10000), Vector3(20000, 20000, 20000))
+			_cel_shader_mesh.ignore_occlusion_culling = true
 			
 			var shader_mat = ShaderMaterial.new()
 			shader_mat.shader = load("res://scripts/cel_shader.gdshader")
-			cel_mesh.material_override = shader_mat
-			cam.add_child(cel_mesh)
+			_cel_shader_mesh.material_override = shader_mat
+			cam.add_child(_cel_shader_mesh)
+			_cel_shader_mesh.visible = GameConfig.enable_cel_shader
+			GameConfig.cel_shader_toggled.connect(func(enabled): if is_instance_valid(_cel_shader_mesh): _cel_shader_mesh.visible = enabled)
 			
 	var mesh_node = get_node_or_null("sloup")
 	if mesh_node:
@@ -254,6 +260,7 @@ func _init_stats():
 
 func _physics_process(delta):
 	if is_sinking: return  # Physique arrêtée pendant le naufrage
+	
 	# Gestion des temps de recharge
 	for i in range(weapon_cooldowns.size()):
 		if weapon_cooldowns[i] > 0:
@@ -273,15 +280,12 @@ func _physics_process(delta):
 		immobilization_timer -= delta
 		
 	# Mouvement physique de base
-	if is_player:
-		_handle_player_input(delta)
-	else:
-		_handle_ai(delta)
+	_handle_player_input(delta)
 		
 	# LOGIQUE MODULAIRE (Exécutée après le mouvement de base pour modifier velocity/visuel)
-	for i in range(weapon_slots.size()):
-		if weapon_slots[i] and weapon_slots[i].has_method("process_tick"):
-			weapon_slots[i].process_tick(self, delta)
+	for slot in weapon_slots:
+		if slot and slot.has_method("process_tick"):
+			slot.process_tick(self, delta)
 	
 	# --- KNOCKBACK PHYSIQUE (tentacule, collision) --- Appliqué après tous les skills
 	if knockback_velocity.length_squared() > 1.0:
@@ -333,9 +337,9 @@ func _update_damage_visuals(delta):
 			_immobilized_icon.visible = false
 	
 	# POST-PHYSIQUE (exécuté après move_and_slide pour les skills qui modifient la position)
-	for i in range(weapon_slots.size()):
-		if weapon_slots[i] and weapon_slots[i].has_method("post_physics_tick"):
-			weapon_slots[i].post_physics_tick(self, delta)
+	for slot in weapon_slots:
+		if slot and slot.has_method("post_physics_tick"):
+			slot.post_physics_tick(self, delta)
 
 func _handle_player_input(delta):
 	_handle_camera_and_weapons(delta)
@@ -350,16 +354,8 @@ func _handle_player_input(delta):
 	_apply_visuals(delta, steer)
 
 func _unhandled_input(event: InputEvent):
-	if not is_player: return
 	
-	# BLOQUER TOUT ZOOM SI LA MAP EST OUVERTE
-	var map_open = false
-	var map_nodes = get_tree().get_nodes_in_group("map_ui")
-	for m in map_nodes:
-		if m.visible: map_open = true
-	
-	if map_open:
-		# On s'assure que si on est ici, l'événement ne fait rien
+	if _is_map_open():
 		return
 	
 	# --- ZOOM MAC PAD / TRACKPAD / MOUSE WHEEL ---
@@ -373,11 +369,15 @@ func _unhandled_input(event: InputEvent):
 			elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 				spring_arm.spring_length = clamp(spring_arm.spring_length + zoom_speed, min_zoom, max_zoom)
 
+func _is_map_open() -> bool:
+	var map_nodes = get_tree().get_nodes_in_group("map_ui")
+	for m in map_nodes:
+		if m.visible:
+			return true
+	return false
+
 func _handle_camera_and_weapons(delta):
-	# BLOQUER SI MAP OUVERTE
-	var map_open = false
-	for map in get_tree().get_nodes_in_group("map_ui"):
-		if map.visible: map_open = true
+	var map_open = _is_map_open()
 	
 	# Handle Zoom (Actions clavier/boutons)
 	if spring_arm and not map_open:
@@ -525,10 +525,6 @@ func _apply_visuals(delta, steer):
 
 	
 	# Force the gimbal to stay at a fixed rotation (e.g. isometric/top-down perspective)
-
-
-
-
 	# but follow the ship's position. We do this by setting it as top-level so 
 	# it ignores the ship's rotation, then manually updating its position.
 	if gimbal_node:
@@ -539,16 +535,21 @@ func shoot_cannons():
 	var action = weapon_slots[active_weapon_index]
 	if not action: return
 	
-	# LOGIQUE MODULAIRE : On ne bloque QUE les armes offensives et le vent sous l'eau
-	# Le Kraken peut être invoqué même en plongée
-	if action.type == WeaponData.ActionType.CANNON or \
-	   action.type == WeaponData.ActionType.GRAPPLE or \
-	   action.type == WeaponData.ActionType.WIND_CONTROL:
-		if is_diving or (action.has_method("is_action_blocked") and action.is_action_blocked(self)):
-			return
+	# Check if the action is allowed underwater (Diving state or actual Depth)
+	var underwater = is_diving or is_underwater
+	if underwater and action.get("can_be_used_underwater") == false:
+		weapon_blocked.emit(active_weapon_index)
+		return
+
+	
+	if action.has_method("is_action_blocked") and action.is_action_blocked(self):
+		weapon_blocked.emit(active_weapon_index)
+		return
+
 	
 	weapon_cooldowns[active_weapon_index] = action.cooldown
 	ammo -= action.ammo_cost
+
 	
 	# LOGIQUE D'EXÉCUTION
 	match action.type:
@@ -612,6 +613,7 @@ func _fire_projectile(marker: Marker3D, direction: Vector3, speed: float, weapon
 	if weapon and weapon.projectile_count > 1:
 		proj.velocity.y += randf_range(-4.0, 8.0) # Variation verticale
 		proj.velocity += Vector3(randf_range(-10, 10), 0, randf_range(-10, 10))
+		proj.max_life_time = 0.3 # Disparaît vite comme demandé (Mitraille)
 	
 	proj.damage = weapon.damage if weapon else damage
 	proj.is_player_owned = is_player
@@ -632,28 +634,7 @@ func _fire_projectile(marker: Marker3D, direction: Vector3, speed: float, weapon
 	smoke.position = Vector3.ZERO
 	smoke.look_at(smoke.global_position + direction.normalized(), Vector3.UP)
 
-var ai_state_timer: float = 0.0
-var ai_target_pos: Vector3
 
-func _handle_ai(delta):
-	ai_state_timer -= delta
-	if ai_state_timer <= 0:
-		ai_state_timer = randf_range(5.0, 12.0)
-		var rand_x = randf_range(-1500, 1500)
-		var rand_z = randf_range(-1500, 1500)
-		ai_target_pos = Vector3(rand_x, 0, rand_z)
-	
-	var direction = (ai_target_pos - global_position).normalized()
-	var forward = transform.basis.z
-	var angle_to = forward.signed_angle_to(direction, Vector3.UP)
-	
-	# On simule les entrées "Throttle" et "Steer" pour l'IA
-	var steer = clamp(-angle_to * 2.0, -1.0, 1.0)
-	var throttle = 0.6 # L'IA navigue à vitesse de croisière
-	
-	# On applique exactement la même physique et le même visuel que le joueur
-	_apply_movement_physics(delta, steer, throttle)
-	_apply_visuals(delta, steer)
 
 func apply_knockback(from_pos: Vector3, force: float):
 	# Direction du knockback : s'éloigner de la tentacule, horizontalement
@@ -665,9 +646,9 @@ func apply_knockback(from_pos: Vector3, force: float):
 
 	knockback_velocity = dir * force
 
-	# Camera shake si c'est le joueur
-	if is_player and spring_arm:
-		_camera_shake(0.35, 18.0)
+	# Camera shake - Intensivement réduit (1.5 au lieu de 18.0) pour éviter de clip dans le mesh
+	if spring_arm:
+		_camera_shake(0.35, 1.5)
 
 func apply_immobilization(duration: float):
 	# Applique un root/immobilisation pour la durée spécifiée
@@ -675,25 +656,73 @@ func apply_immobilization(duration: float):
 	print("⚓ " + name + " est immobilisé pour " + str(duration) + " secondes !")
 
 func _camera_shake(duration: float, intensity: float):
-	var original_offset = spring_arm.position
-	var elapsed := 0.0
+	if not spring_arm: return
+	
 	var tween = create_tween()
+	# Le tremblement se fait relativement à _cam_base_pos pour éviter toute dérive
 	tween.tween_method(func(t: float):
 		var decay = 1.0 - (t / duration)
-		spring_arm.position = original_offset + Vector3(
+		spring_arm.position = _cam_base_pos + Vector3(
 			randf_range(-1, 1) * intensity * decay,
 			randf_range(-1, 1) * intensity * 0.3 * decay,
-			0
+			randf_range(-1, 1) * intensity * 0.1 * decay
 		)
 	, 0.0, duration, duration)
-	tween.tween_callback(func(): spring_arm.position = original_offset)
+	tween.tween_callback(func(): spring_arm.position = _cam_base_pos)
 
-func take_damage(amount: float, attacker: Ship):
+var is_flashing: bool = false
+var flash_mat: StandardMaterial3D = null
+
+func _flash_hit():
+	if is_flashing or is_sinking: return
+	is_flashing = true
+	
+	if not flash_mat:
+		flash_mat = StandardMaterial3D.new()
+		flash_mat.albedo_color = Color(0.8, 0.1, 0.1, 1)
+		flash_mat.emission_enabled = true
+		flash_mat.emission = Color(0.6, 0.05, 0.05)
+		flash_mat.emission_energy_multiplier = 0.5
+	
+	var meshes: Array = []
+	var sloup_node = get_node_or_null("sloup")
+	if sloup_node:
+		_collect_visible_meshes(sloup_node, meshes)
+		
+	var orig_mats = []
+	var edited_meshes = []
+	
+	for mi in meshes:
+		if not is_instance_valid(mi) or not mi.mesh: continue
+		orig_mats.append(mi.get_surface_override_material(0))
+		edited_meshes.append(mi)
+		mi.set_surface_override_material(0, flash_mat)
+	
+	# Utilisation d'un tween pour le reset (plus propre que await Timer)
+	var tw = create_tween()
+	tw.tween_interval(0.15)
+	tw.set_parallel(false)
+	tw.tween_callback(func():
+		for i in range(edited_meshes.size()):
+			var mi = edited_meshes[i]
+			if is_instance_valid(mi):
+				mi.set_surface_override_material(0, orig_mats[i])
+		is_flashing = false
+	)
+
+func _collect_visible_meshes(node: Node, result: Array):
+	if node is MeshInstance3D and node.visible:
+		result.append(node)
+	for child in node.get_children():
+		_collect_visible_meshes(child, result)
+
+func take_damage(amount: float, attacker: Node3D):
 	if is_sinking: return  # Ignore les dégâts pendant le naufrage
 	hp -= amount
-	
+	_flash_hit()
 	if hp <= 0:
 		_start_sinking()
+
 
 
 func heal(amount: float):
@@ -741,25 +770,9 @@ func _start_sinking():
 	tw.chain().tween_callback(_on_sink_complete)
 
 func _on_sink_complete():
-	if is_player:
-		# Affiche l'écran de mort après le naufrage
-		get_tree().call_group("hud", "show_death_screen")
-		return
+	# Affiche l'écran de mort après le naufrage
+	get_tree().call_group("hud", "show_death_screen")
 
-	# Ennemi : dépose du loot
-	var drop_count = randi() % 3 + 1
-	var spread = 15.0
-	for i in range(drop_count):
-		var loot = LootScene.instantiate() as Loot
-		get_tree().get_root().add_child(loot)
-		var offset_x = (randf() * 2.0 - 1.0) * spread
-		var offset_z = (randf() * 2.0 - 1.0) * spread
-		loot.global_position = global_position + Vector3(offset_x, 5.0, offset_z)
-		var loot_type = randi() % 5
-		var amount = 10 + (randi() % 20)
-		if loot_type == 0: amount *= 5
-		loot.setup(loot_type, amount)
-	queue_free()
 
 
 func _get_water_height(pos: Vector3, time_val: float) -> float:

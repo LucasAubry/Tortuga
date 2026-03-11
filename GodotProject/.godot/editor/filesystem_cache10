@@ -1,10 +1,13 @@
-63f7b34db8d8cdea90c76aacccf841ec
-::res://::1773100850
-::res://assets/::1773100850
-low_poly_island.glb::PackedScene::1165470843817954836::1772915297::1772915297::1::::<><><>0<>0<>4519633728acf4e4581c9c09cac65b30<>res://.godot/imported/low_poly_island.glb-b2a2a641f56eaf65865cb6d7576a5291.scn::
-Pallete.png::CompressedTexture2D::3262324854741927329::1772915297::1772915297::1::::<><><>0<>0<>1419f3570b2358aa280b03a4694b1d18<>res://.godot/imported/Pallete.png-0c95f539cafaf2b10d29b52abc00beac.s3tc.ctex::
-sloup.glb::PackedScene::7091964818639911840::1772915297::1772915297::1::::<><><>0<>0<>85550daba54cb6aa417dee6a3a5a499d<>res://.godot/imported/sloup.glb-c1cc41c64e84297325bfc010185a87cc.scn::uid://bmqkap4qrobob::::res://assets/Pallete.png
-water.gdshader::Shader::748791470903796718::1772915297::0::1::::<><><>0<>0<><>::
+72322a848ab928aa5c89f0cb78209805
+::res://::1773189352
+::res://assets/::1773170843
+low_poly_island.glb::PackedScene::1165470843817954836::1772915297::1773159071::1::::<><><>0<>0<>4519633728acf4e4581c9c09cac65b30<>res://.godot/imported/low_poly_island.glb-b2a2a641f56eaf65865cb6d7576a5291.scn::
+Pallete.png::CompressedTexture2D::3262324854741927329::1772915297::1773159070::1::::<><><>0<>0<>3015aa8aec609543167f6d48d85cda7c<>res://.godot/imported/Pallete.png-0c95f539cafaf2b10d29b52abc00beac.s3tc.ctex<*>res://.godot/imported/Pallete.png-0c95f539cafaf2b10d29b52abc00beac.etc2.ctex::
+sloup.glb::PackedScene::7091964818639911840::1772915297::1773159071::1::::<><><>0<>0<>85550daba54cb6aa417dee6a3a5a499d<>res://.godot/imported/sloup.glb-c1cc41c64e84297325bfc010185a87cc.scn::uid://bmqkap4qrobob::::res://assets/Pallete.png
+water.gdshader::Shader::748791470903796718::1773169755::0::1::::<><><>0<>0<><>::
+water_albedo.png::CompressedTexture2D::4783101451780535109::1773158787::1773159073::1::::<><><>0<>0<>522b6dfceb57e5a23e05b77207bfd33a<>res://.godot/imported/water_albedo.png-ed353cad7e9acb0f603f37b6d08a3631.s3tc.ctex<*>res://.godot/imported/water_albedo.png-ed353cad7e9acb0f603f37b6d08a3631.etc2.ctex::
+water_normal.png::CompressedTexture2D::2309856379691326137::1773159673::1773159796::1::::<><><>0<>0<>72e15be61dfaae494caac0e58a0d3f7b<>res://.godot/imported/water_normal.png-430b0d4b05e5dce7038d1f6ccd2c18c3.s3tc.ctex<*>res://.godot/imported/water_normal.png-430b0d4b05e5dce7038d1f6ccd2c18c3.etc2.ctex::
+water_spots.png::CompressedTexture2D::4161055384546805932::1773162957::1773163055::1::::<><><>0<>0<>114f0b9291fa4d62ba0457f8987f2023<>res://.godot/imported/water_spots.png-0481d1f8defe952d6c783912977cce5b.s3tc.ctex<*>res://.godot/imported/water_spots.png-0481d1f8defe952d6c783912977cce5b.etc2.ctex::
 ::res://assets/fonts/::1773004368
 ::res://assets/fonts/liberation-fonts-2.1.5/::1773004374
 README.md::TextFile::-1::1772915297::0::1::::<><><>0<>0<><>::
@@ -29,35 +32,36 @@ hold_hud_hp.png::CompressedTexture2D::6958507398465554199::1772915297::177307096
 hud_hp.png::CompressedTexture2D::13500900322433460::1773074107::1773074139::1::::<><><>0<>0<>3e307de2fc6e508832a6cc70d4a9c238<>res://.godot/imported/hud_hp.png-300c7a2c59cecef466aa0cda251d3033.ctex::
 hud_map.png::CompressedTexture2D::8569488318075965089::1772915297::1772915297::1::::<><><>0<>0<>3ec6a4b2571d36e829fb490acc7d9333<>res://.godot/imported/hud_map.png-22c477396b56a7b96307f596c73d31ad.ctex::
 hud_vent.png::CompressedTexture2D::3384073653378286007::1772915297::1772915297::1::::<><><>0<>0<>3b49fa7117e7fc7f9e207deca181445f<>res://.godot/imported/hud_vent.png-b42875011ac14a9fe210665297101c31.ctex::
-::res://assets/skills/::1773100850
-dive.png::CompressedTexture2D::2644173528538104610::1772921708::1773002394::1::::<><><>0<>0<>d7a0fb9306037f735519b2128f9ea805<>res://.godot/imported/dive.png-6765dd4d7c673b59119b7505cccabdd6.s3tc.ctex::
-fishing-net.glb::PackedScene::934101940329643527::1773100755::1773100889::1::::<><><>0<>0<>b2093511fb2b666c08bf18f4f76cbb0d<>res://.godot/imported/fishing-net.glb-292b1045b49fe26e9b3cc65f5b65dc39.scn::
+::res://assets/skills/::1773170887
+dive.png::CompressedTexture2D::2644173528538104610::1772921708::1773163443::1::::<><><>0<>0<>ec0da05c44f7990c8ee6508ca3a06e9d<>res://.godot/imported/dive.png-6765dd4d7c673b59119b7505cccabdd6.s3tc.ctex<*>res://.godot/imported/dive.png-6765dd4d7c673b59119b7505cccabdd6.etc2.ctex::
+fishing-net.glb::PackedScene::934101940329643527::1773100755::1773159071::1::::<><><>0<>0<>b2093511fb2b666c08bf18f4f76cbb0d<>res://.godot/imported/fishing-net.glb-292b1045b49fe26e9b3cc65f5b65dc39.scn::
 fishing_net.png::CompressedTexture2D::2046361603046920259::1773099725::1773099773::1::::<><><>0<>0<>23687e4d65f629a9dc70dc92b56b6e08<>res://.godot/imported/fishing_net.png-b41d246d33b80dcd5879c9f4f1a0b773.ctex::
+flamethrower_icon.png::CompressedTexture2D::696655481373448078::1773170840::1773170887::1::::<><><>0<>0<>d4cfec70a6ae38ca79004945b90a6369<>res://.godot/imported/flamethrower_icon.png-c3553a6b39eeb28f42c952f8d4ed89bd.ctex::
 kraken_icon.png::CompressedTexture2D::6334091701364107306::1772984827::1772984859::1::::<><><>0<>0<>5e5c97dee099f0ae6ffca7fecf71292a<>res://.godot/imported/kraken_icon.png-da14798336a16d8b84c46ffcac1c1127.ctex::
 underwater_vignette.png::CompressedTexture2D::5243409099801021439::1772927691::1772927721::1::::<><><>0<>0<>6ed0ca1983d29bc1f6d4fbed0c26fce6<>res://.godot/imported/underwater_vignette.png-077f5e23e56ad59cc371055f1a408d87.ctex::
 wind_control.png::CompressedTexture2D::7077717570016363669::1772981167::1772981244::1::::<><><>0<>0<>ebdda4027ed5eaebb456a39090c97261<>res://.godot/imported/wind_control.png-a92f8ac32e8689c6c8b3d023fac65c06.ctex::
-::res://assets/skills/Tentacle - Low Poly/::1773003345
+::res://assets/skills/Tentacle - Low Poly/::1773163455
 readme.txt::TextFile::-1::1750533336::0::1::::<><><>0<>0<><>::
-::res://assets/skills/Tentacle - Low Poly/Mesh/::1772983923
-TentacleLowPoly.fbx::PackedScene::3787486526271255301::1750083190::1772983912::1::::<><><>0<>0<>ab9e245091e256989c3c71bbf3a9665e<>res://.godot/imported/TentacleLowPoly.fbx-15d0865466a7c60eab4f592aa14a3929.scn::
-::res://assets/skills/Tentacle - Low Poly/Textures/::1773003345
-Tentacle_Color 1.png::CompressedTexture2D::9068241414235874633::1750080444::1773002279::1::::<><><>0<>0<>1c5f8ed8ea509da8653bc82fc4d39ae1<>res://.godot/imported/Tentacle_Color 1.png-aee4662b9645b533396b879472915a2d.s3tc.ctex::
-Tentacle_Color 2.png::CompressedTexture2D::1993704776326219762::1750080448::1772984280::1::::<><><>0<>0<>1382b93a8c7ebe00ff4628e5ad6e1a45<>res://.godot/imported/Tentacle_Color 2.png-b911dd411e228e5b2331017f4b926b7c.s3tc.ctex::
-Tentacle_Color 3.png::CompressedTexture2D::4845722256998403067::1750082484::1773002406::1::::<><><>0<>0<>5f9f88af575c029b2f8c9d5f2ddc17a1<>res://.godot/imported/Tentacle_Color 3.png-2e401adb4eee8ecd36136c9b10863972.s3tc.ctex::
+::res://assets/skills/Tentacle - Low Poly/Mesh/::1773159077
+TentacleLowPoly.fbx::PackedScene::3787486526271255301::1750083190::1773159071::1::::<><><>0<>0<>ab9e245091e256989c3c71bbf3a9665e<>res://.godot/imported/TentacleLowPoly.fbx-15d0865466a7c60eab4f592aa14a3929.scn::
+::res://assets/skills/Tentacle - Low Poly/Textures/::1773163455
+Tentacle_Color 1.png::CompressedTexture2D::9068241414235874633::1750080444::1773163443::1::::<><><>0<>0<>f09229f8b8c4304fc0ba11a52b3487a4<>res://.godot/imported/Tentacle_Color 1.png-aee4662b9645b533396b879472915a2d.s3tc.ctex<*>res://.godot/imported/Tentacle_Color 1.png-aee4662b9645b533396b879472915a2d.etc2.ctex::
+Tentacle_Color 2.png::CompressedTexture2D::1993704776326219762::1750080448::1773163443::1::::<><><>0<>0<>80359f7ef0d443657b9fe522318d9290<>res://.godot/imported/Tentacle_Color 2.png-b911dd411e228e5b2331017f4b926b7c.s3tc.ctex<*>res://.godot/imported/Tentacle_Color 2.png-b911dd411e228e5b2331017f4b926b7c.etc2.ctex::
+Tentacle_Color 3.png::CompressedTexture2D::4845722256998403067::1750082484::1773163443::1::::<><><>0<>0<>c5faaf1a65241a26dab1ea4afb601c6a<>res://.godot/imported/Tentacle_Color 3.png-2e401adb4eee8ecd36136c9b10863972.s3tc.ctex<*>res://.godot/imported/Tentacle_Color 3.png-2e401adb4eee8ecd36136c9b10863972.etc2.ctex::
 Tentacle_Color 4.png::CompressedTexture2D::744461284364860075::1750080452::1772983911::1::::<><><>0<>0<>5092f75e67516679e220684cc6df361e<>res://.godot/imported/Tentacle_Color 4.png-51874b27a771f0ae974fcc51a8619d31.ctex::
-Tentacle_Color 5.png::CompressedTexture2D::8061046073810412970::1750080454::1773002772::1::::<><><>0<>0<>5925b3d00901cf026d4fd731396a6e3c<>res://.godot/imported/Tentacle_Color 5.png-3cd119c83d7d96ef846f59fabc970ed0.s3tc.ctex::
-Tentacle_Color 6.png::CompressedTexture2D::4533617087253101685::1750080870::1772984303::1::::<><><>0<>0<>ef3c87737d2d812d84ea8cb8cf23056d<>res://.godot/imported/Tentacle_Color 6.png-2c5e79078f9e934e8583d90f51185409.s3tc.ctex::
-Tentacle_Color 7.png::CompressedTexture2D::6954069072081891660::1750080458::1772984365::1::::<><><>0<>0<>59adb97f823fd5f0fc2943c83cbceb1b<>res://.godot/imported/Tentacle_Color 7.png-4aaf05f87c1853049e2114003cc1d8c7.s3tc.ctex::
-Tentacle_Color 8.png::CompressedTexture2D::8995537922114011062::1750080462::1773002703::1::::<><><>0<>0<>c3537299d18b29876e44237a81f2e4e4<>res://.godot/imported/Tentacle_Color 8.png-1a72649292631394643d2966abaa808d.s3tc.ctex::
-Tentacle_Metallic.png::CompressedTexture2D::3711685104576797370::1750080694::1772984294::1::::<><><>0<>0<>a45d153371ceab15ecb3c156f4f5dff9<>res://.godot/imported/Tentacle_Metallic.png-6b6d785af28bf997e9d20129dcc2408f.s3tc.ctex::
-::res://assets/skills/Tentacle - Low Poly/Textures/Cthulhu Style/::1773003345
-Tentacle_Cthulhu_Color 1.png::CompressedTexture2D::3199959456915606753::1750081346::1772984308::1::::<><><>0<>0<>547779f04ca5ec6ab2300360d6f5de16<>res://.godot/imported/Tentacle_Cthulhu_Color 1.png-9cc78eb30824673f4274e9923e1a8b49.s3tc.ctex::
-Tentacle_Cthulhu_Color 2.png::CompressedTexture2D::6751600497182181715::1750081388::1773002339::1::::<><><>0<>0<>4f4ca97b3bdd4c81db8463821957e853<>res://.godot/imported/Tentacle_Cthulhu_Color 2.png-769e369bfd52b52e2691221d0f13fe92.s3tc.ctex::
-Tentacle_Cthulhu_Color 3.png::CompressedTexture2D::4626758847655810538::1750081464::1772984325::1::::<><><>0<>0<>7e5986a717b3d6b5f9d28c1e6275b682<>res://.godot/imported/Tentacle_Cthulhu_Color 3.png-165a5870a01735643f12d17a5f6d0440.s3tc.ctex::
+Tentacle_Color 5.png::CompressedTexture2D::8061046073810412970::1750080454::1773163443::1::::<><><>0<>0<>015f312f37569bae07e5e1eed867da41<>res://.godot/imported/Tentacle_Color 5.png-3cd119c83d7d96ef846f59fabc970ed0.s3tc.ctex<*>res://.godot/imported/Tentacle_Color 5.png-3cd119c83d7d96ef846f59fabc970ed0.etc2.ctex::
+Tentacle_Color 6.png::CompressedTexture2D::4533617087253101685::1750080870::1773163443::1::::<><><>0<>0<>a3625c13551d19bfb985019f5ad51fdf<>res://.godot/imported/Tentacle_Color 6.png-2c5e79078f9e934e8583d90f51185409.s3tc.ctex<*>res://.godot/imported/Tentacle_Color 6.png-2c5e79078f9e934e8583d90f51185409.etc2.ctex::
+Tentacle_Color 7.png::CompressedTexture2D::6954069072081891660::1750080458::1773163443::1::::<><><>0<>0<>0844a1d9576c9c03b5d2112b1c94c7a1<>res://.godot/imported/Tentacle_Color 7.png-4aaf05f87c1853049e2114003cc1d8c7.s3tc.ctex<*>res://.godot/imported/Tentacle_Color 7.png-4aaf05f87c1853049e2114003cc1d8c7.etc2.ctex::
+Tentacle_Color 8.png::CompressedTexture2D::8995537922114011062::1750080462::1773163443::1::::<><><>0<>0<>b9f957d930a02ab461cb71125415a131<>res://.godot/imported/Tentacle_Color 8.png-1a72649292631394643d2966abaa808d.s3tc.ctex<*>res://.godot/imported/Tentacle_Color 8.png-1a72649292631394643d2966abaa808d.etc2.ctex::
+Tentacle_Metallic.png::CompressedTexture2D::3711685104576797370::1750080694::1773163443::1::::<><><>0<>0<>4c3aa002ef937c8e1a30ba7fb0591ab7<>res://.godot/imported/Tentacle_Metallic.png-6b6d785af28bf997e9d20129dcc2408f.s3tc.ctex<*>res://.godot/imported/Tentacle_Metallic.png-6b6d785af28bf997e9d20129dcc2408f.etc2.ctex::
+::res://assets/skills/Tentacle - Low Poly/Textures/Cthulhu Style/::1773163455
+Tentacle_Cthulhu_Color 1.png::CompressedTexture2D::3199959456915606753::1750081346::1773163443::1::::<><><>0<>0<>1d8d9d8657fc7f056c4143643b17d6f2<>res://.godot/imported/Tentacle_Cthulhu_Color 1.png-9cc78eb30824673f4274e9923e1a8b49.s3tc.ctex<*>res://.godot/imported/Tentacle_Cthulhu_Color 1.png-9cc78eb30824673f4274e9923e1a8b49.etc2.ctex::
+Tentacle_Cthulhu_Color 2.png::CompressedTexture2D::6751600497182181715::1750081388::1773163443::1::::<><><>0<>0<>aa19fdd7a6abc405bf49562ce35bc5e5<>res://.godot/imported/Tentacle_Cthulhu_Color 2.png-769e369bfd52b52e2691221d0f13fe92.s3tc.ctex<*>res://.godot/imported/Tentacle_Cthulhu_Color 2.png-769e369bfd52b52e2691221d0f13fe92.etc2.ctex::
+Tentacle_Cthulhu_Color 3.png::CompressedTexture2D::4626758847655810538::1750081464::1773163443::1::::<><><>0<>0<>2920e1da4e1ec7aad744f35e4611fa53<>res://.godot/imported/Tentacle_Cthulhu_Color 3.png-165a5870a01735643f12d17a5f6d0440.s3tc.ctex<*>res://.godot/imported/Tentacle_Cthulhu_Color 3.png-165a5870a01735643f12d17a5f6d0440.etc2.ctex::
 Tentacle_Cthulhu_Color 4.png::CompressedTexture2D::4157722371064840361::1750081494::1772983911::1::::<><><>0<>0<>9a9bd6035300569eade690a51d8a5d4c<>res://.godot/imported/Tentacle_Cthulhu_Color 4.png-9f002a9adff64f2449c12935c1771d0a.ctex::
-Tentacle_Cthulhu_Color 5.png::CompressedTexture2D::37389951099337983::1750081596::1773003340::1::::<><><>0<>0<>5d99c7224e20bc7583acf9840ba5cfc9<>res://.godot/imported/Tentacle_Cthulhu_Color 5.png-b10747fe5780774092c729c7c31450fd.s3tc.ctex::
+Tentacle_Cthulhu_Color 5.png::CompressedTexture2D::37389951099337983::1750081596::1773163443::1::::<><><>0<>0<>a871485642e11647f1e8cf92fa01dd24<>res://.godot/imported/Tentacle_Cthulhu_Color 5.png-b10747fe5780774092c729c7c31450fd.s3tc.ctex<*>res://.godot/imported/Tentacle_Cthulhu_Color 5.png-b10747fe5780774092c729c7c31450fd.etc2.ctex::
 Tentacle_Cthulhu_Color 6.png::CompressedTexture2D::5271279961617205623::1750081554::1772983911::1::::<><><>0<>0<>6bc3889595ebce658ded687d3298e00a<>res://.godot/imported/Tentacle_Cthulhu_Color 6.png-11cf1b0614c2a7a8175747bdff908c8b.ctex::
-Tentacle_Cthulhu_Color 7.png::CompressedTexture2D::992904689971495013::1750081598::1773002790::1::::<><><>0<>0<>67aa110f133252c1eb2e570227b65615<>res://.godot/imported/Tentacle_Cthulhu_Color 7.png-aaa2072dfa8a0ff7ac2004d4331d6eee.s3tc.ctex::
+Tentacle_Cthulhu_Color 7.png::CompressedTexture2D::992904689971495013::1750081598::1773163443::1::::<><><>0<>0<>864f2b12cb513beace2e7f17973c0350<>res://.godot/imported/Tentacle_Cthulhu_Color 7.png-aaa2072dfa8a0ff7ac2004d4331d6eee.s3tc.ctex<*>res://.godot/imported/Tentacle_Cthulhu_Color 7.png-aaa2072dfa8a0ff7ac2004d4331d6eee.etc2.ctex::
 Tentacle_Cthulhu_Color 8.png::CompressedTexture2D::971124362679044093::1750081578::1772983911::1::::<><><>0<>0<>8798dda735057fe2d6cc7a46b6e37367<>res://.godot/imported/Tentacle_Cthulhu_Color 8.png-d973ff8144e5736b933e48a87169d66f.ctex::
 ::res://assets/ui/::1773021092
 burnt_map.png::CompressedTexture2D::3423062639475076021::1773005452::1773005476::1::::<><><>0<>0<>c1a49deda2056f32a96caba26214c2c6<>res://.godot/imported/burnt_map.png-1fd5bcb445e6ac1195fc6afe900ac955.ctex::
@@ -69,69 +73,72 @@ icon_tentacle.png::CompressedTexture2D::6369681332865076768::1773020905::1773021
 kraken_armor.png::CompressedTexture2D::6579598965733462818::1773009002::1773009055::1::::<><><>0<>0<>694c610a074e2fbb5bd3b4f0de005d44<>res://.godot/imported/kraken_armor.png-0998f2ac3eae8eb6bfe5ffdf53350caf.ctex::
 kraken_spike.png::CompressedTexture2D::6522220691925060683::1773009002::1773009055::1::::<><><>0<>0<>4e71792f7e69af836bec3dceeb89b887<>res://.godot/imported/kraken_spike.png-968116ae4739e8426e38b22ab0744011.ctex::
 kraken_tentacle.png::CompressedTexture2D::3619646291877738359::1773009002::1773009055::1::::<><><>0<>0<>0889d26157431486eb82edc641c1f793<>res://.godot/imported/kraken_tentacle.png-e9e3f1e5b6d7a05449edfbaa1bc0679d.ctex::
-::res://assets/vfx/::1773079755
-smoke_atlas.png::CompressedTexture2D::3012634537391029767::1773079717::1773079750::1::::<><><>0<>0<>2803b52d3c2118f53f8675bacb7ab915<>res://.godot/imported/smoke_atlas.png-c970dc5e9f41f5ae938615d50acbd3be.ctex::
-smoke_puff.png::CompressedTexture2D::5797802315226127717::1773079599::1773079635::1::::<><><>0<>0<>3062063bbed8ca630ae5a5494cd29e34<>res://.godot/imported/smoke_puff.png-b9a58e00d75b594ba3bb907a999627b2.ctex::
+::res://assets/vfx/::1773170464
 ::res://assets/weapon/::1773077770
 grapeshot.png::CompressedTexture2D::7546463410253154853::1773077758::1773077770::1::::<><><>0<>0<>7dbd303b087db2725a8e0a304d19dc26<>res://.godot/imported/grapeshot.png-9c0d77c9e424e32abdfa5da53bfc72c9.ctex::
 heavy.png::CompressedTexture2D::7820064547323832566::1772920363::1772925366::1::::<><><>0<>0<>59b7e6995c67638f7df4603e64d91d14<>res://.godot/imported/heavy.png-63425cda11b065f088f37a19852be27d.ctex::
 rapid.png::CompressedTexture2D::4877373332513887144::1772920363::1772925366::1::::<><><>0<>0<>604dc550dc08f779dd4fb14702ea1262<>res://.godot/imported/rapid.png-b720f6c49d84397e70c9e778d1593813.ctex::
 standard.png::CompressedTexture2D::3929136537921817051::1772920363::1772920466::1::::<><><>0<>0<>3d0e7c686f247d32933cce2163b25d88<>res://.godot/imported/standard.png-556b13d820f5fa401ce16387d87fb4ea.ctex::
-::res://resources/::1773099738
-::res://resources/skills/::1773099738
-Dive.tres::Resource/Dive::7526003261507271845::1773007933::0::1::::<><><>0<>0<><>::uid://bdw4ffmjn4eby::::res://assets/skills/dive.png<>uid://silq0tn2l3fu::::res://scripts/skills/Dive.gd
-FishingNet.tres::Resource/FishingNet::-1::1773099736::0::1::::<><><>0<>0<><>::
-kraken_skill.tres::Resource/KrakenSkill::8173564447253862843::1773007933::0::1::::<><><>0<>0<><>::uid://cwijtha18teyc::::res://assets/skills/kraken_icon.png<>uid://b51mnq5mxhuan::::res://scripts/skills/KrakenSkill.gd
-WindControl.tres::Resource/WindControl::7415981731738761381::1773007933::0::1::::<><><>0<>0<><>::uid://c73q8ekkpmjof::::res://assets/skills/wind_control.png<>uid://b4un4ec5b5ypy::::res://scripts/skills/WindControl.gd
-::res://resources/weapons/::1773077627
-Grapeshot.tres::Resource/WeaponData::896399974155431204::1773077627::0::1::::<><><>0<>0<><>::uid://dfrtfdgk4pkhh::::res://assets/weapon/grapeshot.png<>uid://cexkxjymb314v::::res://scripts/WeaponData.gd
-Standard.tres::Resource/WeaponData::7821653458810200320::1772921782::0::1::::<><><>0<>0<><>::uid://bv8kkmi6ydvh8::::res://assets/weapon/standard.png<>uid://cexkxjymb314v::::res://scripts/WeaponData.gd
-::res://scenes/::1773099871
+::res://resources/::1773174905
+::res://resources/skills/::1773189138
+Dive.tres::Resource/Dive::7526003261507271845::1773145188::0::1::::<><><>0<>0<><>::uid://bdw4ffmjn4eby::::res://assets/skills/dive.png<>uid://silq0tn2l3fu::::res://scripts/skills/Dive.gd
+FishingNet.tres::Resource/FishingNet::2622788275367436269::1773144496::0::1::::<><><>0<>0<><>::uid://buxh665pq61jq::::res://scripts/skills/FishingNet.gd<>uid://4fjjn1p7wms6::::res://assets/skills/fishing_net.png
+Flamethrower.tres::Resource/Flamethrower::1760191299679956223::1773189138::0::1::::<><><>0<>0<><>::uid://csa27ggsau7as::::res://scripts/skills/Flamethrower.gd<>uid://j6p2w8jumhhe::::res://assets/skills/flamethrower_icon.png
+kraken_skill.tres::Resource/KrakenSkill::8173564447253862843::1773144496::0::1::::<><><>0<>0<><>::uid://cwijtha18teyc::::res://assets/skills/kraken_icon.png<>uid://b51mnq5mxhuan::::res://scripts/skills/KrakenSkill.gd
+WindControl.tres::Resource/WindControl::7415981731738761381::1773144496::0::1::::<><><>0<>0<><>::uid://c73q8ekkpmjof::::res://assets/skills/wind_control.png<>uid://b4un4ec5b5ypy::::res://scripts/skills/WindControl.gd
+::res://resources/weapons/::1773162099
+Grapeshot.tres::Resource/WeaponData::896399974155431204::1773162099::0::1::::<><><>0<>0<><>::uid://dfrtfdgk4pkhh::::res://assets/weapon/grapeshot.png<>uid://cexkxjymb314v::::res://scripts/WeaponData.gd
+Standard.tres::Resource/WeaponData::7821653458810200320::1773144496::0::1::::<><><>0<>0<><>::uid://bv8kkmi6ydvh8::::res://assets/weapon/standard.png<>uid://cexkxjymb314v::::res://scripts/WeaponData.gd
+::res://scenes/::1773189138
+EnemyShip.tscn::PackedScene::4114533104586361770::1773171576::0::1::::<><><>0<>0<><>::uid://cyjps17byih16::::res://scripts/EnemyShip.gd<>uid://bovohk447k3lq::::res://scenes/sloup.tscn<>uid://cexkxjymb314v::::res://scripts/WeaponData.gd<>uid://m1htuta6frw3::::res://resources/weapons/Grapeshot.tres<>uid://ddwmeu16ucgvt::::res://resources/skills/WindControl.tres<>uid://doploauaaas08::::res://resources/skills/kraken_skill.tres<>uid://dfhwf6k7rlq1j::::res://resources/skills/Dive.tres
 HUD.tscn::PackedScene::4690734425000384651::1773077646::0::1::::<><><>0<>0<><>::uid://cyamacup26l8o::::res://scripts/HUD.gd<>uid://bohjg0v2snpn0::::res://assets/hud/hud_vent.png<>uid://cd6jlhtfvi368::::res://scenes/MinimapUI.tscn<>uid://gsmfxfugyae::::res://assets/hud/hud_hp.png
-Ile.tscn::PackedScene::387970229::1772915297::0::1::::<><><>0<>0<><>::uid://cay2jw30ay22t::::res://scripts/Ile.gd
+Ile.tscn::PackedScene::387970229::1773160026::0::1::::<><><>0<>0<><>::uid://cay2jw30ay22t::::res://scripts/Ile.gd
 iles.tscn::PackedScene::2172022642111969568::1772915297::0::1::::<><><>0<>0<><>::uid://c4mgyimwfydoa::::res://scripts/IlesHitbox.gd
 Loot.tscn::PackedScene::-1::1772915297::0::1::::<><><>0<>0<><>::res://scripts/Loot.gd
 MapUI.tscn::PackedScene::8472228917369802935::1773007503::0::1::::<><><>0<>0<><>::uid://bnif35lvbf4s1::::res://scripts/MapUI.gd<>uid://d0icv4c4sgy5s::::res://assets/hud/bateau_map.png
 MinimapUI.tscn::PackedScene::5047970102614327327::1772915297::0::1::::<><><>0<>0<><>::uid://dudehq8ycef10::::res://assets/hud/hud_map.png<>uid://d0icv4c4sgy5s::::res://assets/hud/bateau_map.png<>uid://c3tdp8kvuxbjx::::res://scripts/MinimapUI.gd
-NetProjectile.tscn::PackedScene::-1::1773099675::0::1::::<><><>0<>0<><>::
+NetProjectile.tscn::PackedScene::-1::1773170659::0::1::::<><><>0<>0<><>::res://scripts/NetProjectile.gd<>uid://nkqr08xe8s0f::::res://assets/skills/fishing-net.glb
 Projectile.tscn::PackedScene::941862803192722::1772915297::0::1::::<><><>0<>0<><>::res://scripts/Projectile.gd
-Ship.tscn::PackedScene::715851::1773086577::0::1::::<><><>0<>0<><>::uid://b7ljuujup7t27::::res://scripts/Ship.gd<>uid://bovohk447k3lq::::res://scenes/sloup.tscn<>uid://cexkxjymb314v::::res://scripts/WeaponData.gd<>uid://djo4qwdrn425a::::res://resources/weapons/Standard.tres<>uid://m1htuta6frw3::::res://resources/weapons/Grapeshot.tres<>uid://ddwmeu16ucgvt::::res://resources/skills/WindControl.tres<>uid://doploauaaas08::::res://resources/skills/kraken_skill.tres<>uid://dfhwf6k7rlq1j::::res://resources/skills/Dive.tres
+Ship.tscn::PackedScene::715851::1773171641::0::1::::<><><>0<>0<><>::uid://b7ljuujup7t27::::res://scripts/Ship.gd<>uid://bovohk447k3lq::::res://scenes/sloup.tscn<>uid://cexkxjymb314v::::res://scripts/WeaponData.gd<>uid://m1htuta6frw3::::res://resources/weapons/Grapeshot.tres<>uid://ddwmeu16ucgvt::::res://resources/skills/WindControl.tres<>uid://doploauaaas08::::res://resources/skills/kraken_skill.tres<>uid://dfhwf6k7rlq1j::::res://resources/skills/Dive.tres
 sloup.tscn::PackedScene::3413279537310519846::1772915297::0::1::::<><><>0<>0<><>::uid://bmqkap4qrobob::::res://assets/Pallete.png
 SmokeEffect.tscn::PackedScene::-1::1772915297::0::1::::<><><>0<>0<><>::res://scripts/SmokeEffect.gd
-tentacule_kraken.tscn::PackedScene::8081702544058130036::1773021856::0::1::::<><><>0<>0<><>::uid://3n1a5q6prsvi::::res://assets/skills/Tentacle - Low Poly/Textures/Tentacle_Color 2.png<>uid://c6curb4qfnn2k::::res://assets/skills/Tentacle - Low Poly/Textures/Tentacle_Color 7.png<>uid://oe783orbpro4::::res://assets/skills/Tentacle - Low Poly/Textures/Cthulhu Style/Tentacle_Cthulhu_Color 7.png<>uid://b72ypundlqf0d::::res://scripts/KrakenTentacle.gd<>uid://d1frgv1tmnrg5::::res://assets/skills/Tentacle - Low Poly/Textures/Tentacle_Color 8.png<>uid://d2gyu1s3ljott::::res://assets/skills/Tentacle - Low Poly/Textures/Tentacle_Color 1.png<>uid://bs4758themche::::res://assets/skills/Tentacle - Low Poly/Textures/Tentacle_Metallic.png
-World.tscn::PackedScene::29969677::1773099867::0::1::::<><><>0<>0<><>::uid://ship::::res://scenes/Ship.tscn<>uid://b73hyfrtx14yh::::res://scenes/HUD.tscn<>res://resources/skills/FishingNet.tres<>uid://m1htuta6frw3::::res://resources/weapons/Grapeshot.tres<>uid://dsyamwtg77c6r::::res://scenes/MapUI.tscn<>uid://ddwmeu16ucgvt::::res://resources/skills/WindControl.tres<>uid://dbhw67e7ytc20::::res://scenes/menu/QuestMenu.tscn<>uid://doploauaaas08::::res://resources/skills/kraken_skill.tres<>uid://bbjdqads8j7tu::::res://scenes/menu/TabMenu.tscn<>uid://dfhwf6k7rlq1j::::res://resources/skills/Dive.tres<>res://scenes/menu/SettingsMenu.tscn<>uid://bbun7x1juo4jl::::res://scenes/menu/KrakenMenu.tscn<>uid://blqfq2pyvw0iy::::res://scripts/WindManager.gd<>uid://63ild0f6hv6l::::res://scripts/WakeManager.gd<>uid://57e5pj3ul0v1::::res://scenes/iles.tscn<>uid://island::::res://scenes/Ile.tscn<>uid://cexkxjymb314v::::res://scripts/WeaponData.gd<>uid://djo4qwdrn425a::::res://resources/weapons/Standard.tres
+tentacule_kraken.tscn::PackedScene::8081702544058130036::1773169809::0::1::::<><><>0<>0<><>::uid://3n1a5q6prsvi::::res://assets/skills/Tentacle - Low Poly/Textures/Tentacle_Color 2.png<>uid://c6curb4qfnn2k::::res://assets/skills/Tentacle - Low Poly/Textures/Tentacle_Color 7.png<>uid://oe783orbpro4::::res://assets/skills/Tentacle - Low Poly/Textures/Cthulhu Style/Tentacle_Cthulhu_Color 7.png<>uid://b72ypundlqf0d::::res://scripts/KrakenTentacle.gd<>uid://d1frgv1tmnrg5::::res://assets/skills/Tentacle - Low Poly/Textures/Tentacle_Color 8.png<>uid://d2gyu1s3ljott::::res://assets/skills/Tentacle - Low Poly/Textures/Tentacle_Color 1.png<>uid://bs4758themche::::res://assets/skills/Tentacle - Low Poly/Textures/Tentacle_Metallic.png
+World.tscn::PackedScene::29969677::1773189138::0::1::::<><><>0<>0<><>::uid://ship::::res://scenes/Ship.tscn<>uid://b73hyfrtx14yh::::res://scenes/HUD.tscn<>uid://bdmq67kapxgx6::::res://resources/skills/FishingNet.tres<>uid://dsyamwtg77c6r::::res://scenes/MapUI.tscn<>uid://ddwmeu16ucgvt::::res://resources/skills/WindControl.tres<>uid://dbhw67e7ytc20::::res://scenes/menu/QuestMenu.tscn<>uid://doploauaaas08::::res://resources/skills/kraken_skill.tres<>uid://bbjdqads8j7tu::::res://scenes/menu/TabMenu.tscn<>uid://dfhwf6k7rlq1j::::res://resources/skills/Dive.tres<>res://scenes/menu/SettingsMenu.tscn<>uid://bbun7x1juo4jl::::res://scenes/menu/KrakenMenu.tscn<>uid://blqfq2pyvw0iy::::res://scripts/WindManager.gd<>uid://63ild0f6hv6l::::res://scripts/WakeManager.gd<>uid://57e5pj3ul0v1::::res://scenes/iles.tscn<>uid://island::::res://scenes/Ile.tscn<>uid://cexkxjymb314v::::res://scripts/WeaponData.gd<>uid://75585v8wmdpp::::res://assets/water_normal.png<>uid://dftkoho5i4ub5::::res://scripts/ShipSpawner.gd<>uid://0cwdgeo7g7eh::::res://resources/skills/Flamethrower.tres
 ::res://scenes/menu/::1773017567
 KrakenMenu.tscn::PackedScene::2498744797361447425::1773017567::0::1::::<><><>0<>0<><>::uid://o3iphg16o2gl::::res://scripts/KrakenMenu.gd<>uid://bo1flu3sf35gb::::res://assets/ui/burnt_map.png
 QuestMenu.tscn::PackedScene::7245294360860845903::1773016250::0::1::::<><><>0<>0<><>::uid://c1841ejrtp8tf::::res://scripts/QuestMenu.gd<>uid://bo1flu3sf35gb::::res://assets/ui/burnt_map.png
 SettingsMenu.tscn::PackedScene::-1::1772915297::0::1::::<><><>0<>0<><>::res://scripts/SettingsMenu.gd
 TabMenu.tscn::PackedScene::2475399656295190514::1773016327::0::1::::<><><>0<>0<><>::uid://2o71ghgl5g8c::::res://scripts/TabMenu.gd<>uid://bo1flu3sf35gb::::res://assets/ui/burnt_map.png
-::res://scripts/::1773099782
+::res://scripts/::1773175255
 cel_shader.gdshader::Shader::2064586693961057138::1772915297::0::1::::<><><>0<>0<><>::
-GameConfig.gd::GDScript::717996018613545914::1773021954::0::1::::<>Node<><>0<>0<><>::
+EnemyShip.gd::GDScript::6476897328785978383::1773170427::0::1::::EnemyShip<>CharacterBody3D<><>0<>0<><>::
+GameConfig.gd::GDScript::717996018613545914::1773159388::0::1::::<>Node<><>0<>0<><>::
 GameManager.gd::GDScript::4788947773109164194::1773001881::0::1::::<>Node<><>0<>0<><>::
-HUD.gd::GDScript::6458102355273810212::1773074818::0::1::::HUD<>CanvasLayer<><>0<>0<><>::
+HUD.gd::GDScript::6458102355273810212::1773144813::0::1::::HUD<>CanvasLayer<><>0<>0<><>::
 Ile.gd::GDScript::3017134450736942787::1773001894::0::1::::Ile<>StaticBody3D<><>0<>0<><>::
 IlesHitbox.gd::GDScript::6833497966679837240::1772915297::0::1::::<>Node3D<><>0<>0<><>::
 KrakenMenu.gd::GDScript::1040959289052438883::1773074183::0::1::::KrakenMenu<>CanvasLayer<><>0<>0<><>::
-KrakenTentacle.gd::GDScript::4689686944905821625::1773099645::0::1::::<>Node3D<><>0<>0<><>::
+KrakenTentacle.gd::GDScript::4689686944905821625::1773169610::0::1::::<>Node3D<><>0<>0<><>::
 Loot.gd::GDScript::8862120272256335917::1772915297::0::1::::Loot<>Area3D<><>0<>0<><>::
 MapUI.gd::GDScript::3315745853862233482::1772982219::0::1::::MapUI<>CanvasLayer<><>0<>0<><>::
 MinimapUI.gd::GDScript::6777562854165492453::1772934167::0::1::::<>Control<><>0<>0<><>::
-NetProjectile.gd::GDScript::1273457963474537995::1773099686::0::1::::<>Area3D<><>0<>0<><>::
-Projectile.gd::GDScript::767610975657620154::1773088048::0::1::::Projectile<>Area3D<><>0<>0<><>::
+NetProjectile.gd::GDScript::1273457963474537995::1773170664::0::1::::<>Area3D<><>0<>0<><>::
+Projectile.gd::GDScript::767610975657620154::1773170312::0::1::::Projectile<>Area3D<><>0<>0<><>::
 QuestMenu.gd::GDScript::6667683216085832727::1773016536::0::1::::QuestMenu<>CanvasLayer<><>0<>0<><>::
-SettingsMenu.gd::GDScript::4250233512877536092::1772915297::0::1::::SettingsMenu<>CanvasLayer<><>0<>0<><>::
-Ship.gd::GDScript::4655755069518067762::1773099622::0::1::::Ship<>CharacterBody3D<><>0<>0<><>::
+SettingsMenu.gd::GDScript::4250233512877536092::1773159420::0::1::::SettingsMenu<>CanvasLayer<><>0<>0<><>::
+Ship.gd::GDScript::4655755069518067762::1773159396::0::1::::Ship<>CharacterBody3D<><>0<>0<><>::
+ShipSpawner.gd::GDScript::7550062008304563256::1773163149::0::1::::<>Node3D<><>0<>0<><>::
 SmokeEffect.gd::GDScript::1960080571938810640::1772915297::0::1::::<>Node3D<><>0<>0<><>::
 TabMenu.gd::GDScript::1925989767435996572::1773016546::0::1::::TabMenu<>CanvasLayer<><>0<>0<><>::
 TentacleHitbox.gd::GDScript::7315863034033436419::1772988737::0::1::::<>StaticBody3D<><>0<>0<><>::
-WakeManager.gd::GDScript::2234162306026828037::1772936101::0::1::::<>MultiMeshInstance3D<><>0<>0<><>::
-WeaponData.gd::GDScript::5101726183802334023::1773076093::0::1::::WeaponData<>Resource<><>0<>0<><>::
+WakeManager.gd::GDScript::2234162306026828037::1773157965::0::1::::<>MultiMeshInstance3D<><>0<>0<><>::
+WeaponData.gd::GDScript::5101726183802334023::1773144324::0::1::::WeaponData<>Resource<><>0<>0<><>::
 WindManager.gd::GDScript::3191861607864651596::1772981704::0::1::::<>MultiMeshInstance3D<><>0<>0<><>::
-::res://scripts/skills/::1773099775
-Dive.gd::GDScript::1280612010202214550::1773001261::0::1::::Dive<>WeaponData<><>0<>0<><>::
-FishingNet.gd::GDScript::3838160298629689090::1773099590::0::1::::FishingNet<>WeaponData<><>0<>0<><>::
-KrakenSkill.gd::GDScript::4546512520967581829::1772989629::0::1::::KrakenSkill<>WeaponData<><>0<>0<><>::
+::res://scripts/skills/::1773175255
+Dive.gd::GDScript::1280612010202214550::1773144386::0::1::::Dive<>WeaponData<><>0<>0<><>::
+FishingNet.gd::GDScript::3838160298629689090::1773170649::0::1::::FishingNet<>WeaponData<><>0<>0<><>::
+Flamethrower.gd::GDScript::6037937382308024306::1773175253::0::1::::Flamethrower<>WeaponData<><>0<>0<><>::
+KrakenSkill.gd::GDScript::4546512520967581829::1773169601::0::1::::KrakenSkill<>WeaponData<><>0<>0<><>::
 WindControl.gd::GDScript::4464026027755057590::1773001354::0::1::::WindControl<>WeaponData<><>0<>0<><>::
 ::res://shaders/::1772988170
 outline.gdshader::Shader::2059213279229886593::1772988169::0::1::::<><><>0<>0<><>::

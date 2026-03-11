@@ -19,9 +19,11 @@ var weapon_slot_panels: Array[PanelContainer] = []
 var weapon_slot_icons: Array[TextureRect] = []
 var weapon_slot_cooldowns: Array[TextureProgressBar] = []
 var player_ship: Ship
+var _is_connected_to_player: bool = false
 var enemy_hp_bars: Dictionary = {}
 
 func _ready():
+
 	add_to_group("hud")
 	_scale_fonts(self, 24)
 	player_ship = _find_player_ship(get_tree().get_root())
@@ -96,7 +98,12 @@ func _process(delta):
 			
 	# Update UI elements
 	if is_instance_valid(player_ship):
+		if not _is_connected_to_player:
+			player_ship.weapon_blocked.connect(_on_weapon_blocked)
+			_is_connected_to_player = true
+			
 		if is_instance_valid(hp_bar):
+
 			hp_bar.max_value = player_ship.max_hp
 			hp_bar.value = player_ship.hp
 		
@@ -153,31 +160,37 @@ func _process(delta):
 			
 			var sb = panel.get_theme_stylebox("panel") as StyleBoxFlat
 			
-			# Détection si l'action est bloquée (Canon/Grappin/Vent en plongée)
-			# Le Kraken est utilisable même sous l'eau
-			var is_blocked = player_ship.is_diving and weapon and (
-				weapon.type == WeaponData.ActionType.CANNON or 
-				weapon.type == WeaponData.ActionType.GRAPPLE or
-				weapon.type == WeaponData.ActionType.WIND_CONTROL
+			# Détection si l'action est bloquée (selon la nouvelle propriété ou la méthode logicielle)
+			var is_underwater = player_ship.is_diving or player_ship.is_underwater
+			var is_blocked = weapon != null and (
+				(is_underwater and not weapon.can_be_used_underwater) or 
+				(weapon.has_method("is_action_blocked") and weapon.is_action_blocked(player_ship))
 			)
 			
 			if i == player_ship.active_weapon_index:
 				# Bordure Dorée (Actif)
 				if is_blocked:
 					sb.border_color = Color(1, 0, 0, 1) # Rouge si bloqué
+					sb.shadow_color = Color(1, 0, 0, 0.6)
 				else:
 					sb.border_color = Color(1, 0.84, 0, 1) # Gold si utilisable
+					sb.shadow_color = Color(1, 0.8, 0, 0.4)
 					
 				sb.set_border_width_all(3)
-				sb.shadow_color = Color(1, 0.8, 0, 0.4) if not is_blocked else Color(1, 0, 0, 0.4)
 				sb.shadow_size = 12
-				if icon_rect: icon_rect.modulate = Color(1, 1, 1, 1) if not is_blocked else Color(1, 0.4, 0.4, 1)
+				if icon_rect: 
+					icon_rect.modulate = Color(1, 1, 1, 1) if not is_blocked else Color(1, 0.3, 0.3, 1)
 			else:
 				# Normal / Inactif
-				sb.border_color = Color(1, 1, 1, 0.2)
 				sb.set_border_width_all(1)
 				sb.shadow_size = 0
-				if icon_rect and weapon: icon_rect.modulate = Color(0.7, 0.7, 0.7, 0.8)
+				if is_blocked:
+					sb.border_color = Color(0.8, 0, 0, 0.4) # Bordure rouge tamisée
+					if icon_rect and weapon: icon_rect.modulate = Color(0.6, 0.2, 0.2, 0.5)
+				else:
+					sb.border_color = Color(1, 1, 1, 0.2)
+					if icon_rect and weapon: icon_rect.modulate = Color(0.7, 0.7, 0.7, 0.8)
+
 	
 	# Wind UI Update based on Player location
 	var wind_dir = Vector2(1, 0)
@@ -352,3 +365,22 @@ func show_death_screen():
 	btn.pressed.connect(func():
 		get_tree().reload_current_scene()
 	)
+
+func _on_weapon_blocked(index: int):
+	# Effet visuel de blocage (rouge flash + secousse)
+	if index >= weapon_slot_panels.size(): return
+	var panel = weapon_slot_panels[index]
+	var tween = create_tween()
+	tween.set_parallel(true)
+	tween.set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_OUT)
+	
+	# Flash Rouge
+	tween.tween_property(panel, "modulate", Color(2.5, 0.3, 0.3, 1.0), 0.05)
+	tween.chain().tween_property(panel, "modulate", Color(1, 1, 1, 1), 0.3)
+	
+	# Secousse légère
+	var original_pos = panel.position
+	var shake_tween = create_tween()
+	for i in range(4):
+		shake_tween.tween_property(panel, "position", original_pos + Vector2(randf_range(-5, 5), randf_range(-2, 2)), 0.04)
+	shake_tween.tween_property(panel, "position", original_pos, 0.04)

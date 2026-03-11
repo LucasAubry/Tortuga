@@ -1,3 +1,1 @@
-res://scenes/World.tscn
-res://scripts/Ship.gd
-res://scenes/Ship.tscn
+res://scripts/skills/Flamethrower.gd

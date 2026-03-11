@@ -6,8 +6,10 @@ const TENTACLE_SCENE = preload("res://scenes/tentacule_kraken.tscn")
 func _init():
 	type = ActionType.KRAKEN
 	weapon_name = "Kraken"
+	can_be_used_underwater = true
 	skill_duration = 30.0 # 30 secondes pour bloquer la zone !
 	cooldown = 40.0 # Augmenté car très puissant
+
 
 func activate(ship: Node3D):
 	var forward = -ship.global_transform.basis.z
@@ -34,5 +36,6 @@ func activate(ship: Node3D):
 		spawn_pos.y = -25.0
 		
 		tentacle.global_position = spawn_pos
+		tentacle.set_meta("caster", ship) # Indique qui a invoqué le kraken
 	
 	print("<<< Kraken Skill Activated! >>>")

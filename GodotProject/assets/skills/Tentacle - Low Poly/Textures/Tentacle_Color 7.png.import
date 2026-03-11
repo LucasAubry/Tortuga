@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://c6curb4qfnn2k"
 path.s3tc="res://.godot/imported/Tentacle_Color 7.png-4aaf05f87c1853049e2114003cc1d8c7.s3tc.ctex"
+path.etc2="res://.godot/imported/Tentacle_Color 7.png-4aaf05f87c1853049e2114003cc1d8c7.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/skills/Tentacle - Low Poly/Textures/Tentacle_Color 7.png"
-dest_files=["res://.godot/imported/Tentacle_Color 7.png-4aaf05f87c1853049e2114003cc1d8c7.s3tc.ctex"]
+dest_files=["res://.godot/imported/Tentacle_Color 7.png-4aaf05f87c1853049e2114003cc1d8c7.s3tc.ctex", "res://.godot/imported/Tentacle_Color 7.png-4aaf05f87c1853049e2114003cc1d8c7.etc2.ctex"]
 
 [params]
 

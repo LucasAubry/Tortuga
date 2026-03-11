@@ -1,0 +1,45 @@
+[gd_scene load_steps=9 format=3 uid="uid://byvd02rluq24e"]
+
+[ext_resource type="Script" uid="uid://cyjps17byih16" path="res://scripts/EnemyShip.gd" id="1_enemyship"]
+[ext_resource type="PackedScene" uid="uid://bovohk447k3lq" path="res://scenes/sloup.tscn" id="2_gjfe0"]
+[ext_resource type="Script" uid="uid://cexkxjymb314v" path="res://scripts/WeaponData.gd" id="2_ky8oh"]
+[ext_resource type="Resource" uid="uid://m1htuta6frw3" path="res://resources/weapons/Grapeshot.tres" id="4_grape"]
+[ext_resource type="Resource" uid="uid://ddwmeu16ucgvt" path="res://resources/skills/WindControl.tres" id="5_wind"]
+[ext_resource type="Resource" uid="uid://doploauaaas08" path="res://resources/skills/kraken_skill.tres" id="6_kraken"]
+[ext_resource type="Resource" uid="uid://dfhwf6k7rlq1j" path="res://resources/skills/Dive.tres" id="7_dive"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_gjfe0"]
+size = Vector3(31.756836, 0.19650269, 0.51792717)
+
+[node name="EnemyShip" type="CharacterBody3D"]
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
+script = ExtResource("1_enemyship")
+weapon_slots = Array[ExtResource("2_ky8oh")]([ExtResource("4_grape"), ExtResource("4_grape"), ExtResource("5_wind"), ExtResource("6_kraken"), ExtResource("7_dive")])
+sail_inflation_left = -2.5
+sail_offset_left = -0.8
+sail_inflation_right = -2.5
+sail_offset_right = 0.0
+
+[node name="sloup" parent="." instance=ExtResource("2_gjfe0")]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1.5444444, 0, 0, 0, 186.16226, 0, 0, 0, 263.9256, -2.36267, 26.937511, 4.3365192)
+shape = SubResource("BoxShape3D_gjfe0")
+
+[node name="Cannons" type="Node3D" parent="."]
+
+[node name="PortCannon1" type="Marker3D" parent="Cannons"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, 20.741028, 24.107395)
+
+[node name="StarboardCannon1" type="Marker3D" parent="Cannons"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15, 20.741028, 24.107395)
+
+[node name="DamageSmokeZone" type="Marker3D" parent="."]
+transform = Transform3D(16, 0, 0, 0, 3, 0, 0, 0, 50, 0, 4, 7.7225723)
+
+[node name="StatusEffectsZone" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5556812, 222.56331, 31.434385)
+gizmo_extents = 0.0
+
+[node name="FlamethrowerZone" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8, 85)

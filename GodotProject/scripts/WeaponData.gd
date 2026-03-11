@@ -15,6 +15,10 @@ enum ActionType { CANNON, GRAPPLE, SKILL, DIVE, WIND_CONTROL, KRAKEN }
 @export var projectile_spread: float = 0.0  # Dispersion en radians (0 = aucune)
 @export var icon: Texture2D
 
+@export_group("Activation Settings")
+@export var can_be_used_underwater: bool = false
+
+
 @export_group("Grapple Specific")
 @export var pull_force: float = 50.0
 

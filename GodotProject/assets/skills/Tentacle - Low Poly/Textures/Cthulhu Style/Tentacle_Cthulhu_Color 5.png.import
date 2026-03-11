@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://sd2o6t0aix8"
 path.s3tc="res://.godot/imported/Tentacle_Cthulhu_Color 5.png-b10747fe5780774092c729c7c31450fd.s3tc.ctex"
+path.etc2="res://.godot/imported/Tentacle_Cthulhu_Color 5.png-b10747fe5780774092c729c7c31450fd.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/skills/Tentacle - Low Poly/Textures/Cthulhu Style/Tentacle_Cthulhu_Color 5.png"
-dest_files=["res://.godot/imported/Tentacle_Cthulhu_Color 5.png-b10747fe5780774092c729c7c31450fd.s3tc.ctex"]
+dest_files=["res://.godot/imported/Tentacle_Cthulhu_Color 5.png-b10747fe5780774092c729c7c31450fd.s3tc.ctex", "res://.godot/imported/Tentacle_Cthulhu_Color 5.png-b10747fe5780774092c729c7c31450fd.etc2.ctex"]
 
 [params]
 

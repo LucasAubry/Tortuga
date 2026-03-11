@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Flamethrower" load_steps=3 format=3 uid="uid://0cwdgeo7g7eh"]
+
+[ext_resource type="Script" uid="uid://csa27ggsau7as" path="res://scripts/skills/Flamethrower.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://j6p2w8jumhhe" path="res://assets/skills/flamethrower_icon.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_script")
+type = 2
+weapon_name = "Lance-flammes"
+damage = 45.0
+cooldown = 0.0
+ammo_cost = 0
+projectile_speed = 0.0
+projectile_scale = 1.0
+icon = ExtResource("2_icon")
+skill_duration = 3.5
+speed_buff = 1.0

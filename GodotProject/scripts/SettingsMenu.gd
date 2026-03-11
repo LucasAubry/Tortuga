@@ -15,6 +15,15 @@ func _ready():
 	option_lang.item_selected.connect(_on_lang_changed)
 	option_preset.item_selected.connect(_on_preset_changed)
 	
+	# --- ADD CEL SHADER TOGGLE ---
+	var graphics_box = $ColorRect/MarginContainer/VBox/HBoxControls/GraphicsCol
+	if graphics_box:
+		var check = CheckButton.new()
+		check.text = "Outlines (Cel-Shader)"
+		check.button_pressed = GameConfig.enable_cel_shader
+		check.toggled.connect(_on_cel_toggled)
+		graphics_box.add_child(check)
+	
 	# Font assignment removed
 
 func _apply_font_recursive(node: Node, font: Font):
@@ -60,3 +69,8 @@ func _on_preset_changed(idx: int):
 	# 0 = Low, 1 = Med, 2 = High
 	print("Graphics set to: ", idx)
 	# Here you would toggle WorldEnvironment glow, shadows, or MSAA
+
+func _on_cel_toggled(enabled: bool):
+	GameConfig.enable_cel_shader = enabled
+	GameConfig.cel_shader_toggled.emit(enabled)
+	print("Cel Shader toggled: ", enabled)

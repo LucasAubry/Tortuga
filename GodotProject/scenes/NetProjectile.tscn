@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://nkqr08xe8s0f" path="res://assets/skills/fishing-net.glb" id="2_mesh"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_np1"]
-size = Vector3(8.0, 2.0, 8.0)
+size = Vector3(16.0, 3.0, 16.0)
 
 [node name="NetProjectile" type="Area3D"]
 script = ExtResource("1_script")

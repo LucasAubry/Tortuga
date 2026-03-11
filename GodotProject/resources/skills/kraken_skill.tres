@@ -11,4 +11,5 @@ damage = 50.0
 cooldown = 45.0
 ammo_cost = 0
 icon = ExtResource("1_icon")
+can_be_used_underwater = true
 skill_duration = 30.0
