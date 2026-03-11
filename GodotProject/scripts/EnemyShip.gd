@@ -337,6 +337,9 @@ func _physics_process(delta):
 	# move_and_slide FINAL (après que tous les skills aient modifié velocity)
 	move_and_slide()
 	
+	# Toujours maintenir le navire ennemi à la hauteur de l'eau
+	global_position.y = _get_water_height(global_position, Time.get_ticks_msec() / 1000.0)
+	
 	_update_damage_visuals(delta)
 
 func _update_damage_visuals(delta):

@@ -4,7 +4,7 @@ extends WeaponData
 @export_group("Flamethrower Geometry")
 @export var flame_range: float = 60.0       # Longueur du jet/hitbox
 @export var flame_angle_degrees: float = 35.0 # Largeur du cône (35 deg total)
-@export var particles_amount: int = 2500     # Densité du feu
+@export var particles_amount: int = 500     # Densité du feu
 
 @export_group("Flamethrower Mechanics")
 @export var ammo_usage_per_sec: float = 5.0  # Consommation (5 boulets/sec)

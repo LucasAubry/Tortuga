@@ -1,9 +1,5 @@
-res://scripts/HUD.gd
-res://scripts/Ship.gd
-res://scenes/baril_explosif.tscn
-res://assets/water.gdshader
-res://resources/weapons/ExplosiveBarrel.tres
 res://scenes/World.tscn
-res://scripts/skills/ExplosiveBarrelItem.gd
-res://scenes/Ship.tscn
-res://resources/weapons/baril_explosif.tres
+res://assets/water.gdshader
+res://scripts/skills/Flamethrower.gd
+res://scripts/EnemyShip.gd
+res://scripts/Ship.gd
