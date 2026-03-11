@@ -4,3 +4,13 @@ res://assets/water.gdshader
 res://scripts/Ship.gd
 res://scenes/Ship.tscn
 res://resources/skills/Flamethrower.tres
+res://barel_explosif.tscn
+res://scenes/baril_explosif.tscn
+res://scripts/GameConfig.gd
+res://scripts/HUD.gd
+res://scripts/SettingsMenu.gd
+res://scripts/WeaponData.gd
+res://scenes/HUD.tscn
+res://scripts/skills/ExplosiveBarrelItem.gd
+res://scripts/ExplosiveBarrel.gd
+res://resources/weapons/ExplosiveBarrel.tres

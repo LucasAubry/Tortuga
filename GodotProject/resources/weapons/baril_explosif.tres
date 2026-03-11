@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ExplosiveBarrelItem" load_steps=3 format=3 uid="uid://explosive_barrel"]
+
+[ext_resource type="Script" path="res://scripts/skills/ExplosiveBarrelItem.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/skills/icon_barrel_explosive.png" id="2_icon"]
+
+[resource]
+script = ExtResource("1_script")
+type = 2
+weapon_name = "Baril Explosif"
+damage = 85.0
+cooldown = 8.0
+ammo_cost = 10
+projectile_speed = 0.0
+projectile_scale = 1.0
+icon = ExtResource("2_icon")

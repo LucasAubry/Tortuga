@@ -43,3 +43,10 @@ func post_physics_tick(ship: Node3D, delta: float):
 # Retourne TRUE si l'arme peut tirer (permet de bloquer selon l'état du bateau)
 func is_action_blocked(ship: Node3D) -> bool:
 	return false
+
+func _get_my_slot_index(ship: Node3D) -> int:
+	if "weapon_slots" in ship:
+		for i in range(ship.weapon_slots.size()):
+			if ship.weapon_slots[i] == self:
+				return i
+	return -1

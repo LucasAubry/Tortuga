@@ -3,6 +3,7 @@ extends CanvasLayer
 
 @onready var hp_bar = %ProgressBar
 @onready var label_hp = %LabelHP
+@onready var label_fps = %LabelFPS
 @onready var label_ammo = $MarginContainer/TopLeft/LabelAmmo
 @onready var wind_speed_label = $WindBox/WindSpeedLabel
 @onready var arrow_pivot = $WindBox/ArrowPivot
@@ -32,6 +33,10 @@ func _ready():
 	
 	if settings_btn:
 		settings_btn.pressed.connect(_on_settings_pressed)
+	
+	if label_fps:
+		label_fps.visible = GameConfig.show_fps
+	GameConfig.fps_toggled.connect(func(enabled): if label_fps: label_fps.visible = enabled)
 
 func _setup_weapon_ui():
 	# On récupère les 5 slots créés dans l'éditeur
@@ -97,6 +102,9 @@ func _process(delta):
 			return
 			
 	# Update UI elements
+	if is_instance_valid(label_fps) and label_fps.visible:
+		label_fps.text = "FPS: %d" % Engine.get_frames_per_second()
+
 	if is_instance_valid(player_ship):
 		if not _is_connected_to_player:
 			player_ship.weapon_blocked.connect(_on_weapon_blocked)

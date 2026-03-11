@@ -1,10 +1,12 @@
 extends Node
 signal cel_shader_toggled(enabled)
+signal fps_toggled(enabled)
 
 # Global wind state (Default, used if get_wind_at not called)
 var wind_direction: Vector2 = Vector2(1, 0).normalized() 
 var wind_speed: float = 1.0
 var enable_cel_shader: bool = true
+var show_fps: bool = false
 
 # Noise for global wind zones
 var wind_angle_noise = FastNoiseLite.new()

@@ -7,7 +7,7 @@
 script = ExtResource("1_script")
 type = 2
 weapon_name = "Lance-flammes"
-damage = 10.0
+damage = 20.0
 cooldown = 0.0
 ammo_cost = 0
 projectile_speed = 0.0

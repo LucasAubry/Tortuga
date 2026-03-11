@@ -1,10 +1,10 @@
+StaticBody3D
+CollisionShape3D
 TextureRect
 AnimationPlayer
 TextureProgressBar
 ProgressBar
 HBoxContainer
-CollisionShape3D
-StaticBody3D
 Node3D
 MeshInstance3D
 DirectionalLight3D

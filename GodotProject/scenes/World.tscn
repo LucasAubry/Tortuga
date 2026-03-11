@@ -8,17 +8,17 @@
 [ext_resource type="PackedScene" uid="uid://dbhw67e7ytc20" path="res://scenes/menu/QuestMenu.tscn" id="6"]
 [ext_resource type="Resource" uid="uid://doploauaaas08" path="res://resources/skills/kraken_skill.tres" id="7"]
 [ext_resource type="PackedScene" uid="uid://bbjdqads8j7tu" path="res://scenes/menu/TabMenu.tscn" id="8"]
-[ext_resource type="Resource" uid="uid://dfhwf6k7rlq1j" path="res://resources/skills/Dive.tres" id="9"]
 [ext_resource type="PackedScene" path="res://scenes/menu/SettingsMenu.tscn" id="10"]
 [ext_resource type="PackedScene" uid="uid://bbun7x1juo4jl" path="res://scenes/menu/KrakenMenu.tscn" id="11"]
 [ext_resource type="Script" uid="uid://blqfq2pyvw0iy" path="res://scripts/WindManager.gd" id="12"]
 [ext_resource type="Script" uid="uid://63ild0f6hv6l" path="res://scripts/WakeManager.gd" id="13"]
 [ext_resource type="PackedScene" uid="uid://57e5pj3ul0v1" path="res://scenes/iles.tscn" id="14"]
-[ext_resource type="PackedScene" uid="uid://island" path="res://scenes/Ile.tscn" id="15"]
+[ext_resource type="PackedScene" path="res://scenes/Ile.tscn" id="15"]
 [ext_resource type="Script" uid="uid://cexkxjymb314v" path="res://scripts/WeaponData.gd" id="16"]
 [ext_resource type="Texture2D" uid="uid://75585v8wmdpp" path="res://assets/water_normal.png" id="18"]
 [ext_resource type="Script" uid="uid://dftkoho5i4ub5" path="res://scripts/ShipSpawner.gd" id="19"]
 [ext_resource type="Resource" uid="uid://0cwdgeo7g7eh" path="res://resources/skills/Flamethrower.tres" id="20"]
+[ext_resource type="Resource" path="res://resources/weapons/baril_explosif.tres" id="21"]
 
 [sub_resource type="ProceduralSkyMaterial" id="1"]
 sky_horizon_color = Color(0.646, 0.656, 0.67, 1)
@@ -152,7 +152,7 @@ transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
 collision_layer = 3
 ammo = 500
 max_ammo = 1000
-weapon_slots = Array[ExtResource("16")]([ExtResource("3_44lqw"), ExtResource("20"), ExtResource("5"), ExtResource("7"), ExtResource("9")])
+weapon_slots = Array[ExtResource("16")]([ExtResource("21"), ExtResource("20"), ExtResource("3_44lqw"), ExtResource("5"), ExtResource("7")])
 
 [node name="ShipSpawner" type="Node3D" parent="."]
 script = ExtResource("19")
@@ -203,7 +203,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 150, 20, 150)
 transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, -150, -22.75, 150)
 
 [node name="Zone_Merchant" parent="Node3D" instance=ExtResource("15")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -150, 20, -150)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -150, 20, 150)
 ile_type = 1
 
 [node name="IleMesh_Shipwright" parent="Node3D" instance=ExtResource("14")]
