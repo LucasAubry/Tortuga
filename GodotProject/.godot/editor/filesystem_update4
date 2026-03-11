@@ -1,1 +1,6 @@
 res://scripts/skills/Flamethrower.gd
+res://scenes/World.tscn
+res://assets/water.gdshader
+res://scripts/Ship.gd
+res://scenes/Ship.tscn
+res://resources/skills/Flamethrower.tres

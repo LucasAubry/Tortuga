@@ -150,6 +150,8 @@ environment = SubResource("3")
 [node name="Ship" parent="." instance=ExtResource("1")]
 transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
 collision_layer = 3
+ammo = 500
+max_ammo = 1000
 weapon_slots = Array[ExtResource("16")]([ExtResource("3_44lqw"), ExtResource("20"), ExtResource("5"), ExtResource("7"), ExtResource("9")])
 
 [node name="ShipSpawner" type="Node3D" parent="."]

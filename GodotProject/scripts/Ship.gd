@@ -19,8 +19,8 @@ var cooldown: float
 var max_cooldown: float
 var damage: float = 25.0
 
-var ammo: int = 50
-var max_ammo: int = 100
+@export var ammo: int = 50
+@export var max_ammo: int = 100
 
 signal weapon_blocked(index: int)
 
