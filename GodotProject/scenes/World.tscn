@@ -1,4 +1,4 @@
-[gd_scene load_steps=27 format=3 uid="uid://world"]
+[gd_scene load_steps=28 format=3 uid="uid://world"]
 
 [ext_resource type="PackedScene" uid="uid://ship" path="res://scenes/Ship.tscn" id="1"]
 [ext_resource type="PackedScene" uid="uid://b73hyfrtx14yh" path="res://scenes/HUD.tscn" id="2"]
@@ -19,6 +19,7 @@
 [ext_resource type="Script" uid="uid://dftkoho5i4ub5" path="res://scripts/ShipSpawner.gd" id="19"]
 [ext_resource type="Resource" uid="uid://0cwdgeo7g7eh" path="res://resources/skills/Flamethrower.tres" id="20"]
 [ext_resource type="Resource" uid="uid://bcfqprvw8da34" path="res://resources/weapons/baril_explosif.tres" id="21"]
+[ext_resource type="PackedScene" path="res://scenes/menu/HQMenu.tscn" id="22_hq"]
 
 [sub_resource type="ProceduralSkyMaterial" id="1"]
 sky_horizon_color = Color(0.646, 0.656, 0.67, 1)
@@ -116,7 +117,7 @@ subdivide_depth = 150
 environment = SubResource("3")
 
 [node name="Ship" parent="." instance=ExtResource("1")]
-transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 0, 0)
+transform = Transform3D(0.2, 0, 0, 0, 0.2, 0, 0, 0, 0.2, 0, 83, -1480.1206)
 collision_layer = 3
 ammo = 500
 max_ammo = 1000
@@ -156,6 +157,8 @@ mesh = SubResource("7")
 
 [node name="KrakenMenu" parent="." instance=ExtResource("11")]
 
+[node name="HQMenu" parent="." instance=ExtResource("22_hq")]
+
 [node name="Node3D" type="Node3D" parent="."]
 
 [node name="IleMesh_City" parent="Node3D" instance=ExtResource("14")]
@@ -191,3 +194,17 @@ transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, -22.75, -250)
 [node name="Zone_Kraken" parent="Node3D" instance=ExtResource("15")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 20, -250)
 ile_type = 4
+
+[node name="IleMesh_HQTop" parent="Node3D" instance=ExtResource("14")]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, -22.75, -1600)
+
+[node name="Zone_HQTop" parent="Node3D" instance=ExtResource("15")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 20, -1600)
+ile_type = 5
+
+[node name="IleMesh_HQBottom" parent="Node3D" instance=ExtResource("14")]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, -22.75, 1600)
+
+[node name="Zone_HQBottom" parent="Node3D" instance=ExtResource("15")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 20, 1600)
+ile_type = 5

@@ -188,3 +188,24 @@ func get_kraken_armor_hp_bonus() -> int:
 	if kraken_tentacle_parts.get("ArmorV2", false): total += ARMOR_V2_HP_BONUS
 	if kraken_tentacle_parts.get("ArmorV3", false): total += ARMOR_V3_HP_BONUS
 	return total
+# ── DISPONIBLE AU QUARTIER GENERALE ──
+var available_ships = [
+	{
+		"name": "Sloop de base",
+		"price": 0,
+		"type": 0, # ShipClass.SLOOP
+		"scene_path": "res://scenes/sloup.tscn"
+	},
+	{
+		"name": "Brigantin Rapide",
+		"price": 500,
+		"type": 1, # ShipClass.BRIGANTINE
+		"scene_path": "res://scenes/sloup.tscn" 
+	},
+	{
+		"name": "Galion de Guerre",
+		"price": 1500,
+		"type": 2, # ShipClass.GALLEON
+		"scene_path": "res://scenes/sloup.tscn" 
+	}
+]

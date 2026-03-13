@@ -1,7 +1,7 @@
 class_name Ile
 extends StaticBody3D
 
-enum IleType { CITY, MERCHANT, SHIPWRIGHT, FISHERMAN, KRAKEN_FARMER }
+enum IleType { CITY, MERCHANT, SHIPWRIGHT, FISHERMAN, KRAKEN_FARMER, HEADQUARTERS }
 @export var ile_type: IleType = IleType.CITY
 
 @export var inner_radius: float = 50.0
@@ -57,6 +57,8 @@ func _ready():
 		icon.text = "[ PECHEUR ]"
 	elif ile_type == IleType.KRAKEN_FARMER:
 		icon.text = "[ ELEVEUR DE KRAKEN ]"
+	elif ile_type == IleType.HEADQUARTERS:
+		icon.text = "[ QUARTIER GENERALE ]"
 		
 	icon.pixel_size = 0.5
 	icon.billboard = BaseMaterial3D.BILLBOARD_ENABLED
@@ -123,6 +125,11 @@ func _on_marker_clicked(camera, event, position, normal, shape_idx):
 					var kmenu = world_node.get_node_or_null("KrakenMenu")
 					if kmenu and kmenu.has_method("show_menu"):
 						kmenu.show_menu()
+				elif ile_type == IleType.HEADQUARTERS:
+					GameManager.state = GameManager.GameState.HQ_MENU
+					var hqmenu = world_node.get_node_or_null("HQMenu")
+					if hqmenu and hqmenu.has_method("show_menu"):
+						hqmenu.show_menu()
 					
 				print("Opened interface for island type: ", ile_type)
 			else:

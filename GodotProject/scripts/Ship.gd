@@ -122,6 +122,9 @@ func _ready():
 	_setup_immobilized_icon()
 
 func _setup_immobilized_icon():
+	if is_instance_valid(_immobilized_icon):
+		_immobilized_icon.queue_free()
+		
 	var net_scene = load("res://assets/skills/fishing-net.glb")
 	if net_scene:
 		_immobilized_icon = net_scene.instantiate()
@@ -138,6 +141,9 @@ func _setup_immobilized_icon():
 		_immobilized_icon.visible = false
 
 func _setup_damage_smoke():
+	if is_instance_valid(_hit_smoke_particles):
+		_hit_smoke_particles.queue_free()
+		
 	_hit_smoke_particles = CPUParticles3D.new()
 	add_child(_hit_smoke_particles)
 	_hit_smoke_particles.name = "HealthSmoke"
@@ -818,3 +824,27 @@ func _get_water_height(pos: Vector3, _time_val: float) -> float:
 	if abs(pos.x) > MAP_WIDTH * 0.5 or abs(pos.z) > MAP_HEIGHT * 0.5:
 		return -1000.0 # Indique une chute
 	return 0.0
+
+func switch_ship(new_type: ShipClass, scene_path: String):
+	ship_type = new_type
+	
+	# Suppression de l'ancien mesh
+	var old_mesh = get_node_or_null("sloup")
+	if old_mesh:
+		old_mesh.name = "OLD_MESH"
+		old_mesh.queue_free()
+	
+	# Chargement du nouveau mesh
+	var new_scene = load(scene_path)
+	if new_scene:
+		var new_mesh = new_scene.instantiate()
+		new_mesh.name = "sloup"
+		add_child(new_mesh)
+	
+	# Réinitialisation des stats et des composants visuels
+	_init_stats()
+	_init_components()
+	_setup_damage_smoke()
+	_setup_immobilized_icon()
+	
+	print("⚓ Navire changé pour un : ", ship_type)

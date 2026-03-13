@@ -155,6 +155,9 @@ func _create_ile_marker(ile: Node):
 			3: # FISHERMAN
 				dot.color = Color(1.0, 0.2, 0.2)
 				label.text = "PECHERIE"
+			5: # HEADQUARTERS
+				dot.color = Color(1.0, 0.6, 0.0) # Orange
+				label.text = "QUARTIER GENERALE"
 			_:
 				dot.color = Color(0.8, 0.7, 0.5)
 				label.text = "ILE"

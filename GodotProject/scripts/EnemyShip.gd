@@ -874,13 +874,5 @@ func _apply_faction_visuals():
 
 
 
-func _get_water_height(pos: Vector3, time_val: float) -> float:
-	var wave_speed = 0.8
-	var wave_freq = 0.03
-	var wave_amp = 3.0
-	
-	var t = time_val * wave_speed
-	var w1 = sin(pos.x * wave_freq + t) * wave_amp
-	var w2 = cos(pos.z * wave_freq * 1.5 + t * 1.2) * wave_amp * 0.8
-	
-	return w1 + w2
+func _get_water_height(_pos: Vector3, _time_val: float) -> float:
+	return 0.0
