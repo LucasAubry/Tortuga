@@ -1,0 +1,20 @@
+Ce fichier explique le principe de l'instancing pour les assets dans le jeu :
+
+Oui, même s'il y a PLUSIEURS maisons ! C'est là toute la puissance de cette méthode.
+
+Imaginez que vous avez placé 50 maisons de marchand identiques sur votre carte dans Blender.
+Plutôt que d'exporter 50 maisons (ce qui ferait un fichier 3D énorme et très lent à charger), votre fichier texte exportera simplement 50 lignes de coordonnées.
+
+Ensuite, votre jeu fonctionnera de cette manière :
+
+1. Le jeu démarre.
+2. Il charge en mémoire vive (RAM / VRAM) le petit modèle `maison_marchand.obj` UNE SEULE FOIS.
+3. Il lit votre fichier de coordonnées contenant les 50 emplacements.
+4. À chaque image (60 fois par seconde), le processeur graphique utilise le modèle `maison_marchand.obj` qu'il a déjà en mémoire et le "tamponne" 50 fois à des endroits différents sur l'écran.
+
+Cela s'appelle l'"Instancing" (Instanciation).
+Ça prend :
+- Presque 0 mémoire supplémentaire pour la 2ème maison, la 3ème, jusqu'à la 50ème.
+- Très peu de puissance de calcul pour la carte graphique.
+
+C'est comme ça qu'on arrive à afficher des forêts denses avec 10 000 palmiers ou des villes entières avec des dizaines de maisons sans faire exploser l'ordinateur ! Chaque arbre, chaque maison, chaque tonneau n'est chargé qu'une fois, puis simplement dessiné ("instancié") 1000 fois aux coordonnées sauvegardées depuis Blender.

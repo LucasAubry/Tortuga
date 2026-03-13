@@ -29,7 +29,10 @@ enum ActionType { CANNON, GRAPPLE, SKILL, DIVE, WIND_CONTROL, KRAKEN }
 # --- LOGIQUE MODULAIRE ---
 # Appelé quand on appuie sur le bouton de tir
 func activate(ship: Node3D):
-	pass
+	# Si c'est un tir de canon standard et que la méthode n'est pas surchargée
+	if type == ActionType.CANNON or type == ActionType.GRAPPLE:
+		if ship.has_method("_fire_cannons"):
+			ship._fire_cannons(self)
 
 # Appelé à chaque frame de physique (optionnel)
 # S'exécute AVANT move_and_slide — idéal pour modifier velocity (ex: WindControl)

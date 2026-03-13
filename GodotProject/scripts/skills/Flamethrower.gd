@@ -12,13 +12,9 @@ extends WeaponData
 
 var _last_toggle_frame: int = -1
 
+# Les valeurs par défaut sont maintenant gérées directement par les exports et le fichier .tres
 func _init():
-	type = ActionType.SKILL
-	weapon_name = "Lance-flammes"
-	damage = 60.0
-	ammo_cost = 0
-	# Valeur par défaut pour le HUD au démarrage
-	cooldown = 10.0 
+	pass
 
 func activate(ship: Node3D):
 	# On neutralise immédiatement le cooldown automatique que Ship.gd vient de mettre

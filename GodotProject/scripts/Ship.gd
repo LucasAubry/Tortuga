@@ -49,6 +49,12 @@ var active_weapon_index: int = 0
 var skill_timer: float = 0.0
 var current_speed_buff: float = 1.0
 
+# --- LIMITES DU MONDE ---
+const MAP_WIDTH: float = 2400.0
+const MAP_HEIGHT: float = 3600.0
+var _is_falling: bool = false
+var _falling_timer: float = 0.0
+
 @export_group("Diving Status (ReadOnly)")
 @export var is_diving: bool = false
 @export var current_dive_depth: float = 0.0
@@ -259,45 +265,63 @@ func _init_stats():
 	hp = max_hp
 
 func _physics_process(delta):
-	if is_sinking: return  # Physique arrêtée pendant le naufrage
-	
-	# Gestion des temps de recharge
-	for i in range(weapon_cooldowns.size()):
-		if weapon_cooldowns[i] > 0:
-			weapon_cooldowns[i] -= delta
-		
-	if skill_timer > 0:
-		skill_timer -= delta
-		if skill_timer <= 0:
-			current_speed_buff = 1.0
-
-	if wind_boost_timer > 0:
-		wind_boost_timer -= delta
-		if wind_boost_timer <= 0:
-			is_wind_boost_active = false
+	# 1. GESTION DES TIMERS (uniquement si on ne coule pas)
+	if not is_sinking:
+		for i in range(weapon_cooldowns.size()):
+			if weapon_cooldowns[i] > 0:
+				weapon_cooldowns[i] -= delta
 			
-	if immobilization_timer > 0:
-		immobilization_timer -= delta
+		if skill_timer > 0:
+			skill_timer -= delta
+			if skill_timer <= 0:
+				current_speed_buff = 1.0
+
+		if wind_boost_timer > 0:
+			wind_boost_timer -= delta
+			if wind_boost_timer <= 0:
+				is_wind_boost_active = false
+				
+		if immobilization_timer > 0:
+			immobilization_timer -= delta
+
+	# 2. VÉRIFICATION DE LA CHUTE DU NAVIRE (Sortie de carte)
+	var water_h = _get_water_height(global_position, Time.get_ticks_msec() / 1000.0)
+	
+	if water_h < -500.0:
+		_is_falling = true
+		_falling_timer += delta
+		velocity.y -= 40.0 * delta # Gravité de chute
 		
-	# Mouvement physique de base
-	_handle_player_input(delta)
+		# Si on tombe depuis trop longtemps (3s), on meurt
+		if _falling_timer > 3.0:
+			take_damage(2000.0, null)
+	else:
+		_is_falling = false
+		_falling_timer = 0.0
+		# Rectification immédiate de la hauteur si on est sur l'eau
+		if not is_sinking:
+			global_position.y = lerp(global_position.y, water_h, delta * 5.0)
+			velocity.y = 0
+
+	# 3. MOUVEMENT ET COLLISIONS
+	if _falling_timer < 0.5: # On autorise les contrôles un court instant au début de la chute
+		if not is_sinking:
+			_handle_player_input(delta)
+				
+			# Logic modulaire des compétences (certaines modifient velocity)
+			for slot in weapon_slots:
+				if slot and slot.has_method("process_tick"):
+					slot.process_tick(self, delta)
+			
+			# Knockback physique
+			if knockback_velocity.length_squared() > 1.0:
+				velocity += knockback_velocity
+				knockback_velocity = knockback_velocity.lerp(Vector3.ZERO, delta * knockback_decay)
 		
-	# LOGIQUE MODULAIRE (Exécutée après le mouvement de base pour modifier velocity/visuel)
-	for slot in weapon_slots:
-		if slot and slot.has_method("process_tick"):
-			slot.process_tick(self, delta)
-	
-	# --- KNOCKBACK PHYSIQUE (tentacule, collision) --- 
-	if knockback_velocity.length_squared() > 1.0:
-		velocity += knockback_velocity
-		# L'amorti (decay) se fait ici pour la prochaine frame
-		knockback_velocity = knockback_velocity.lerp(Vector3.ZERO, delta * knockback_decay)
-	
-	# move_and_slide FINAL (après que tous les skills + knockback aient modifié velocity)
-	move_and_slide()
-	
-	# Le bateau reste toujours à la hauteur de l'eau
-	global_position.y = _get_water_height(global_position, Time.get_ticks_msec() / 1000.0)
+		move_and_slide()
+	else:
+		# Mode "Chute libre" : Pas de collisions move_and_slide, juste la gravité
+		global_position += velocity * delta
 	
 	_update_damage_visuals(delta)
 
@@ -552,18 +576,8 @@ func shoot_cannons():
 	weapon_cooldowns[active_weapon_index] = action.cooldown
 	ammo -= action.ammo_cost
 
-	
-	# LOGIQUE D'EXÉCUTION
-	match action.type:
-		WeaponData.ActionType.CANNON:
-			_fire_cannons(action)
-		WeaponData.ActionType.GRAPPLE:
-			_use_grapple(action)
-		WeaponData.ActionType.DIVE, WeaponData.ActionType.SKILL, WeaponData.ActionType.WIND_CONTROL, WeaponData.ActionType.KRAKEN:
-			if action.has_method("activate"):
-				action.activate(self)
-			else:
-				_use_skill(action)
+	# LOGIQUE D'EXÉCUTION MODULAIRE : Chaque ressource sait ce qu'elle doit faire
+	action.activate(self)
 
 
 func _fire_cannons(weapon: WeaponData):
@@ -591,14 +605,7 @@ func _fire_cannons(weapon: WeaponData):
 				dir = dir.rotated(Vector3.UP, angle_offset)
 			_fire_projectile(starboard_marker, dir, projectile_speed, weapon)
 
-func _use_grapple(action: WeaponData):
-	print("Utilisation du Grappin: ", action.weapon_name)
-	_fire_cannons(action)
-
-func _use_skill(action: WeaponData):
-	print("Utilisation Compétence: ", action.weapon_name)
-	skill_timer = action.skill_duration
-	current_speed_buff = action.speed_buff
+# Removed _use_grapple and _use_skill as they are now handled by WeaponData.activate()
 
 func _fire_projectile(marker: Marker3D, direction: Vector3, speed: float, weapon: WeaponData = null):
 	var proj = ProjectileScene.instantiate() as Projectile
@@ -806,13 +813,8 @@ func respawn():
 	
 	print("⚓ ", name, " a réapparu sur la carte !")
 
-func _get_water_height(pos: Vector3, time_val: float) -> float:
-	var wave_speed = 0.8
-	var wave_freq = 0.03
-	var wave_amp = 3.0
-	
-	var t = time_val * wave_speed
-	var w1 = sin(pos.x * wave_freq + t) * wave_amp
-	var w2 = cos(pos.z * wave_freq * 1.5 + t * 1.2) * wave_amp * 0.8
-	
-	return w1 + w2
+func _get_water_height(pos: Vector3, _time_val: float) -> float:
+	# Vérification des limites du rectangle
+	if abs(pos.x) > MAP_WIDTH * 0.5 or abs(pos.z) > MAP_HEIGHT * 0.5:
+		return -1000.0 # Indique une chute
+	return 0.0

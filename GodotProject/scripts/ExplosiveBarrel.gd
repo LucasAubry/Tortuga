@@ -1,6 +1,6 @@
 extends Area3D
 
-@export var damage: float = 80.0
+@export var damage: float = 0.0 # Défini par l'item/skill au moment du largage
 @export var knockback_force: float = 60.0
 @export var explosion_radius: float = 35.0
 @export var visual_explosion_scale: float = 1.0
@@ -10,17 +10,25 @@ var _armed_time: float = 0.0
 var creator: Node3D = null
 
 func _ready():
+	# On immerge le baril un peu plus dans l'eau
+	position.y -= 1
 	var start_y = position.y
 	
 	# Animation visuelle de flottaison (Haut/Bas + Tangage)
 	var vertical_tween = create_tween().set_loops()
-	vertical_tween.tween_property(self, "position:y", start_y + 0.8, 1.8).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	vertical_tween.tween_property(self, "position:y", start_y - 0.2, 2.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	vertical_tween.tween_property(self, "position:y", start_y + 0.6, 1.8).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	vertical_tween.tween_property(self, "position:y", start_y - 0.6, 2.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	
 	var rand_angle = randf_range(5.0, 8.0)
 	var rotation_tween = create_tween().set_loops()
 	rotation_tween.tween_property(self, "rotation:z", deg_to_rad(rand_angle), 3.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 	rotation_tween.tween_property(self, "rotation:z", deg_to_rad(-rand_angle), 3.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
+	# Nouvelle animation de gonflement (Swell)
+	var scale_tween = create_tween().set_loops()
+	var base_scale = scale
+	scale_tween.tween_property(self, "scale", base_scale * 1.08, 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	scale_tween.tween_property(self, "scale", base_scale, 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 func _physics_process(delta):
 	if _exploded: return

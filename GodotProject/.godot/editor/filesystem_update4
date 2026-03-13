@@ -1,5 +1,10 @@
-res://scenes/World.tscn
+res://scenes/baril_explosif.tscn
 res://assets/water.gdshader
-res://scripts/skills/Flamethrower.gd
-res://scripts/EnemyShip.gd
+res://scripts/ExplosiveBarrel.gd
 res://scripts/Ship.gd
+res://scripts/skills/ExplosiveBarrelItem.gd
+res://scripts/WeaponData.gd
+res://scripts/skills/FishingNet.gd
+res://scripts/skills/Flamethrower.gd
+res://scripts/skills/KrakenSkill.gd
+res://scenes/World.tscn

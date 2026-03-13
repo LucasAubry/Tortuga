@@ -13,6 +13,7 @@ config_version=5
 config/name="Tortuga"
 run/main_scene="res://scenes/World.tscn"
 config/features=PackedStringArray("4.5", "Forward Plus")
+run/max_fps=300
 config/icon="res://icon.svg"
 
 [autoload]
@@ -24,6 +25,10 @@ GameConfig="*res://scripts/GameConfig.gd"
 
 window/size/viewport_width=1280
 window/size/viewport_height=720
+
+[editor]
+
+movie_writer/fps=200
 
 [input]
 

@@ -4,11 +4,7 @@ extends WeaponData
 const TENTACLE_SCENE = preload("res://scenes/tentacule_kraken.tscn")
 
 func _init():
-	type = ActionType.KRAKEN
-	weapon_name = "Kraken"
-	can_be_used_underwater = true
-	skill_duration = 30.0 # 30 secondes pour bloquer la zone !
-	cooldown = 40.0 # Augmenté car très puissant
+	pass
 
 
 func activate(ship: Node3D):

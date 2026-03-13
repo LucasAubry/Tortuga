@@ -30,7 +30,14 @@ func activate(ship: Node3D):
 	var fwd = ship.global_transform.basis.z.normalized()
 	# On le place à 12 unités derrière (proche du gouvernail)
 	barrel.global_position = ship.global_position - fwd * 12.0
-	barrel.global_position.y = 0 # Niveau d'eau
+	
+	# ROTATION : Perpendiculaire au bateau
+	barrel.global_rotation = ship.global_rotation
+	barrel.rotate_x(deg_to_rad(90))
+	
+	# DÉGÂTS : Source unique depuis la ressource .tres
+	if "damage" in barrel:
+		barrel.damage = damage
 	
 	# On lui définit son créateur (optionnel)
 	if "creator" in barrel:
