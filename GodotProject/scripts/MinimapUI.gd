@@ -17,7 +17,7 @@ func _process(_delta):
 	if not player:
 		return
 		
-	var player_pos = Vector2(player.global_position.x, player.global_position.z)
+	var player_pos = Vector2(player.global_position.z, player.global_position.x)
 	
 	# Update island markers relative to player
 	for node in island_markers.keys():
@@ -47,11 +47,11 @@ func _process(_delta):
 
 	# Rotation of the player icon
 	if player_marker:
-		player_marker.rotation = -player.rotation.y + PI/2.0
+		player_marker.rotation = player.rotation.y
 
 func _update_marker_pos(node: Node3D, marker: Control, player_pos: Vector2):
 	if is_instance_valid(node):
-		var node_pos = Vector2(node.global_position.x, node.global_position.z)
+		var node_pos = Vector2(node.global_position.z, node.global_position.x)
 		var relative_pos = (node_pos - player_pos) * minimap_scale
 		marker.position = relative_pos - (marker.size / 2.0)
 		
@@ -96,20 +96,23 @@ func _find_islands_recursive(node: Node):
 		_find_islands_recursive(child)
 
 func _create_marker(node: Node):
-	var marker = ColorRect.new()
-	marker.custom_minimum_size = Vector2(10, 10)
-	marker.size = Vector2(10, 10)
+	var marker = TextureRect.new()
+	marker.texture = load("res://assets/hud/ille_map.png")
+	marker.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	marker.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	marker.custom_minimum_size = Vector2(24, 24) # Plus grand pour le minimap
+	marker.size = Vector2(24, 24)
 	
 	# Color based on island type if available
 	if node is Ile:
 		match node.ile_type:
-			0: marker.color = Color(0.2, 0.8, 0.2) # City
-			1: marker.color = Color(0.8, 0.8, 0.2) # Merchant
-			2: marker.color = Color(0.2, 0.2, 0.8) # Shipwright
-			3: marker.color = Color(0.8, 0.2, 0.2) # Fisherman
-			_: marker.color = Color(0.8, 0.7, 0.5)
+			0: marker.modulate = Color(0.2, 0.8, 0.2) # City
+			1: marker.modulate = Color(0.8, 0.8, 0.2) # Merchant
+			2: marker.modulate = Color(0.2, 0.2, 0.8) # Shipwright
+			3: marker.modulate = Color(0.8, 0.2, 0.2) # Fisherman
+			_: marker.modulate = Color(0.8, 0.7, 0.5)
 	else:
-		marker.color = Color(0.5, 0.5, 0.5) # Generic mesh
+		marker.modulate = Color(0.5, 0.5, 0.5) # Generic mesh
 		
 	island_container.add_child(marker)
 	island_markers[node] = marker

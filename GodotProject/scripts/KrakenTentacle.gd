@@ -149,7 +149,11 @@ func _try_attack():
 	for target in potential_targets:
 		if not is_instance_valid(target) or target == self: continue
 		
-		# Empêcher le Kraken d'attaquer son propre invocateur
+		# Empêcher le Kraken d'attaquer n'importe quel navire appartenant au joueur (Flotte)
+		if target.get("is_player") == true or target.get("faction") == 0: # 0 = Faction.PLAYER
+			continue
+			
+		# Empêcher le Kraken d'attaquer son propre invocateur (Redondant mais sûr)
 		if has_meta("caster") and target == get_meta("caster"):
 			continue
 			

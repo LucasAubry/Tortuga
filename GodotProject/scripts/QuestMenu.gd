@@ -33,11 +33,13 @@ func _unhandled_input(event):
 func show_menu():
 	visible = true
 	get_tree().paused = true
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_update_title()
 
 func hide_menu():
 	visible = false
 	get_tree().paused = false
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func _update_title():
 	var title_lbl = $BurntMap/MarginContainer/VBox/Title

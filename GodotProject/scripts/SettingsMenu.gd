@@ -66,10 +66,12 @@ func _unhandled_input(event):
 func show_menu():
 	visible = true
 	get_tree().paused = true
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func hide_menu():
 	visible = false
 	get_tree().paused = false
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func _on_vol_changed(value: float):
 	GameManager.master_volume = value

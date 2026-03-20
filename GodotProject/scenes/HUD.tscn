@@ -280,6 +280,14 @@ text = "Water: 100"
 
 [node name="MinimapUI" parent="." instance=ExtResource("2_mini")]
 
+[node name="FleetGrid" type="HFlowContainer" parent="."]
+offset_left = 22.0
+offset_top = 485.0
+offset_right = 242.0
+offset_bottom = 575.0
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+
 [node name="WeaponSlots" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 7

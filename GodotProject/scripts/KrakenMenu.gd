@@ -82,16 +82,28 @@ func _process(_delta):
 					show_menu()
 		else:
 			hide_menu()
+			
+func _is_merchant_ship() -> bool:
+	var ship = FleetManager.get_active_ship()
+	if not is_instance_valid(ship): return false
+	# On bloque les Sloops de base et les Cogues de commerce (📦)
+	return ship.ship_type == Ship.ShipClass.SLOOP or ship.get("icon_text") == "📦"
 
 func show_menu():
+	if _is_merchant_ship():
+		print("❌ Les navires de commerce ne peuvent pas marchander avec le Kraken !")
+		return
+		
 	refresh_skill_tree()
 	visible = true
 	get_tree().paused = true
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	GameManager.state = GameManager.GameState.KRAKEN_MENU
 
 func hide_menu():
 	visible = false
 	get_tree().paused = false
+	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	GameManager.state = GameManager.GameState.PLAYING
 
 func refresh_skill_tree():

@@ -1,0 +1,5 @@
+res://scripts/FleetManager.gd
+res://scripts/Ship.gd
+res://scripts/Ile.gd
+res://scripts/HUD.gd
+res://scripts/MapUI.gd

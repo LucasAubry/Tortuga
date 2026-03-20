@@ -31,11 +31,12 @@ const LootScene = preload("res://scenes/Loot.tscn")
 const SmokeScene = preload("res://scenes/SmokeEffect.tscn")
 
 # Inventory
-var gold: int = 0
-var wood: int = 0
-var food: int = 0
-var water: int = 0
-var fish: int = 0
+@export_group("Inventory")
+@export var gold: int = 0
+@export var wood: int = 0
+@export var food: int = 0
+@export var water: int = 0
+@export var fish: int = 0
 
 # Upgrades
 var speed_level: int = 0
@@ -60,7 +61,17 @@ var current_wind_vec_phys: Vector3 = Vector3.ZERO
 var wind_boost_intensity: float = 0.0
 var is_underwater: bool = false
 var _hit_smoke_particles: CPUParticles3D = null
+var current_shield: float = 0.0
+var _shield_visual: MeshInstance3D = null
 var _hp_bar_mesh: MeshInstance3D = null # La barre de vie optimisée en 3D
+
+# --- LIMITES DU MONDE ---
+const MAP_WIDTH: float = 2400.0
+const MAP_HEIGHT: float = 3600.0
+var _is_falling: bool = false
+var _falling_timer: float = 0.0
+var _cached_water_h: float = 0.0
+var _water_update_timer: float = 0.0
 
 # Status Effects (Knockback & CC)
 var knockback_velocity: Vector3 = Vector3.ZERO
@@ -122,11 +133,20 @@ func _ready():
 		mg.projectile_spread = deg_to_rad(15)
 		weapon_slots[1] = mg
 	
-	_apply_faction_visuals()
+	_apply_sail_color()
+	_setup_shield_visual()
+	
+	# Auto-equip shield for merchants
+	if faction == Faction.MERCHANT and weapon_slots[2] == null:
+		var shield_res = load("res://resources/skills/Shield.tres")
+		if shield_res:
+			weapon_slots[2] = shield_res
 		
 	_setup_damage_smoke()
 
-
+	# Stagger AI think timers to avoid simultaneous logic spikes
+	ai_think_timer = randf_range(0.1, 2.0)
+	ai_state_timer = randf_range(1.0, 5.0)
 
 	_setup_immobilized_icon()
 	_setup_hp_bar()
@@ -270,6 +290,72 @@ func _init_components():
 			base_sails_scale = visual_sails.scale
 			base_sails_pos = visual_sails.position
 		if visual_wheel: base_wheel_rot = visual_wheel.rotation
+	
+	_apply_sail_color()
+	_setup_shield_visual()
+
+func _setup_shield_visual():
+	_shield_visual = MeshInstance3D.new()
+	add_child(_shield_visual)
+	_shield_visual.name = "ShieldVisual"
+	
+	var sphere = SphereMesh.new()
+	sphere.radius = 55.0 # Plus grand
+	sphere.height = 110.0
+	_shield_visual.mesh = sphere
+	
+	var mat = StandardMaterial3D.new()
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.albedo_color = Color(1.0, 0.4, 0.0, 0.25) # Orange transparent
+	mat.metallic = 1.0 # Effet miroir/métallique
+	mat.roughness = 0.05
+	mat.emission_enabled = true
+	mat.emission = Color(1.0, 0.3, 0.0)
+	mat.emission_energy_multiplier = 1.2
+	_shield_visual.material_override = mat
+	_shield_visual.visible = false
+
+func activate_shield(strength: float, duration: float):
+	current_shield = strength
+	if _shield_visual:
+		_shield_visual.visible = true
+		var tween = create_tween()
+		tween.tween_property(_shield_visual, "scale", Vector3(1.1, 1.1, 1.1), 0.2).from(Vector3(0.5, 0.5, 0.5))
+	
+	var t = get_tree().create_timer(duration)
+	t.timeout.connect(func():
+		if is_instance_valid(self) and current_shield > 0:
+			current_shield = 0
+			_hide_shield()
+	)
+
+func _hide_shield():
+	if _shield_visual:
+		var tween = create_tween()
+		tween.tween_property(_shield_visual, "scale", Vector3(0.1, 0.1, 0.1), 0.3)
+		tween.tween_callback(func(): _shield_visual.visible = false)
+
+func _apply_sail_color():
+	if not visual_sails: return
+	_set_sail_material_recursive(visual_sails)
+
+func _set_sail_material_recursive(node: Node):
+	if node is MeshInstance3D:
+		var mat = node.get_surface_override_material(0)
+		if not mat:
+			mat = StandardMaterial3D.new()
+			node.set_surface_override_material(0, mat)
+		if mat is StandardMaterial3D:
+			# Red for enemies, White for merchants/neutrals
+			if faction == Faction.MERCHANT:
+				mat.albedo_color = Color(1, 1, 1) # White
+			elif faction == Faction.NAVY or faction == Faction.PIRATE:
+				mat.albedo_color = Color(1.0, 0.2, 0.2) # Red
+			else:
+				mat.albedo_color = Color(1, 1, 1) # Neutral/Bot
+			mat.roughness = 0.8
+	for child in node.get_children():
+		_set_sail_material_recursive(child)
 
 func _find_child_recursive(node: Node, target_name: String) -> Node:
 	for child in node.get_children():
@@ -297,48 +383,89 @@ func _init_stats():
 	hp = max_hp
 
 func _physics_process(delta):
-	# Update HUD/Visuals only once per frame
-	_update_hp_bar()
-	if is_sinking: return  # Physique arrêtée pendant le naufrage
-	
-	# Gestion des temps de recharge
-	for i in range(weapon_cooldowns.size()):
-		if weapon_cooldowns[i] > 0:
-			weapon_cooldowns[i] -= delta
-		
-	if skill_timer > 0:
-		skill_timer -= delta
-		if skill_timer <= 0:
-			current_speed_buff = 1.0
-
-	if wind_boost_timer > 0:
-		wind_boost_timer -= delta
-		if wind_boost_timer <= 0:
-			is_wind_boost_active = false
-			
-	if immobilization_timer > 0:
-		immobilization_timer -= delta
-		
-	# Mouvement physique de base
-	_handle_ai(delta)
-		
-	# LOGIQUE MODULAIRE (Exécutée après le mouvement de base pour modifier velocity/visuel)
-	for slot in weapon_slots:
-		if slot and slot.has_method("process_tick"):
-			slot.process_tick(self, delta)
-	
-	# --- KNOCKBACK PHYSIQUE (tentacule, collision) --- Appliqué après tous les skills
-	if knockback_velocity.length_squared() > 1.0:
-		velocity += knockback_velocity
-		knockback_velocity = knockback_velocity.lerp(Vector3.ZERO, delta * knockback_decay)
+	# Update HUD/Visuals only once per frame and only if nearby
+	var player_ref = FleetManager.get_active_ship()
+	if player_ref and global_position.distance_to(player_ref.global_position) < 600.0:
+		_update_hp_bar()
 	else:
-		knockback_velocity = Vector3.ZERO
+		if is_instance_valid(_hp_bar_mesh): _hp_bar_mesh.visible = false
 	
-	# move_and_slide FINAL (après que tous les skills aient modifié velocity)
-	move_and_slide()
+	# 1. GESTION DES TIMERS (indépendant de la chute)
+	if not is_sinking:
+		for i in range(weapon_cooldowns.size()):
+			if weapon_cooldowns[i] > 0:
+				weapon_cooldowns[i] -= delta
+		
+		if skill_timer > 0:
+			skill_timer -= delta
+			if skill_timer <= 0:
+				current_speed_buff = 1.0
+
+		if wind_boost_timer > 0:
+			wind_boost_timer -= delta
+			if wind_boost_timer <= 0:
+				is_wind_boost_active = false
+				
+		if immobilization_timer > 0:
+			immobilization_timer -= delta
+	# 2. VÉRIFICATION DE LA CHUTE DU NAVIRE (Sortie de carte)
+	# PERFORMANCE: Fixed water height (0.0) for bots.
+	var water_h = 0.0
+	_water_update_timer -= delta
 	
-	# Toujours maintenir le navire ennemi à la hauteur de l'eau
-	global_position.y = _get_water_height(global_position, Time.get_ticks_msec() / 1000.0)
+	var player_ref_w = FleetManager.get_active_ship()
+	var d_to_p = global_position.distance_to(player_ref_w.global_position) if player_ref_w else 1000.0
+	
+	# Only calculate real height if very close (immersion) or update interval reached
+	if d_to_p < 200.0 and (_water_update_timer <= 0):
+		_cached_water_h = _get_water_height(global_position, Time.get_ticks_msec() / 1000.0)
+		_water_update_timer = 0.1
+	
+	water_h = _cached_water_h if d_to_p < 400.0 else 0.0
+	
+	if water_h < -500.0:
+		_is_falling = true
+		_falling_timer += delta
+		velocity.y -= 40.0 * delta # Gravité de chute
+		
+		# Si on tombe depuis trop longtemps (3s), l'ennemi meurt
+		if _falling_timer > 3.0:
+			take_damage(2000.0, null)
+	else:
+		_is_falling = false
+		_falling_timer = 0.0
+		# Rectification immédiate de la hauteur si on est sur l'eau
+		if not is_sinking:
+			global_position.y = lerp(global_position.y, water_h, delta * 5.0)
+			velocity.y = 0
+
+	# 3. MOUVEMENT ET COLLISIONS
+	if _falling_timer < 0.5: # On autorise les contrôles un court instant au début de la chute
+		if not is_sinking:
+			# OPTIMISATION: On ne réfléchit pas à chaque frame si on est loin du joueur
+			var player = FleetManager.get_active_ship()
+			var dist_to_player = global_position.distance_to(player.global_position) if player else 1000.0
+			
+			if dist_to_player < 800.0:
+				_handle_ai(delta)
+			else:
+				# IA simplifiée ou moins fréquente pour les bateaux lointains
+				_handle_ai(delta * 0.5)
+				
+			# Logic modulaire des compétences (certaines modifient velocity)
+			for slot in weapon_slots:
+				if slot and slot.has_method("process_tick"):
+					slot.process_tick(self, delta)
+			
+			# Knockback physique
+			if knockback_velocity.length_squared() > 1.0:
+				velocity += knockback_velocity
+				knockback_velocity = knockback_velocity.lerp(Vector3.ZERO, delta * knockback_decay)
+		
+		move_and_slide()
+	else:
+		# Mode "Chute libre" : Pas de collisions move_and_slide, juste la gravité
+		global_position += velocity * delta
 	
 	_update_damage_visuals(delta)
 
@@ -430,7 +557,16 @@ func _apply_movement_physics(delta, steer, throttle):
 		
 		is_underwater = current_dive_depth < -5.0
 		var wind_push = forward.dot(current_wind_vec_phys) if not is_underwater else 0.0
-		var speed_modifier = 1.0 + (wind_push * 0.4) if not is_underwater else 1.0
+		
+		# TWEAK: Balanced speed relative to wind
+		var wind_influence = 0.15
+		if wind_push < 0:
+			# Strong boost AGAINST wind
+			wind_influence = -1.2 
+		elif ship_type == ShipClass.GALLEON:
+			wind_influence = 0.15
+				
+		var speed_modifier = 1.0 + (wind_push * wind_influence) if not is_underwater else 1.0
 		
 		velocity = forward * min(ship_speed * speed_modifier, 1200.0)
 		velocity.y = 0
@@ -537,7 +673,7 @@ func shoot_cannons():
 			_fire_cannons(action)
 		WeaponData.ActionType.GRAPPLE:
 			_use_grapple(action)
-		WeaponData.ActionType.DIVE, WeaponData.ActionType.SKILL, WeaponData.ActionType.WIND_CONTROL, WeaponData.ActionType.KRAKEN:
+		WeaponData.ActionType.DIVE, WeaponData.ActionType.SKILL, WeaponData.ActionType.WIND_CONTROL, WeaponData.ActionType.KRAKEN, WeaponData.ActionType.SHIELD:
 			if action.has_method("activate"):
 				action.activate(self)
 			else:
@@ -713,6 +849,15 @@ func _ai_try_shoot():
 	if w and weapon_cooldowns[target_index] <= 0:
 		active_weapon_index = target_index
 		shoot_cannons()
+		
+	# LOGIQUE BOUCLIER AI
+	if hp < max_hp * 0.8 and current_shield <= 0:
+		if weapon_slots[2] and weapon_slots[2].type == WeaponData.ActionType.SHIELD:
+			if weapon_cooldowns[2] <= 0:
+				var prev_active = active_weapon_index
+				active_weapon_index = 2
+				shoot_cannons()
+				active_weapon_index = prev_active
 
 
 func apply_knockback(from_pos: Vector3, force: float):
@@ -739,10 +884,11 @@ func _flash_hit():
 	
 	if not flash_mat:
 		flash_mat = StandardMaterial3D.new()
-		flash_mat.albedo_color = Color(0.8, 0.1, 0.1, 1)
+		flash_mat.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
+		flash_mat.albedo_color = Color(0.8, 0, 0) # Flash rouge
 		flash_mat.emission_enabled = true
-		flash_mat.emission = Color(0.6, 0.05, 0.05)
-		flash_mat.emission_energy_multiplier = 0.5
+		flash_mat.emission = Color(1.0, 0, 0)
+		flash_mat.emission_energy_multiplier = 4.0
 	
 	var meshes: Array = []
 	var sloup_node = get_node_or_null("sloup")
@@ -760,7 +906,7 @@ func _flash_hit():
 		
 	# Utilisation d'un tween pour le reset (plus propre et sécurisé)
 	var tw = create_tween()
-	tw.tween_interval(0.15)
+	tw.tween_interval(0.08) # Plus court pour éviter le flash blanc/persistant
 	tw.set_parallel(false)
 	tw.tween_callback(func():
 		for i in range(edited_meshes.size()):
@@ -778,6 +924,21 @@ func _collect_visible_meshes(node: Node, result: Array):
 
 func take_damage(amount: float, attacker: Node3D):
 	if is_sinking: return  # Ignore les dégâts pendant le naufrage
+	
+	if current_shield > 0:
+		var absorbed = min(current_shield, amount)
+		current_shield -= absorbed
+		amount -= absorbed
+		# Feedback visuel impact bouclier
+		if _shield_visual:
+			var tw = create_tween()
+			tw.tween_property(_shield_visual, "modulate", Color(2, 2, 2, 1), 0.05)
+			tw.tween_property(_shield_visual, "modulate", Color(1, 1, 1, 1), 0.1)
+		if current_shield <= 0:
+			_hide_shield()
+			
+	if amount <= 0: return
+
 	hp -= amount
 	_flash_hit()
 	_update_hp_bar()
@@ -874,5 +1035,8 @@ func _apply_faction_visuals():
 
 
 
-func _get_water_height(_pos: Vector3, _time_val: float) -> float:
+func _get_water_height(pos: Vector3, _time_val: float) -> float:
+	# Vérification des limites du rectangle
+	if abs(pos.x) > MAP_WIDTH * 0.5 or abs(pos.z) > MAP_HEIGHT * 0.5:
+		return -1000.0 # Indique une chute
 	return 0.0

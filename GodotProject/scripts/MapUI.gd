@@ -5,61 +5,47 @@ extends CanvasLayer
 @onready var player_marker = $ColorRect/MarginContainer/VBoxContainer/MapContainer/PlayerIcon
 @onready var label_coords = $ColorRect/MarginContainer/VBoxContainer/LabelCoords
 
-var map_scale: float = 0.05
+var map_scale: float = 0.45
 var map_offset: Vector2 = Vector2.ZERO
 var island_markers: Array[Control] = []
 var enemy_markers: Dictionary = {}
+var fleet_markers: Array[Node2D] = []
 
 func _ready():
 	visible = false
 	label_coords.visible = false
+	if player_marker: player_marker.visible = false
 	add_to_group("map_ui")
 	
 	# Force map container to draw our grid via Control._draw()
 	map_container.draw.connect(_on_map_draw)
 
 func _on_map_draw():
-	# Use standard map_scale and size to draw a generic grid
-	var cols = ["A", "B", "C", "D", "E"]
-	var rows = ["1", "2", "3", "4", "5"]
+	# Draw World Boundary Zone
+	var w = 3600.0 * map_scale 
+	var h = 2400.0 * map_scale
+	var rect_pos = map_offset - Vector2(w/2.0, h/2.0)
 	
-	var w = map_container.size.x
-	var h = map_container.size.y
-	
-	var col_step = w / cols.size()
-	var row_step = h / rows.size()
-	
-	var ttf = ThemeDB.fallback_font
-	
-	# Draw lines
-	for i in range(1, cols.size()):
-		var x = i * col_step
-		map_container.draw_line(Vector2(x, 0), Vector2(x, h), Color(0, 0, 0, 0.15), 2.0)
-	for j in range(1, rows.size()):
-		var y = j * row_step
-		map_container.draw_line(Vector2(0, y), Vector2(w, y), Color(0, 0, 0, 0.15), 2.0)
-		
-	# Draw labels
-	for i in range(cols.size()):
-		for j in range(rows.size()):
-			var center = Vector2(i * col_step + col_step/2.0, j * row_step + row_step/2.0)
-			# Draw letter number (A1, B2)
-			var text = cols[i] + rows[j]
-			map_container.draw_string(ttf, center - Vector2(10, -5), text, HORIZONTAL_ALIGNMENT_CENTER, -1, 24, Color(0,0,0,0.1))
+	# Neon blue map boundary
+	map_container.draw_rect(Rect2(rect_pos, Vector2(w, h)), Color(0.2, 0.6, 1.0, 0.4), false, 4.0)
+	# Sublte background for the playable zone
+	map_container.draw_rect(Rect2(rect_pos, Vector2(w, h)), Color(0.2, 0.6, 1.0, 0.05), true)
 
 func _process(delta):
 	if visible:
 		_update_map()
 
-func _unhandled_input(event: InputEvent):
+func _input(event: InputEvent):
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_P or event.keycode == KEY_M:
 			if visible:
 				hide_map()
 			else:
 				show_map()
+			get_viewport().set_input_as_handled()
+			return
 	
-	# ZOOM SUR LA MAP
+	# INTERACTIONS SUR LA MAP
 	if visible:
 		if event is InputEventMouseButton:
 			if event.button_index == MOUSE_BUTTON_WHEEL_UP:
@@ -68,11 +54,23 @@ func _unhandled_input(event: InputEvent):
 			elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 				map_scale = clamp(map_scale - 0.02, 0.01, 1.5)
 				get_viewport().set_input_as_handled()
+			elif event.pressed and (event.button_index == MOUSE_BUTTON_LEFT or event.button_index == MOUSE_BUTTON_RIGHT):
+				var local_pos = map_container.get_local_mouse_position()
+				# Si on clique dans la zone de la carte
+				if Rect2(Vector2.ZERO, map_container.size).has_point(local_pos):
+					var world_pos_v2 = (local_pos - map_offset) / map_scale
+					# Conversion inverse : world_z = pos.x, world_x = pos.y
+					var target_3d = Vector3(world_pos_v2.y, 0, world_pos_v2.x)
+					
+					print("🗺️ Click Map: local=", local_pos, " target3D=", target_3d)
+					FleetManager.move_fleet_to_world_pos(target_3d, true)
+					get_viewport().set_input_as_handled()
 		
 		elif event.is_class("InputEventMagnificationGesture"):
 			# Pinch Mac sur la map
 			map_scale = clamp(map_scale * event.get("factor"), 0.01, 1.5)
 			get_viewport().set_input_as_handled()
+
 
 func show_map():
 	visible = true
@@ -87,6 +85,10 @@ func hide_map():
 	for enemy in enemy_markers:
 		enemy_markers[enemy].queue_free()
 	enemy_markers.clear()
+	
+	for marker in fleet_markers:
+		marker.queue_free()
+	fleet_markers.clear()
 
 func _populate_islands():
 	# Always do a recursive scan to ensure markers bind reliably to our generic Ile.gd definitions
@@ -121,48 +123,63 @@ func _create_ile_marker(ile: Node):
 	island_markers.append(marker_container)
 	marker_container.set_meta("island", ile)
 
-	# 1. Le point coloré (plus petit)
-	var dot = ColorRect.new()
-	var size = 10.0
-	dot.custom_minimum_size = Vector2(size, size)
-	dot.size = Vector2(size, size)
-	dot.position = Vector2(-size/2, -size/2)
-	marker_container.add_child(dot)
+	# 1. Le logo de l'île
+	var icon = TextureRect.new()
+	icon.texture = load("res://assets/hud/ille_map.png")
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	var size = 45.0 # Agrandissement de l'icône (Double de la taille précédente)
+	icon.custom_minimum_size = Vector2(size, size)
+	icon.size = Vector2(size, size)
+	icon.position = Vector2(-size/2, -size/2)
+	marker_container.add_child(icon)
 	
 	# 2. L'étiquette de texte
 	var label = Label.new()
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 12)
-	label.add_theme_color_override("font_outline_color", Color(0,0,0,0.8))
-	label.add_theme_constant_override("outline_size", 4)
-	label.position = Vector2(-60, 8)
-	label.custom_minimum_size = Vector2(120, 20)
+	label.add_theme_font_size_override("font_size", 13) # Un peu plus grand
+	label.add_theme_color_override("font_outline_color", Color(0,0,0,1.0))
+	label.add_theme_constant_override("outline_size", 5)
+	label.position = Vector2(-60, 25) # Positionné SOUS l'icône (qui fait 45px)
+	label.custom_minimum_size = Vector2(120, 25)
 	marker_container.add_child(label)
+
+	# On essaye de récupérer un nom propre si le noeud est nommé spécifiquement
+	var display_name = ile.name
+	if display_name.contains("Zone") or display_name.contains("Ile"):
+		display_name = "" # On ignore les noms de nodes génériques
 	
 	# Configuration selon le type d'île
 	if ile is Ile:
 		match ile.ile_type:
 			0: # CITY
-				dot.color = Color(0.2, 0.8, 0.2)
-				label.text = "VILLE"
+				icon.modulate = Color(0.2, 0.8, 0.2)
+				label.text = display_name if display_name != "" else "VILLE"
 			1: # MERCHANT
-				dot.color = Color(1.0, 0.9, 0.2)
-				label.text = "MARCHAND"
+				icon.modulate = Color(1.0, 0.9, 0.2)
+				label.text = display_name if display_name != "" else "MARCHAND"
 			2: # SHIPWRIGHT
-				dot.color = Color(0.2, 0.4, 1.0)
-				label.text = "CHANTIER"
+				icon.modulate = Color(0.2, 0.4, 1.0)
+				label.text = display_name if display_name != "" else "CHANTIER"
 			3: # FISHERMAN
-				dot.color = Color(1.0, 0.2, 0.2)
-				label.text = "PECHERIE"
+				icon.modulate = Color(1.0, 0.2, 0.2)
+				label.text = display_name if display_name != "" else "PECHERIE"
+			4: # KRAKEN_FARMER
+				icon.modulate = Color(0.8, 0.2, 1.0)
+				label.text = display_name if display_name != "" else "KRAKEN"
 			5: # HEADQUARTERS
-				dot.color = Color(1.0, 0.6, 0.0) # Orange
-				label.text = "QUARTIER GENERALE"
+				icon.modulate = Color(1.0, 1.0, 1.0)
+				label.text = display_name if display_name != "" else "QG"
+			6: # SHIP_MERCHANT
+				icon.modulate = Color(0.2, 0.8, 1.0)
+				label.text = display_name if display_name != "" else "NAVY"
 			_:
-				dot.color = Color(0.8, 0.7, 0.5)
-				label.text = "ILE"
+				icon.modulate = Color(0.8, 0.7, 0.5)
+				label.text = display_name if display_name != "" else "ILE"
 	else:
-		dot.color = Color(0.5, 0.5, 0.5)
+		if is_instance_valid(icon):
+			icon.modulate = Color(0.5, 0.5, 0.5)
 		label.text = "ZONE"
 
 func _update_map():
@@ -174,7 +191,8 @@ func _update_map():
 		if is_instance_valid(marker) and marker.has_meta("island"):
 			var ile = marker.get_meta("island")
 			if is_instance_valid(ile):
-				var pos = Vector2(ile.global_position.x, ile.global_position.z)
+				# Retour en Horizontal (Z sur X)
+				var pos = Vector2(ile.global_position.z, ile.global_position.x)
 				marker.position = map_offset + (pos * map_scale)
 				
 	# Update Enemy positions
@@ -192,8 +210,9 @@ func _update_map():
 			_create_enemy_marker_map(enemy)
 		
 		var marker = enemy_markers[enemy]
-		var pos = Vector2(enemy.global_position.x, enemy.global_position.z)
+		var pos = Vector2(enemy.global_position.z, enemy.global_position.x)
 		marker.position = map_offset + (pos * map_scale) - (marker.size / 2.0)
+		marker.rotation = enemy.rotation.y
 		marker.visible = true
 		
 	# Cleanup dead enemies on map
@@ -202,26 +221,58 @@ func _update_map():
 			enemy_markers[enemy].queue_free()
 			enemy_markers.erase(enemy)
 
-	# Update Player position
-	var player = _find_player()
-	if player:
-		var pos = Vector2(player.global_position.x, player.global_position.z)
-		var target_pos = map_offset + (pos * map_scale) - (player_marker.size / 2.0)
-		player_marker.position = target_pos
-		# Rotation of the player icon
-		player_marker.rotation = -player.rotation.y + PI/2.0
-		# No longer outputting string coords per task list
+	# Update Fleet positions
+	_update_fleet_markers()
+
+func _update_fleet_markers():
+	var fleet = FleetManager.ships
+	var active_idx = FleetManager.active_index
+	
+	# Match marker count to fleet size (excluding nulls)
+	var active_ships = []
+	for s in fleet:
+		if s and is_instance_valid(s):
+			active_ships.append(s)
+			
+	while fleet_markers.size() < active_ships.size():
+		var m = _create_fleet_marker()
+		fleet_markers.append(m)
+	while fleet_markers.size() > active_ships.size():
+		var m = fleet_markers.pop_back()
+		m.queue_free()
+		
+	for i in range(active_ships.size()):
+		var ship = active_ships[i]
+		var marker = fleet_markers[i]
+		var pos = Vector2(ship.global_position.z, ship.global_position.x)
+		marker.position = map_offset + (pos * map_scale)
+		marker.rotation = ship.rotation.y
+		
+		# Highlight active ship
+		var is_active = (ship == FleetManager.get_active_ship())
+		marker.self_modulate = Color(0, 1, 0) if is_active else Color(0.6, 0.8, 1.0)
+		marker.scale = Vector2(0.12, 0.12) if is_active else Vector2(0.06, 0.06)
+
+func _create_fleet_marker() -> Sprite2D:
+	var sprite = Sprite2D.new()
+	# Use the same texture as player_marker or a triangle
+	sprite.texture = player_marker.texture
+	sprite.scale = Vector2(0.1, 0.1)
+	map_container.add_child(sprite)
+	return sprite
 
 func _create_enemy_marker_map(enemy: Node3D):
 	var marker = ColorRect.new()
 	marker.custom_minimum_size = Vector2(8, 8)
 	marker.size = Vector2(8, 8)
 	marker.color = Color(1.0, 0.1, 0.1) # Rouge vif pour les ennemis
+	marker.pivot_offset = marker.size / 2.0 # Centrer la rotation
 	map_container.add_child(marker)
 	enemy_markers[enemy] = marker
 
 func _find_player() -> Ship:
-	return _find_player_recursive(get_tree().get_root())
+	# Now just return active ship from fleet manager
+	return FleetManager.get_active_ship()
 
 func _find_player_recursive(node: Node) -> Ship:
 	if node is Ship and node.is_player:

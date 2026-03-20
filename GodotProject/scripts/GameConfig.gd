@@ -78,9 +78,9 @@ const BaseWindStrengthMultiplier = 0.2
 const MaxWindStrengthMultiplier = 1.0
 
 # Ship Base Speeds (Max Speed)
-const SloopSpeed = 35.0
-const BrigantineSpeed = 45.0
-const GalleonSpeed = 55.0
+const SloopSpeed = 70.0
+const BrigantineSpeed = 95.0
+const GalleonSpeed = 125.0
 
 # Ship Base Health (Max HP)
 const SloopHP = 150.0
@@ -194,18 +194,49 @@ var available_ships = [
 		"name": "Sloop de base",
 		"price": 0,
 		"type": 0, # ShipClass.SLOOP
-		"scene_path": "res://scenes/sloup.tscn"
+		"scene_path": "res://scenes/sloup.tscn",
+		"skills": ["res://resources/weapons/Standard.tres", "res://resources/skills/WindControl.tres", "res://resources/skills/Shield.tres"]
 	},
 	{
 		"name": "Brigantin Rapide",
 		"price": 500,
 		"type": 1, # ShipClass.BRIGANTINE
-		"scene_path": "res://scenes/sloup.tscn" 
+		"scene_path": "res://scenes/sloup.tscn",
+		"skills": ["res://resources/weapons/Standard.tres", "res://resources/skills/WindControl.tres", "res://resources/weapons/barrage.tres", "res://resources/skills/Shield.tres"]
 	},
 	{
 		"name": "Galion de Guerre",
 		"price": 1500,
 		"type": 2, # ShipClass.GALLEON
-		"scene_path": "res://scenes/sloup.tscn" 
+		"scene_path": "res://scenes/sloup.tscn",
+		"skills": ["res://resources/weapons/Standard.tres", "res://resources/weapons/barrage.tres", "res://resources/weapons/baril_explosif.tres", "res://resources/skills/Shield.tres", "res://resources/skills/kraken_skill.tres"]
+	}
+]
+
+# ── DISPONIBLE CHEZ LE VENDEUR DE FLOTTE ──
+var merchant_fleet_ships = [
+	{
+		"name": "Frégate de Guerre",
+		"price": 800,
+		"hp": 450.0,
+		"speed": 28.0,
+		"damage": 40.0,
+		"cooldown": 2.5,
+		"skills": ["res://resources/weapons/Standard.tres", "res://resources/weapons/barrage.tres", "res://resources/weapons/baril_explosif.tres", "res://resources/skills/kraken_skill.tres"],
+		"icon_text": "⚔️",
+		"type": 2, # ShipClass.GALLEON
+		"scene_path": "res://scenes/sloup.tscn" # Change to galion.tscn if it exists later
+	},
+	{
+		"name": "Cogue de Commerce",
+		"price": 400,
+		"hp": 120.0,
+		"speed": 55.0,
+		"damage": 15.0,
+		"cooldown": 1.2,
+		"skills": ["res://resources/weapons/Standard.tres", "res://resources/skills/WindControl.tres", "res://resources/skills/Shield.tres", "res://resources/skills/FishingNet.tres"],
+		"icon_text": "📦",
+		"type": 1, # ShipClass.BRIGANTINE
+		"scene_path": "res://scenes/sloup.tscn"
 	}
 ]

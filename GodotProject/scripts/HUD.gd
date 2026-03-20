@@ -22,6 +22,9 @@ var weapon_slot_cooldowns: Array[TextureProgressBar] = []
 var player_ship: Ship
 var _is_connected_to_player: bool = false
 var enemy_hp_bars: Dictionary = {}
+var fleet_slots: Array[PanelContainer] = []
+var fleet_icons: Array[Label] = []
+var groups_container: VBoxContainer
 
 func _ready():
 
@@ -30,13 +33,106 @@ func _ready():
 	player_ship = _find_player_ship(get_tree().get_root())
 	
 	_setup_weapon_ui()
+	_setup_fleet_ui()
+	
+	if FleetManager:
+		FleetManager.fleet_updated.connect(_on_fleet_updated)
+		FleetManager.active_ship_changed.connect(_on_active_ship_changed)
 	
 	if settings_btn:
 		settings_btn.pressed.connect(_on_settings_pressed)
 	
 	if label_fps:
 		label_fps.visible = GameConfig.show_fps
-	GameConfig.fps_toggled.connect(func(enabled): if label_fps: label_fps.visible = enabled)
+	GameConfig.fps_toggled.connect(func(enabled):
+		if label_fps:
+			label_fps.visible = enabled
+	)
+	
+	_setup_groups_ui()
+
+func _setup_groups_ui():
+	# Création du conteneur vertical fixe à gauche de l'écran
+	groups_container = VBoxContainer.new()
+	groups_container.set_anchors_preset(Control.PRESET_CENTER_LEFT)
+	# Décalage par rapport au bord
+	groups_container.position = Vector2(20, -100)
+	groups_container.add_theme_constant_override("separation", 10)
+	add_child(groups_container)
+	update_groups_ui()
+
+func update_groups_ui():
+	if not groups_container: return
+	
+	# Nettoyer l'ancien affichage
+	for child in groups_container.get_children():
+		child.queue_free()
+		
+	# Grouper les navires actifs
+	var groups = {}
+	for ship in FleetManager.ships:
+		if ship and is_instance_valid(ship) and not ship.is_sinking and ship.group_id > 0:
+			if not groups.has(ship.group_id):
+				groups[ship.group_id] = []
+			groups[ship.group_id].append(ship)
+			
+	var sorted_groups = groups.keys()
+	sorted_groups.sort()
+	
+	for g in sorted_groups:
+		var hbox = HBoxContainer.new()
+		hbox.add_theme_constant_override("separation", 5)
+		
+		# Label pour le numéro du groupe
+		var label = Label.new()
+		label.text = "G" + str(g)
+		label.add_theme_font_size_override("font_size", 16)
+		label.add_theme_color_override("font_color", Color.YELLOW)
+		label.custom_minimum_size = Vector2(30, 0)
+		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		hbox.add_child(label)
+		
+		# Ajouter une case pour chaque navire
+		var sub_idx = 1
+		for ship in groups[g]:
+			var panel = PanelContainer.new()
+			panel.custom_minimum_size = Vector2(35, 35)
+			
+			var sb = StyleBoxFlat.new()
+			sb.bg_color = Color(0, 0, 0, 0.5)
+			sb.set_border_width_all(1)
+			
+			if FleetManager.get_active_ship() == ship:
+				sb.border_color = Color(0, 1, 0, 1) # Navire actuel (vert)
+			else:
+				sb.border_color = Color(1, 1, 1, 0.3)
+				
+			panel.add_theme_stylebox_override("panel", sb)
+			
+			var icon_container = Control.new()
+			panel.add_child(icon_container)
+			
+			var icon = Label.new()
+			icon.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+			icon.text = ship.get("icon_text") if ship.get("icon_text") else "⚓"
+			icon.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+			icon.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+			icon_container.add_child(icon)
+			
+			# Afficher la sous-touche (Ctrl + 1...)
+			var sub_label = Label.new()
+			sub_label.text = "^" + str(sub_idx) # ^ pour ctrl
+			sub_label.add_theme_font_size_override("font_size", 10)
+			sub_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
+			sub_label.set_anchors_preset(Control.PRESET_TOP_LEFT)
+			sub_label.position = Vector2(2, -2)
+			icon_container.add_child(sub_label)
+			
+			hbox.add_child(panel)
+			sub_idx += 1
+			
+		groups_container.add_child(hbox)
+
 
 func _setup_weapon_ui():
 	# On récupère les 5 slots créés dans l'éditeur
@@ -44,9 +140,20 @@ func _setup_weapon_ui():
 		%Slot1, %Slot2, %Slot3, %Slot4, %Slot5
 	]
 	
-	for panel in weapon_slot_panels:
+	var weapon_keys = ["A/Q", "Z/W", "E", "R", "T"]
+	for i in range(weapon_slot_panels.size()):
+		var panel = weapon_slot_panels[i]
 		if not panel: continue
 		
+		# Ajout d'un Label pour la touche
+		var key_label = Label.new()
+		key_label.text = weapon_keys[i]
+		key_label.add_theme_font_size_override("font_size", 12)
+		key_label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+		key_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		key_label.modulate = Color(1, 1, 1, 0.5)
+		panel.add_child(key_label)
+
 		# Ajout d'un TextureRect pour l'icône de l'arme
 		var tex_rect = TextureRect.new()
 		tex_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -82,6 +189,29 @@ func _setup_weapon_ui():
 		
 		panel.add_theme_stylebox_override("panel", sb)
 		
+func _setup_fleet_ui():
+	var grid = get_node_or_null("FleetGrid")
+	if grid:
+		grid.queue_free()
+
+func _on_fleet_updated():
+	_on_active_ship_changed(FleetManager.active_index)
+
+func _on_active_ship_changed(index: int):
+	
+	# Disconnect from old ship
+	if is_instance_valid(player_ship) and player_ship.weapon_blocked.is_connected(_on_weapon_blocked):
+		player_ship.weapon_blocked.disconnect(_on_weapon_blocked)
+		
+	# Force player_ship update for the rest of HUD
+	player_ship = FleetManager.get_active_ship()
+	
+	if is_instance_valid(player_ship):
+		if not player_ship.weapon_blocked.is_connected(_on_weapon_blocked):
+			player_ship.weapon_blocked.connect(_on_weapon_blocked)
+		_is_connected_to_player = true
+		
+	update_groups_ui()
 
 func _on_settings_pressed():
 	var settings = get_tree().get_first_node_in_group("settings_menu")
@@ -106,9 +236,8 @@ func _process(delta):
 		label_fps.text = "FPS: %d" % Engine.get_frames_per_second()
 
 	if is_instance_valid(player_ship):
-		if not _is_connected_to_player:
+		if not player_ship.weapon_blocked.is_connected(_on_weapon_blocked):
 			player_ship.weapon_blocked.connect(_on_weapon_blocked)
-			_is_connected_to_player = true
 			
 		if is_instance_valid(hp_bar):
 

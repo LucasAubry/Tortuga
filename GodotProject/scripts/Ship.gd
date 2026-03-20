@@ -8,6 +8,8 @@ var is_player: bool = true
 @export var ship_type: ShipClass = ShipClass.SLOOP
 @export var ship_color: Color = Color.WHITE
 @export var faction: Faction = Faction.PLAYER
+@export var is_controlled: bool = false
+var icon_text: String = "⚓"
 
 var hp: float
 var max_hp: float
@@ -31,11 +33,19 @@ const LootScene = preload("res://scenes/Loot.tscn")
 const SmokeScene = preload("res://scenes/SmokeEffect.tscn")
 
 # Inventory
-var gold: int = 0
-var wood: int = 0
-var food: int = 0
-var water: int = 0
-var fish: int = 0
+@export_group("Inventory")
+@export var gold: int:
+	get:
+		if is_player: return FleetManager.gold
+		return _gold
+	set(value):
+		if is_player: FleetManager.gold = value
+		else: _gold = value
+var _gold: int = 0
+@export var wood: int = 0
+@export var food: int = 0
+@export var water: int = 0
+@export var fish: int = 0
 
 # Upgrades
 var speed_level: int = 0
@@ -48,6 +58,13 @@ var upgrades_purchased: int = 0
 var active_weapon_index: int = 0
 var skill_timer: float = 0.0
 var current_speed_buff: float = 1.0
+
+# RTS Movement & Combat
+var rts_target_pos: Vector3 = Vector3.ZERO
+var is_moving_to_target: bool = false
+var attack_target: Ship = null
+var single_shot_target: Node3D = null
+var formation_offset: Vector3 = Vector3.ZERO # Offset relatif pour les formations
 
 # --- LIMITES DU MONDE ---
 const MAP_WIDTH: float = 2400.0
@@ -65,7 +82,15 @@ var _falling_timer: float = 0.0
 var current_wind_vec_phys: Vector3 = Vector3.ZERO
 var wind_boost_intensity: float = 0.0
 var is_underwater: bool = false
+var current_shield: float = 0.0
+var purchase_price: int = 0
+var group_id: int = 0 # 0 = Aucun groupe, 1-9 = Groupes RTS
+var _selection_mesh: MeshInstance3D = null
+var _is_selected_visually: bool = false
+var _shield_visual: MeshInstance3D = null
 var _hit_smoke_particles: CPUParticles3D = null
+var _flag_label: Label3D = null
+var _fleet_num: int = -1 # Mémorise le numéro de flotte
 
 # Status Effects (Knockback & CC)
 var knockback_velocity: Vector3 = Vector3.ZERO
@@ -207,26 +232,38 @@ func _init_components():
 		spring_arm = gimbal_node.get_node_or_null("SpringArm3D")
 		if spring_arm:
 			_cam_base_pos = spring_arm.position # On mémorise la position de base
+			spring_arm.spring_length = 4500.0 # Plus de recul (de-zoom)
+			
 		# Make the gimbal independent of the Ship's rotation hierarchy
 		gimbal_node.set_as_top_level(true)
+		# Force gimbal scale to 0.2 ONLY if it's the player's controlled ship or similar
+		# Actually, since the root ship is 0.2, and this is top_level, it needs to be 0.2 to match world scale height
+		gimbal_node.scale = Vector3(0.2, 0.2, 0.2)
 		
-		# --- BORDERLANDS CEL-SHADER (POST PROCESSING) ---
 		var cam = spring_arm.get_node_or_null("Camera3D")
-		if cam and is_player: # Only render shader for the active player's screen
-			_cel_shader_mesh = MeshInstance3D.new()
-			_cel_shader_mesh.name = "CelShaderMesh"
-			var quad = QuadMesh.new()
-			quad.size = Vector2(2, 2)
-			_cel_shader_mesh.mesh = quad
-			_cel_shader_mesh.custom_aabb = AABB(Vector3(-10000, -10000, -10000), Vector3(20000, 20000, 20000))
-			_cel_shader_mesh.ignore_occlusion_culling = true
+		if cam:
+			cam.current = is_controlled
+			cam.fov = 12.0 # Champ de vision encore plus serré pour compenser le de-zoom
+			cam.far = 20000.0 # Vision longue distance
 			
-			var shader_mat = ShaderMaterial.new()
-			shader_mat.shader = load("res://scripts/cel_shader.gdshader")
-			_cel_shader_mesh.material_override = shader_mat
-			cam.add_child(_cel_shader_mesh)
-			_cel_shader_mesh.visible = GameConfig.enable_cel_shader
-			GameConfig.cel_shader_toggled.connect(func(enabled): if is_instance_valid(_cel_shader_mesh): _cel_shader_mesh.visible = enabled)
+			if is_player: # Only render shader for the active player's screen
+				_cel_shader_mesh = MeshInstance3D.new()
+				_cel_shader_mesh.name = "CelShaderMesh"
+				var quad = QuadMesh.new()
+				quad.size = Vector2(2, 2)
+				_cel_shader_mesh.mesh = quad
+				_cel_shader_mesh.custom_aabb = AABB(Vector3(-10000, -10000, -10000), Vector3(20000, 20000, 20000))
+				_cel_shader_mesh.ignore_occlusion_culling = true
+				
+				var shader_mat = ShaderMaterial.new()
+				shader_mat.shader = load("res://scripts/cel_shader.gdshader")
+				_cel_shader_mesh.material_override = shader_mat
+				cam.add_child(_cel_shader_mesh)
+				_cel_shader_mesh.visible = GameConfig.enable_cel_shader
+				GameConfig.cel_shader_toggled.connect(func(enabled):
+					if is_instance_valid(_cel_shader_mesh):
+						_cel_shader_mesh.visible = enabled
+				)
 			
 	var mesh_node = get_node_or_null("sloup")
 	if mesh_node:
@@ -244,6 +281,186 @@ func _init_components():
 			base_sails_scale = visual_sails.scale
 			base_sails_pos = visual_sails.position
 		if visual_wheel: base_wheel_rot = visual_wheel.rotation
+	
+	_apply_sail_color()
+	_setup_shield_visual()
+	_setup_flag_label()
+	_setup_selection_visual()
+
+func _setup_selection_visual():
+	_selection_mesh = MeshInstance3D.new()
+	add_child(_selection_mesh)
+	_selection_mesh.name = "SelectionIndicator"
+	
+	# Un anneau (Torus) bien visible et élégant
+	var ring = TorusMesh.new()
+	ring.inner_radius = 16.0 # Plus grand pour dépasser du navire
+	ring.outer_radius = 18.0
+	ring.rings = 64
+	ring.ring_segments = 16 
+	_selection_mesh.mesh = ring
+	
+	var mat = StandardMaterial3D.new()
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.albedo_color = Color(1.0, 0.9, 0.0, 0.3) # Un peu plus discret mais clair
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.no_depth_test = true # VISIBLE À TRAVERS LE NAVIRE
+	mat.render_priority = 5
+	_selection_mesh.material_override = mat
+	_selection_mesh.visible = false
+	_selection_mesh.position.y = 0.5 
+
+func set_selected(val: bool):
+	_is_selected_visually = val
+	if _selection_mesh:
+		_selection_mesh.visible = val
+		if val:
+			# Animation de pulsation constante
+			if get_tree():
+				var tw = create_tween().set_loops()
+				tw.tween_property(_selection_mesh, "scale", Vector3(1.2, 1.0, 1.2), 0.8).set_trans(Tween.TRANS_SINE)
+				tw.tween_property(_selection_mesh, "scale", Vector3(1.0, 1.0, 1.0), 0.8).set_trans(Tween.TRANS_SINE)
+
+func move_to_rts(pos: Vector3):
+	rts_target_pos = Vector3(pos.x, global_position.y, pos.z)
+	is_moving_to_target = true
+	attack_target = null # Annule l'attaque si on donne un ordre de mouvement
+	print("⚓ Destination RTS : ", rts_target_pos)
+
+func attack_order(target: Ship):
+	if target == self: return
+	single_shot_target = null
+	attack_target = target
+	is_moving_to_target = false
+	print("⚔️ Ordre d'attaque sur : ", target.name)
+
+func single_fire_at(target: Node3D):
+	single_shot_target = target
+	attack_target = null
+	is_moving_to_target = false
+	print("⚔️ Tir simple manuel sur : ", target.name)
+
+
+func stop():
+	is_moving_to_target = false
+	attack_target = null
+	single_shot_target = null
+	ship_speed = 0
+	print("🛑 Arrêt complet ordonné.")
+
+
+func _setup_flag_label():
+	# 1. Priorité à un noeud placé manuellement par le joueur dans l'éditeur
+	# On cherche un noeud nommé "FlagLabel" (doit être un Label3D)
+	_flag_label = find_child("FlagLabel", true, false)
+	
+	if _flag_label:
+		print("ID Label trouvé manuellement dans l'éditeur !")
+		_flag_label.render_priority = 10
+		_flag_label.no_depth_test = true
+	else:
+		# 2. Fallback automatique sur le mesh du drapeau
+		var mesh_node = get_node_or_null("sloup")
+		if mesh_node:
+			var flag_node = _find_child_recursive(mesh_node, "Flag")
+			if not flag_node:
+				flag_node = _find_node_with_partial_name(mesh_node, "Flag")
+			
+			if flag_node:
+				_flag_label = Label3D.new()
+				flag_node.add_child(_flag_label)
+				_flag_label.billboard = BaseMaterial3D.BILLBOARD_DISABLED
+				_flag_label.render_priority = 10
+				_flag_label.no_depth_test = true
+				_flag_label.pixel_size = 0.1
+				_flag_label.font_size = 120
+				_flag_label.outline_size = 30
+				_flag_label.modulate = Color(0, 0, 0)
+				_flag_label.position = Vector3(0, 1.0, 0) 
+				_flag_label.rotation_degrees = Vector3(0, 90, 0)
+
+	# 3. Application du numéro (si déjà connu)
+	if _flag_label and _fleet_num != -1:
+		set_fleet_number(_fleet_num)
+
+func _find_node_with_partial_name(root: Node, p_name: String) -> Node:
+	if root.name.find(p_name) != -1:
+		return root
+	for child in root.get_children():
+		var res = _find_node_with_partial_name(child, p_name)
+		if res: return res
+	return null
+
+func set_fleet_number(num: int):
+	_fleet_num = num # Mémorisation
+	if _flag_label:
+		if num == 1:
+			_flag_label.text = "👑"
+			_flag_label.modulate = Color(0, 0, 0) # Noir
+		elif num > 1:
+			_flag_label.text = str(num)
+			_flag_label.modulate = Color(0, 0, 0) # Noir
+		else:
+			_flag_label.text = ""
+
+func _setup_shield_visual():
+	_shield_visual = MeshInstance3D.new()
+	add_child(_shield_visual)
+	_shield_visual.name = "ShieldVisual"
+	
+	var sphere = SphereMesh.new()
+	sphere.radius = 55.0 # Plus grand
+	sphere.height = 110.0
+	_shield_visual.mesh = sphere
+	
+	var mat = StandardMaterial3D.new()
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.albedo_color = Color(1.0, 0.4, 0.0, 0.25) # Orange transparent
+	mat.metallic = 1.0 # Effet miroir/métallique
+	mat.roughness = 0.05
+	mat.emission_enabled = true
+	mat.emission = Color(1.0, 0.3, 0.0)
+	mat.emission_energy_multiplier = 1.2
+	_shield_visual.material_override = mat
+	_shield_visual.visible = false
+
+func activate_shield(strength: float, duration: float):
+	current_shield = strength
+	if _shield_visual:
+		_shield_visual.visible = true
+		var tween = create_tween()
+		tween.tween_property(_shield_visual, "scale", Vector3(1.1, 1.1, 1.1), 0.2).from(Vector3(0.5, 0.5, 0.5))
+	
+	# Le bouclier expire après la durée si pas détruit avant
+	var t = get_tree().create_timer(duration)
+	t.timeout.connect(func():
+		if is_instance_valid(self) and current_shield > 0:
+			current_shield = 0
+			_hide_shield()
+	)
+
+func _hide_shield():
+	if _shield_visual:
+		var tween = create_tween()
+		tween.tween_property(_shield_visual, "scale", Vector3(0.1, 0.1, 0.1), 0.3)
+		tween.tween_callback(func(): _shield_visual.visible = false)
+
+func _apply_sail_color():
+	if not visual_sails: return
+	_set_sail_material_recursive(visual_sails)
+
+func _set_sail_material_recursive(node: Node):
+	if node is MeshInstance3D:
+		var mat = node.get_surface_override_material(0)
+		if not mat:
+			mat = StandardMaterial3D.new()
+			node.set_surface_override_material(0, mat)
+		if mat is StandardMaterial3D:
+			# Sky Blue for all player fleet ships
+			mat.albedo_color = Color(0.5, 0.8, 1.0)
+			mat.roughness = 0.8
+	for child in node.get_children():
+		_set_sail_material_recursive(child)
 
 func _find_child_recursive(node: Node, target_name: String) -> Node:
 	for child in node.get_children():
@@ -269,9 +486,8 @@ func _init_stats():
 			max_speed = GameConfig.GalleonSpeed
 			max_cooldown = GameConfig.GalleonCooldown
 	hp = max_hp
-
 func _physics_process(delta):
-	# 1. GESTION DES TIMERS (uniquement si on ne coule pas)
+	# 1. GESTION DES TIMERS (pour tous les navires)
 	if not is_sinking:
 		for i in range(weapon_cooldowns.size()):
 			if weapon_cooldowns[i] > 0:
@@ -291,7 +507,13 @@ func _physics_process(delta):
 			immobilization_timer -= delta
 
 	# 2. VÉRIFICATION DE LA CHUTE DU NAVIRE (Sortie de carte)
-	var water_h = _get_water_height(global_position, Time.get_ticks_msec() / 1000.0)
+	# PERFORMANCE: Fixed water height (0.0) instead of wave calculation
+	# On garde le calcul complet uniquement pour le bateau contrôlé par le joueur pour l'immersion
+	var water_h = 0.0
+	if is_controlled and not is_underwater:
+		water_h = _get_water_height(global_position, Time.get_ticks_msec() / 1000.0)
+	elif is_underwater:
+		water_h = current_dive_depth
 	
 	if water_h < -500.0:
 		_is_falling = true
@@ -312,7 +534,15 @@ func _physics_process(delta):
 	# 3. MOUVEMENT ET COLLISIONS
 	if _falling_timer < 0.5: # On autorise les contrôles un court instant au début de la chute
 		if not is_sinking:
-			_handle_player_input(delta)
+			if is_controlled:
+				_handle_camera_and_weapons(delta)
+			
+			if is_controlled or is_moving_to_target or is_instance_valid(attack_target):
+				_handle_movement_logic(delta)
+			else:
+				# Les vaisseaux non-contrôlés et sans ordre s'arrêtent doucement
+				_apply_movement_physics(delta, 0.0, 0.0)
+				_apply_visuals(delta, 0.0)
 				
 			# Logic modulaire des compétences (certaines modifient velocity)
 			for slot in weapon_slots:
@@ -373,14 +603,80 @@ func _update_damage_visuals(delta):
 		if slot and slot.has_method("post_physics_tick"):
 			slot.post_physics_tick(self, delta)
 
-func _handle_player_input(delta):
-	_handle_camera_and_weapons(delta)
+func _handle_movement_logic(delta):
+	var steer = 0.0
+	var throttle = 0.0
 	
-	var input_dir = Input.get_vector("ui_left", "ui_right", "ui_up", "ui_down")
-	
-	# Mouvement (Physique et Vent)
-	var steer = input_dir.x
-	var throttle = -input_dir.y # Inversé car -1 sur l'axe Y Godot est "Haut"
+	# --- PRIORITÉ 1 : TIR SIMPLE MANUEL ---
+	if is_instance_valid(single_shot_target) and (not single_shot_target.has_method("get_hp") or single_shot_target.get("hp") > 0):
+		var to_enemy = single_shot_target.global_position - global_position
+		to_enemy.y = 0
+		var dist = to_enemy.length()
+		
+		var fwd = global_transform.basis.z.normalized()
+		var target_dir = to_enemy.normalized()
+		var angle = fwd.signed_angle_to(target_dir, Vector3.UP)
+		
+		steer = clamp(angle * 6.0, -1.0, 1.0)
+		# Vise et s'arrête (très lent) ou se met en position pour tirer
+		if dist > 800.0:
+			throttle = 1.0 # Avance un peu si vraiment trop loin
+		else:
+			throttle = 0.0 # Stationnaire pour viser
+			
+		# Tir simple si aligné
+		if abs(angle) < 0.2:
+			if weapon_cooldowns[active_weapon_index] <= 0:
+				shoot_cannons()
+				single_shot_target = null # Fin de l'ordre, tir effectué
+				
+	# --- PRIORITÉ 2 : ATTAQUE RTS CONTINUE ---
+	elif is_instance_valid(attack_target) and not attack_target.is_sinking:
+		var to_enemy = attack_target.global_position - global_position
+		to_enemy.y = 0
+		var dist = to_enemy.length()
+		
+		var fwd = global_transform.basis.z.normalized()
+		var target_dir = to_enemy.normalized()
+		var angle = fwd.signed_angle_to(target_dir, Vector3.UP)
+		
+		# On s'approche si on est loin, sinon on tourne pour présenter les canons de côté ?
+		# Pour faire simple : on fonce vers lui et on tire quand on est à portée (700 units)
+		if dist > 600.0:
+			steer = clamp(angle * 5.0, -1.0, 1.0)
+			throttle = 1.0
+		else:
+			# À portée : on ralentit et on essaie de rester face à lui ou de tourner
+			steer = clamp(angle * 5.0, -1.0, 1.0)
+			throttle = 0.2
+			
+		# Tir automatique si aligné et à portée
+		if dist < 1200.0 and abs(angle) < 0.3:
+			if weapon_cooldowns[active_weapon_index] <= 0:
+				shoot_cannons()
+				
+	# --- PRIORITÉ 2 : MOUVEMENT RTS ---
+	elif is_moving_to_target:
+		var final_target = rts_target_pos
+		# Si on est en formation, FleetManager met à jour rts_target_pos continuellement
+		
+		var to_target = final_target - global_position
+		to_target.y = 0
+		var dist = to_target.length()
+		
+		# Seuil de précision maximale
+		if dist < 15.0:
+			is_moving_to_target = false
+			ship_speed = move_toward(ship_speed, 0, acceleration * 5.0 * delta)
+		else:
+			var fwd = global_transform.basis.z.normalized()
+			fwd.y = 0
+			var target_dir = to_target.normalized()
+			var angle = fwd.signed_angle_to(target_dir, Vector3.UP)
+			
+			# Braquage plus agressif pour ne pas rater le point
+			steer = clamp(angle * 6.0, -1.0, 1.0)
+			throttle = 1.0 if abs(angle) < 0.6 else 0.1
 	
 	_apply_movement_physics(delta, steer, throttle)
 	_apply_visuals(delta, steer)
@@ -390,11 +686,16 @@ func _unhandled_input(event: InputEvent):
 	if _is_map_open():
 		return
 	
-	# --- ZOOM MAC PAD / TRACKPAD / MOUSE WHEEL ---
-	if spring_arm:
+	# --- ZOOM ---
+	if spring_arm and is_controlled: # INDÉPENDANCE : Uniquement si contrôlé
 		if event.is_class("InputEventMagnificationGesture"):
-			var zoom_amount = (event.get("factor") - 1.0) * zoom_speed * 10.0
-			spring_arm.spring_length = clamp(spring_arm.spring_length - zoom_amount, min_zoom, max_zoom)
+			# Factor is 1.0 (neutral), >1.0 (spread/zoom in), <1.0 (pinch/zoom out)
+			# We divide length by factor to zoom.
+			var factor = event.get("factor")
+			if factor != 0:
+				var target_length = spring_arm.spring_length / factor
+				spring_arm.spring_length = clamp(target_length, min_zoom, max_zoom)
+			get_viewport().set_input_as_handled()
 		elif event is InputEventMouseButton and event.is_pressed():
 			if event.button_index == MOUSE_BUTTON_WHEEL_UP:
 				spring_arm.spring_length = clamp(spring_arm.spring_length - zoom_speed, min_zoom, max_zoom)
@@ -419,11 +720,12 @@ func _handle_camera_and_weapons(delta):
 			spring_arm.spring_length = clamp(spring_arm.spring_length + zoom_speed, min_zoom, max_zoom)
 	
 	# Weapon Selection
-	if Input.is_key_pressed(KEY_1): active_weapon_index = 0
-	elif Input.is_key_pressed(KEY_2): active_weapon_index = 1
-	elif Input.is_key_pressed(KEY_3): active_weapon_index = 2
-	elif Input.is_key_pressed(KEY_4): active_weapon_index = 3
-	elif Input.is_key_pressed(KEY_5): active_weapon_index = 4
+	# Weapon Selection (A, Z, E, R, T for AZERTY compatibility)
+	if Input.is_key_pressed(KEY_Q) or Input.is_key_pressed(KEY_A): active_weapon_index = 0
+	elif Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_Z): active_weapon_index = 1
+	elif Input.is_key_pressed(KEY_E): active_weapon_index = 2
+	elif Input.is_key_pressed(KEY_R): active_weapon_index = 3
+	elif Input.is_key_pressed(KEY_T): active_weapon_index = 4
 
 	var current_action = weapon_slots[active_weapon_index]
 	var can_afford = current_action == null or ammo >= current_action.ammo_cost
@@ -431,15 +733,15 @@ func _handle_camera_and_weapons(delta):
 	if Input.is_action_just_pressed("ui_fire") and weapon_cooldowns[active_weapon_index] <= 0 and can_afford:
 		shoot_cannons()
 
-func _apply_movement_physics(delta, steer, throttle):
+func _apply_movement_physics(delta, steer, throttle, sync_group = false):
 	# Si le bateau est immobilisé (ex: par un filet de pêche), on bloque les commandes
 	if immobilization_timer > 0:
 		steer = 0.0
 		throttle = 0.0
 		
-	# Rotation de base
+	# Application de la rotation (Correction du sens : += pour tourner vers la cible)
 	if steer != 0:
-		rotation.y -= steer * turn_speed * delta
+		rotation.y += steer * turn_speed * delta
 	
 	var max_reverse_speed = max_speed * 0.15
 	
@@ -476,7 +778,16 @@ func _apply_movement_physics(delta, steer, throttle):
 		
 		is_underwater = current_dive_depth < -5.0
 		var wind_push = forward.dot(current_wind_vec_phys) if not is_underwater else 0.0
-		var speed_modifier = 1.0 + (wind_push * 0.4) if not is_underwater else 1.0
+		
+		# TWEAK: Balanced speed relative to wind
+		var wind_influence = 0.15 # Reduced when WITH wind
+		if wind_push < 0:
+			# Strong boost AGAINST wind
+			wind_influence = -1.2 
+		elif is_player or ship_type == ShipClass.GALLEON:
+			wind_influence = 0.15
+		
+		var speed_modifier = 1.0 + (wind_push * wind_influence) if not is_underwater else 1.0
 		
 		velocity = forward * min(ship_speed * speed_modifier, 1200.0)
 		velocity.y = 0
@@ -485,6 +796,27 @@ func _apply_movement_physics(delta, steer, throttle):
 			var drift = current_wind_vec_phys - (forward * wind_push)
 			velocity += drift * 0.1
 			velocity.y = 0
+	
+	_apply_separation(delta)
+
+func _apply_separation(delta):
+	var push = Vector3.ZERO
+	var comfort_zone = 130.0 # Distance minimum souhaitée
+	var my_group = get_tree().get_nodes_in_group("player")
+	
+	for other in my_group:
+		if other == self or not is_instance_valid(other) or other.is_sinking: continue
+		
+		var to_me = global_position - other.global_position
+		to_me.y = 0
+		var dist = to_me.length()
+		
+		if dist < comfort_zone and dist > 0.5:
+			# Plus on est proche, plus la poussée est forte
+			var strength = (comfort_zone - dist) / comfort_zone
+			push += to_me.normalized() * strength * 400.0 * delta
+	
+	velocity += push
 
 	
 
@@ -694,10 +1026,11 @@ func _flash_hit():
 	
 	if not flash_mat:
 		flash_mat = StandardMaterial3D.new()
-		flash_mat.albedo_color = Color(0.8, 0.1, 0.1, 1)
+		flash_mat.shading_mode = BaseMaterial3D.SHADING_MODE_PER_PIXEL
+		flash_mat.albedo_color = Color(0.8, 0, 0)
 		flash_mat.emission_enabled = true
-		flash_mat.emission = Color(0.6, 0.05, 0.05)
-		flash_mat.emission_energy_multiplier = 0.5
+		flash_mat.emission = Color(1.0, 0, 0)
+		flash_mat.emission_energy_multiplier = 4.0
 	
 	var meshes: Array = []
 	var sloup_node = get_node_or_null("sloup")
@@ -715,7 +1048,7 @@ func _flash_hit():
 	
 	# Utilisation d'un tween pour le reset (plus propre que await Timer)
 	var tw = create_tween()
-	tw.tween_interval(0.15)
+	tw.tween_interval(0.08) # Plus court
 	tw.set_parallel(false)
 	tw.tween_callback(func():
 		for i in range(edited_meshes.size()):
@@ -733,6 +1066,24 @@ func _collect_visible_meshes(node: Node, result: Array):
 
 func take_damage(amount: float, attacker: Node3D):
 	if is_sinking: return  # Ignore les dégâts pendant le naufrage
+	
+	if current_shield > 0:
+		var absorbed = min(current_shield, amount)
+		current_shield -= absorbed
+		amount -= absorbed
+		print("🛡️ Bouclier absorbe ", absorbed, " dégâts. Reste: ", current_shield)
+		
+		# Feedback visuel impact bouclier
+		if _shield_visual:
+			var tw = create_tween()
+			tw.tween_property(_shield_visual, "modulate", Color(2, 2, 2, 1), 0.05)
+			tw.tween_property(_shield_visual, "modulate", Color(1, 1, 1, 1), 0.1)
+			
+		if current_shield <= 0:
+			_hide_shield()
+			
+	if amount <= 0: return
+
 	hp -= amount
 	_flash_hit()
 	if hp <= 0:
@@ -786,8 +1137,8 @@ func _start_sinking():
 
 func _on_sink_complete():
 	if is_player:
-		# Affiche l'écran de mort après le naufrage
-		get_tree().call_group("hud", "show_death_screen")
+		# Laisse le FleetManager gérer si on doit switch ou Game Over
+		FleetManager.remove_ship(self)
 	else:
 		queue_free()
 
@@ -828,6 +1179,14 @@ func _get_water_height(pos: Vector3, _time_val: float) -> float:
 func switch_ship(new_type: ShipClass, scene_path: String):
 	ship_type = new_type
 	
+	# Sauvegarde du FlagLabel s'il est MANUEL pour le remettre sur le nouveau mesh
+	# (Les labels auto sont supprimés et recréés pour s'adapter au nouveau modèle)
+	var preserved_label = _flag_label
+	var is_manual = preserved_label and preserved_label.name == "FlagLabel"
+	
+	if is_instance_valid(preserved_label) and is_manual and preserved_label.get_parent():
+		preserved_label.reparent(self)
+
 	# Suppression de l'ancien mesh
 	var old_mesh = get_node_or_null("sloup")
 	if old_mesh:
@@ -840,6 +1199,10 @@ func switch_ship(new_type: ShipClass, scene_path: String):
 		var new_mesh = new_scene.instantiate()
 		new_mesh.name = "sloup"
 		add_child(new_mesh)
+		
+		# Remettre le label manuel sur le nouveau mesh
+		if is_instance_valid(preserved_label) and is_manual:
+			preserved_label.reparent(new_mesh)
 	
 	# Réinitialisation des stats et des composants visuels
 	_init_stats()
@@ -848,3 +1211,60 @@ func switch_ship(new_type: ShipClass, scene_path: String):
 	_setup_immobilized_icon()
 	
 	print("⚓ Navire changé pour un : ", ship_type)
+
+func set_controlled(active: bool):
+	is_controlled = active
+	if gimbal_node:
+		var cam = spring_arm.get_node_or_null("Camera3D")
+		if cam:
+			cam.current = active
+	
+	if active:
+		add_to_group("player")
+	else:
+		if is_in_group("player"):
+			remove_from_group("player")
+
+func sell_ship():
+	# On ne peut pas vendre le bateau principal (index 0 dans la flotte)
+	if FleetManager.ships[0] == self:
+		print("Impossible de vendre le navire amiral !")
+		return
+		
+	# Calcul du prix de revente (70% du prix d'achat, ou 150 si prix inconnu)
+	var resale_value = int(purchase_price * 0.7) if purchase_price > 0 else 150
+	FleetManager.gold += resale_value
+	print("💰 Navire vendu pour ", resale_value, " Or")
+	
+	# Le stuff tombe dans l'eau
+	_drop_loot_on_sale()
+	
+	# Suppression de la flotte et destruction
+	# find_and_switch_to_next_ship sera appelé par FleetManager.remove_ship
+	FleetManager.remove_ship(self)
+	queue_free()
+
+func _drop_loot_on_sale():
+	# On fait tomber le bois, la nourriture, etc.
+	var resources = {
+		"wood": Loot.LootType.WOOD,
+		"food": Loot.LootType.FOOD,
+		"water": Loot.LootType.WATER,
+		"fish": Loot.LootType.FOOD # On recycle le poisson en food
+	}
+	
+	var inventory = {
+		"wood": wood,
+		"food": food,
+		"water": water,
+		"fish": fish
+	}
+	
+	for res_name in inventory:
+		var amount_to_drop = inventory[res_name]
+		if amount_to_drop > 0:
+			var loot = LootScene.instantiate()
+			get_tree().current_scene.add_child(loot)
+			loot.global_position = global_position + Vector3(randf_range(-15, 15), 5.0, randf_range(-15, 15))
+			if loot.has_method("setup"):
+				loot.setup(resources[res_name], amount_to_drop)

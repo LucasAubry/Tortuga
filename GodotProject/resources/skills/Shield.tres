@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ShieldSkill" load_steps=3 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/ui/icons/icon_shield.png" id="1_icon"]
+[ext_resource type="Script" path="res://scripts/skills/ShieldSkill.gd" id="2_script"]
+
+[resource]
+script = ExtResource("2_script")
+type = 6
+weapon_name = "Bouclier"
+damage = 0.0
+cooldown = 20.0
+ammo_cost = 5
+icon = ExtResource("1_icon")
+skill_duration = 10.0
+shield_strength = 200.0

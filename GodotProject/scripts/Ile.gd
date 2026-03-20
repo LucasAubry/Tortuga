@@ -1,7 +1,7 @@
 class_name Ile
 extends StaticBody3D
 
-enum IleType { CITY, MERCHANT, SHIPWRIGHT, FISHERMAN, KRAKEN_FARMER, HEADQUARTERS }
+enum IleType { CITY, MERCHANT, SHIPWRIGHT, FISHERMAN, KRAKEN_FARMER, HEADQUARTERS, SHIP_MERCHANT }
 @export var ile_type: IleType = IleType.CITY
 
 @export var inner_radius: float = 50.0
@@ -59,6 +59,9 @@ func _ready():
 		icon.text = "[ ELEVEUR DE KRAKEN ]"
 	elif ile_type == IleType.HEADQUARTERS:
 		icon.text = "[ QUARTIER GENERALE ]"
+	elif ile_type == IleType.SHIP_MERCHANT:
+		icon.text = "[ VENDEUR DE NAVIRES ]"
+		icon.modulate = Color(0.2, 0.8, 1.0)
 		
 	icon.pixel_size = 0.5
 	icon.billboard = BaseMaterial3D.BILLBOARD_ENABLED
@@ -105,7 +108,7 @@ func _on_marker_clicked(camera, event, position, normal, shape_idx):
 			
 		if player:
 			var dist = global_position.distance_to(player.global_position)
-			if dist < 1500.0: # Close enough to interact
+			if dist < 2500.0: # Close enough to interact
 				GameManager.parked_island = self
 				
 				# Open corresponding interface based on island type
@@ -130,6 +133,12 @@ func _on_marker_clicked(camera, event, position, normal, shape_idx):
 					var hqmenu = world_node.get_node_or_null("HQMenu")
 					if hqmenu and hqmenu.has_method("show_menu"):
 						hqmenu.show_menu()
+				elif ile_type == IleType.SHIP_MERCHANT:
+					GameManager.state = GameManager.GameState.SHIP_MERCHANT_MENU
+					var smmenu = world_node.get_node_or_null("ShipMerchantMenu")
+					if smmenu and smmenu.has_method("show_menu"):
+						smmenu.show_menu()
+						get_viewport().set_input_as_handled()
 					
 				print("Opened interface for island type: ", ile_type)
 			else:
