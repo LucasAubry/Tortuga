@@ -1,0 +1,10 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3]
+
+[ext_resource type="Shader" path="res://shaders/targeted_outline.gdshader" id="1_xxx"]
+
+[resource]
+shader = ExtResource("1_xxx")
+shader_parameter/outline_color = Color(0, 0, 0, 1)
+shader_parameter/outline_thickness = 1.0
+shader_parameter/depth_threshold = 0.002
+
