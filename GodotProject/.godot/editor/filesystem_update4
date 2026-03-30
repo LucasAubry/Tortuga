@@ -1,2 +1,6 @@
 res://scenes/World.tscn
 res://assets/water.gdshader
+res://scripts/GameConfig.gd
+res://scripts/MapUI.gd
+res://scripts/SettingsMenu.gd
+res://scripts/TabMenu.gd

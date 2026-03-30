@@ -36,14 +36,13 @@ func _process(delta):
 		_update_map()
 
 func _input(event: InputEvent):
-	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_P or event.keycode == KEY_M:
-			if visible:
-				hide_map()
-			else:
-				show_map()
-			get_viewport().set_input_as_handled()
-			return
+	if event.is_action_pressed("toggle_map") and not event.echo:
+		if visible:
+			hide_map()
+		else:
+			show_map()
+		get_viewport().set_input_as_handled()
+		return
 	
 	# INTERACTIONS SUR LA MAP
 	if visible:

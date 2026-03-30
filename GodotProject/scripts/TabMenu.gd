@@ -14,14 +14,15 @@ func _ready():
 		close_btn.pressed.connect(hide_menu)
 
 func _unhandled_input(event):
-	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_TAB:
-			if visible:
-				hide_menu()
-			else:
-				show_menu()
-		elif visible and event.keycode == KEY_ESCAPE:
+	if event.is_action_pressed("toggle_tab"):
+		if visible:
 			hide_menu()
+		else:
+			show_menu()
+		get_viewport().set_input_as_handled()
+	elif visible and event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+		hide_menu()
+		get_viewport().set_input_as_handled()
 
 func show_menu():
 	visible = true

@@ -1,5 +1,6 @@
 extends Node
 signal fps_toggled(enabled)
+signal keybindings_updated()
 
 # Global wind state (Default, used if get_wind_at not called)
 var wind_direction: Vector2 = Vector2(1, 0).normalized() 
@@ -15,14 +16,89 @@ var fps_limit_index: int = 0 # 0 = Illimité, 1 = 60, 2 = 30
 var wind_angle_noise = FastNoiseLite.new()
 var wind_speed_noise = FastNoiseLite.new()
 
+# --- KEYBINDINGS ---
+const DEFAULT_KEYBINDINGS = {
+	"move_forward": KEY_W,
+	"move_backward": KEY_S,
+	"move_left": KEY_A,
+	"move_right": KEY_D,
+	"skill_1": KEY_1,
+	"skill_2": KEY_2,
+	"skill_3": KEY_3,
+	"skill_4": KEY_4,
+	"skill_5": KEY_5,
+	"toggle_map": KEY_M,
+	"toggle_tab": KEY_TAB
+}
+
+var key_bindings = DEFAULT_KEYBINDINGS.duplicate()
+const CONFIG_FILE_PATH = "user://settings.cfg"
+
 func _ready():
 	wind_angle_noise.seed = 1234
 	wind_angle_noise.frequency = 0.00005 # Extremely massive zones (changes very slowly)
 	wind_speed_noise.seed = 5678
 	wind_speed_noise.frequency = 0.0001
 	
+	# Load existing config
+	load_config()
+	
 	# Applique la limite FPS de base au démarrage
 	_apply_fps_limit()
+	
+	# Apply keybindings to InputMap
+	apply_input_map()
+
+func save_config():
+	var config = ConfigFile.new()
+	config.set_value("Graphics", "show_fps", show_fps)
+	config.set_value("Graphics", "fps_limit_index", fps_limit_index)
+	
+	for action in key_bindings.keys():
+		config.set_value("Keybindings", action, key_bindings[action])
+	
+	config.save(CONFIG_FILE_PATH)
+	apply_input_map()
+	keybindings_updated.emit()
+
+func load_config():
+	var config = ConfigFile.new()
+	var err = config.load(CONFIG_FILE_PATH)
+	if err == OK:
+		show_fps = config.get_value("Graphics", "show_fps", show_fps)
+		fps_limit_index = config.get_value("Graphics", "fps_limit_index", fps_limit_index)
+		
+		for action in key_bindings.keys():
+			key_bindings[action] = config.get_value("Keybindings", action, key_bindings[action])
+	else:
+		# If no config file, save the default one
+		save_config()
+
+func apply_input_map():
+	for action in key_bindings.keys():
+		# On n'enlève pas toutes les actions par défaut (ex: WASD/ZQSD) pour éviter les blocages, 
+		# mais si l'utilisateur change, on remplace s'assurer que sa touche est la seule si on veut.
+		# Cependant, c'est mieux d'ajouter l'InputEventKey.
+		
+		# Effacer les versions existantes de l'action si elles existent déjà pour éviter les doublons
+		if not InputMap.has_action(action):
+			InputMap.add_action(action)
+		else:
+			InputMap.action_erase_events(action)
+		
+		var event = InputEventKey.new()
+		event.physical_keycode = key_bindings[action]
+		InputMap.action_add_event(action, event)
+		
+		# AJOUT de support ZQSD par défaut sans écraser (optionnel, mais utile pour les français)
+		if action == "move_forward" and key_bindings[action] == KEY_W:
+			var event_z = InputEventKey.new()
+			event_z.physical_keycode = KEY_Z
+			InputMap.action_add_event(action, event_z)
+		elif action == "move_left" and key_bindings[action] == KEY_A:
+			var event_q = InputEventKey.new()
+			event_q.physical_keycode = KEY_Q
+			InputMap.action_add_event(action, event_q)
 
 func _apply_fps_limit():
 	match fps_limit_index:
@@ -47,6 +123,8 @@ func get_wind_at(pos: Vector3) -> Dictionary:
 	
 	return {"direction": dir, "speed": speed}
 
+# Economy stats... (removed lines for brevity, actually I'll keep them to avoid deleting data)
+# economy... (I'll re-add everything below)
 # Initial ship stats from C++ (Base values)
 # Economy
 const StartingGold = 10000000
