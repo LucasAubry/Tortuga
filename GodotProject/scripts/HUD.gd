@@ -25,6 +25,7 @@ var enemy_hp_bars: Dictionary = {}
 var fleet_slots: Array[PanelContainer] = []
 var fleet_icons: Array[Label] = []
 var groups_container: VBoxContainer
+var interaction_label: Label
 
 func _ready():
 
@@ -34,6 +35,18 @@ func _ready():
 	
 	_setup_weapon_ui()
 	_setup_fleet_ui()
+	
+	interaction_label = Label.new()
+	interaction_label.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
+	interaction_label.position = Vector2(-200, -150) # Tweak to be centered above hotbar
+	interaction_label.custom_minimum_size = Vector2(400, 50)
+	interaction_label.add_theme_font_size_override("font_size", 28)
+	interaction_label.add_theme_color_override("font_color", Color.YELLOW)
+	interaction_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	interaction_label.add_theme_constant_override("outline_size", 6)
+	interaction_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	interaction_label.hide()
+	add_child(interaction_label)
 	
 	if FleetManager:
 		FleetManager.fleet_updated.connect(_on_fleet_updated)
@@ -51,87 +64,21 @@ func _ready():
 	
 	_setup_groups_ui()
 
+func show_interaction_prompt(text: String):
+	if interaction_label:
+		interaction_label.text = text
+		interaction_label.show()
+
+func hide_interaction_prompt():
+	if interaction_label:
+		interaction_label.hide()
+
+
 func _setup_groups_ui():
-	# Création du conteneur vertical fixe à gauche de l'écran
-	groups_container = VBoxContainer.new()
-	groups_container.set_anchors_preset(Control.PRESET_CENTER_LEFT)
-	# Décalage par rapport au bord
-	groups_container.position = Vector2(20, -100)
-	groups_container.add_theme_constant_override("separation", 10)
-	add_child(groups_container)
-	update_groups_ui()
+	pass
 
 func update_groups_ui():
-	if not groups_container: return
-	
-	# Nettoyer l'ancien affichage
-	for child in groups_container.get_children():
-		child.queue_free()
-		
-	# Grouper les navires actifs
-	var groups = {}
-	for ship in FleetManager.ships:
-		if ship and is_instance_valid(ship) and not ship.is_sinking and ship.group_id > 0:
-			if not groups.has(ship.group_id):
-				groups[ship.group_id] = []
-			groups[ship.group_id].append(ship)
-			
-	var sorted_groups = groups.keys()
-	sorted_groups.sort()
-	
-	for g in sorted_groups:
-		var hbox = HBoxContainer.new()
-		hbox.add_theme_constant_override("separation", 5)
-		
-		# Label pour le numéro du groupe
-		var label = Label.new()
-		label.text = "G" + str(g)
-		label.add_theme_font_size_override("font_size", 16)
-		label.add_theme_color_override("font_color", Color.YELLOW)
-		label.custom_minimum_size = Vector2(30, 0)
-		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		hbox.add_child(label)
-		
-		# Ajouter une case pour chaque navire
-		var sub_idx = 1
-		for ship in groups[g]:
-			var panel = PanelContainer.new()
-			panel.custom_minimum_size = Vector2(35, 35)
-			
-			var sb = StyleBoxFlat.new()
-			sb.bg_color = Color(0, 0, 0, 0.5)
-			sb.set_border_width_all(1)
-			
-			if FleetManager.get_active_ship() == ship:
-				sb.border_color = Color(0, 1, 0, 1) # Navire actuel (vert)
-			else:
-				sb.border_color = Color(1, 1, 1, 0.3)
-				
-			panel.add_theme_stylebox_override("panel", sb)
-			
-			var icon_container = Control.new()
-			panel.add_child(icon_container)
-			
-			var icon = Label.new()
-			icon.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-			icon.text = ship.get("icon_text") if ship.get("icon_text") else "⚓"
-			icon.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			icon.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-			icon_container.add_child(icon)
-			
-			# Afficher la sous-touche (Ctrl + 1...)
-			var sub_label = Label.new()
-			sub_label.text = "^" + str(sub_idx) # ^ pour ctrl
-			sub_label.add_theme_font_size_override("font_size", 10)
-			sub_label.add_theme_color_override("font_color", Color(0.7, 0.7, 0.7))
-			sub_label.set_anchors_preset(Control.PRESET_TOP_LEFT)
-			sub_label.position = Vector2(2, -2)
-			icon_container.add_child(sub_label)
-			
-			hbox.add_child(panel)
-			sub_idx += 1
-			
-		groups_container.add_child(hbox)
+	pass
 
 
 func _setup_weapon_ui():
@@ -140,7 +87,7 @@ func _setup_weapon_ui():
 		%Slot1, %Slot2, %Slot3, %Slot4, %Slot5
 	]
 	
-	var weapon_keys = ["A/Q", "Z/W", "E", "R", "T"]
+	var weapon_keys = ["1", "2", "3", "4", "5"]
 	for i in range(weapon_slot_panels.size()):
 		var panel = weapon_slot_panels[i]
 		if not panel: continue
@@ -210,8 +157,6 @@ func _on_active_ship_changed(index: int):
 		if not player_ship.weapon_blocked.is_connected(_on_weapon_blocked):
 			player_ship.weapon_blocked.connect(_on_weapon_blocked)
 		_is_connected_to_player = true
-		
-	update_groups_ui()
 
 func _on_settings_pressed():
 	var settings = get_tree().get_first_node_in_group("settings_menu")
@@ -310,8 +255,8 @@ func _process(delta):
 					sb.border_color = Color(1, 0, 0, 1) # Rouge si bloqué
 					sb.shadow_color = Color(1, 0, 0, 0.6)
 				else:
-					sb.border_color = Color(1, 0.84, 0, 1) # Gold si utilisable
-					sb.shadow_color = Color(1, 0.8, 0, 0.4)
+					sb.border_color = Color(1, 1, 0, 1) # JAUNE PUR (Actif)
+					sb.shadow_color = Color(1, 1, 0, 0.5)
 					
 				sb.set_border_width_all(3)
 				sb.shadow_size = 12
@@ -362,7 +307,7 @@ func _update_enemy_bars():
 	# Clean up dead enemies
 	var to_remove = []
 	for ship in enemy_hp_bars.keys():
-		if not is_instance_valid(ship) or ship.hp <= 0:
+		if not is_instance_valid(ship) or not ship.get("hp") or ship.hp <= 0:
 			if is_instance_valid(enemy_hp_bars[ship]):
 				enemy_hp_bars[ship].queue_free()
 			to_remove.append(ship)
@@ -371,7 +316,13 @@ func _update_enemy_bars():
 		
 	# Update active enemies
 	for enemy in enemies:
+		var is_valid_target = false
 		if enemy is Ship and not enemy.is_player and enemy.hp > 0:
+			is_valid_target = true
+		elif enemy.has_method("is_base_core") and enemy.hp > 0:
+			is_valid_target = true
+			
+		if is_valid_target:
 			if not enemy_hp_bars.has(enemy):
 				# Create a new bar
 				var bar = ProgressBar.new()
@@ -420,7 +371,7 @@ func _scale_fonts(node: Node, font_size: int):
 # ─────────────────────────────────────────────
 # ÉCRAN DE MORT
 # ─────────────────────────────────────────────
-func show_death_screen():
+func show_death_screen(title_text: String = "☠  NAUFRAGE  ☠", subtitle_text: String = "Votre navire a coulé..."):
 	# Éviter le double affichage
 	if get_node_or_null("DeathScreen"): return
 
@@ -441,7 +392,7 @@ func show_death_screen():
 
 	# Titre « NAUFRAGE »
 	var title = Label.new()
-	title.text = "☠  NAUFRAGE  ☠"
+	title.text = title_text
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 48)
 	title.add_theme_color_override("font_color", Color(1, 0.18, 0.18))
@@ -457,7 +408,7 @@ func show_death_screen():
 
 	# Sous-titre
 	var sub = Label.new()
-	sub.text = "Votre navire a coulé..."
+	sub.text = subtitle_text
 	sub.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	sub.add_theme_font_size_override("font_size", 24)
 	sub.add_theme_color_override("font_color", Color(0.85, 0.75, 0.6))

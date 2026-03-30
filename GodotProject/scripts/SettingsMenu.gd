@@ -18,12 +18,6 @@ func _ready():
 	# --- ADD CEL SHADER ET FPS SETTINGS ---
 	var graphics_box = $ColorRect/MarginContainer/VBox/HBoxControls/GraphicsCol
 	if graphics_box:
-		var check = CheckButton.new()
-		check.text = "Outlines (Cel-Shader)"
-		check.button_pressed = GameConfig.enable_cel_shader
-		check.toggled.connect(_on_cel_toggled)
-		graphics_box.add_child(check)
-		
 		var check_fps = CheckButton.new()
 		check_fps.text = "Show FPS"
 		check_fps.button_pressed = GameConfig.show_fps
@@ -90,10 +84,6 @@ func _on_preset_changed(idx: int):
 	print("Graphics set to: ", idx)
 	# Here you would toggle WorldEnvironment glow, shadows, or MSAA
 
-func _on_cel_toggled(enabled: bool):
-	GameConfig.enable_cel_shader = enabled
-	GameConfig.cel_shader_toggled.emit(enabled)
-	print("Cel Shader toggled: ", enabled)
 
 func _on_fps_toggled(enabled: bool):
 	GameConfig.show_fps = enabled

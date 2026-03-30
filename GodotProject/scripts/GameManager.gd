@@ -11,4 +11,10 @@ var sound_enabled: bool = true
 var parked_island: Node = null
 
 func _ready():
-    pass
+	process_mode = Node.PROCESS_MODE_ALWAYS
+	
+	# Configure initial inputs
+	_setup_inputs()
+
+func _setup_inputs():
+	pass

@@ -1,8 +1,7 @@
-[gd_scene load_steps=9 format=4 uid="uid://57e5pj3ul0v1"]
-
+[gd_scene load_steps=120 format=4 uid="uid://57e5pj3ul0v1"]
 [ext_resource type="Script" uid="uid://c4mgyimwfydoa" path="res://scripts/IlesHitbox.gd" id="1_script"]
 [ext_resource type="Material" uid="uid://chf24x1ok1tyl" path="res://materials/targeted_outline.tres" id="OutlineMat"]
-
+[ext_resource type="Script" uid="uid://bi8r07ylgqjgt" path="res://scripts/Ile.gd" id="1000"]
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hopjh"]
 resource_name = "material_1"
 cull_mode = 2
@@ -85,20 +84,20 @@ shadow_mesh = SubResource("ArrayMesh_dh83c")
 [sub_resource type="SphereShape3D" id="SphereShape3D_x7ap6"]
 radius = 14.160266
 
-[node name="iles" type="Node3D"]
+
+[sub_resource type="SphereShape3D" id="1001"]
+radius = 100.0
+
+[node name="iles" type="Node3D" script=ExtResource("1000")]
 script = ExtResource("1_script")
 
 [node name="ile" type="MeshInstance3D" parent="."]
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
 material_overlay = ExtResource("OutlineMat")
 transform = Transform3D(1, 0, 0, 0, -4.3711385e-08, 0.99999994, 0, -0.99999994, -4.3711385e-08, 0, 0, -5.9494586)
 mesh = SubResource("ArrayMesh_mwssn")
 skeleton = NodePath("")
 
 [node name="cailloux" type="MeshInstance3D" parent="."]
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
 material_overlay = ExtResource("OutlineMat")
 transform = Transform3D(0.99999994, 0, 0, 0, 0.99999994, 0, 0, 0, 0.99999994, -12.473181, 17.479433, 0.2613454)
 mesh = SubResource("ArrayMesh_54sn2")
@@ -109,3 +108,11 @@ skeleton = NodePath("")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="StaticBody3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.40346, 7.3677807, -5.685463)
 shape = SubResource("SphereShape3D_x7ap6")
+
+
+[node name="PortArea" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PortArea"]
+shape = SubResource("1001")

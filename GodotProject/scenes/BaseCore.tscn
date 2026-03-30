@@ -1,0 +1,32 @@
+[gd_scene load_steps=5 format=3 uid="uid://base_core12345"]
+
+[ext_resource type="Script" path="res://scripts/BaseCore.gd" id="1_script"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_core"]
+radius = 4.0
+height = 8.0
+radial_segments = 32
+rings = 16
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_core"]
+albedo_color = Color(0.2, 0.6, 1.0, 1.0)
+metallic = 0.5
+roughness = 0.2
+emission_enabled = true
+emission = Color(0.1, 0.4, 0.8, 1.0)
+emission_energy_multiplier = 2.0
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_core"]
+radius = 4.0
+
+[node name="BaseCore" type="StaticBody3D" groups=["base_core", "enemies"]]
+collision_layer = 3
+collision_mask = 3
+script = ExtResource("1_script")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("SphereMesh_core")
+surface_material_override/0 = SubResource("StandardMaterial3D_core")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("SphereShape3D_core")

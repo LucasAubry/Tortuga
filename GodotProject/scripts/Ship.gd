@@ -8,15 +8,19 @@ var is_player: bool = true
 @export var ship_type: ShipClass = ShipClass.SLOOP
 @export var ship_color: Color = Color.WHITE
 @export var faction: Faction = Faction.PLAYER
-@export var is_controlled: bool = false
+@export var is_controlled: bool = true
+var is_in_port_zone: bool = false
 var icon_text: String = "⚓"
 
 var hp: float
 var max_hp: float
 var ship_speed: float
-var max_speed: float
+@export_group("Physics & Speed")
+@export var max_speed: float = 35.0
 @export var acceleration: float = 50.0
-@export var turn_speed: float = 2.0
+@export var turn_speed: float = 0.5
+@export var wind_influence_with: float = 0.15
+@export var wind_influence_against: float = -1.2
 var cooldown: float
 var max_cooldown: float
 var damage: float = 25.0
@@ -31,6 +35,9 @@ var weapon_cooldowns: Array[float] = [0.0, 0.0, 0.0, 0.0, 0.0]
 const ProjectileScene = preload("res://scenes/Projectile.tscn")
 const LootScene = preload("res://scenes/Loot.tscn")
 const SmokeScene = preload("res://scenes/SmokeEffect.tscn")
+const BasicCannonResource = preload("res://resources/weapons/boulet_faible.tres")
+
+var basic_cannon_cooldown: float = 0.0
 
 # Inventory
 @export_group("Inventory")
@@ -59,16 +66,7 @@ var active_weapon_index: int = 0
 var skill_timer: float = 0.0
 var current_speed_buff: float = 1.0
 
-# RTS Movement & Combat
-var rts_target_pos: Vector3 = Vector3.ZERO
-var is_moving_to_target: bool = false
-var attack_target: Ship = null
-var single_shot_target: Node3D = null
-var formation_offset: Vector3 = Vector3.ZERO # Offset relatif pour les formations
-
 # --- LIMITES DU MONDE ---
-const MAP_WIDTH: float = 2400.0
-const MAP_HEIGHT: float = 3600.0
 var _is_falling: bool = false
 var _falling_timer: float = 0.0
 
@@ -84,13 +82,17 @@ var wind_boost_intensity: float = 0.0
 var is_underwater: bool = false
 var current_shield: float = 0.0
 var purchase_price: int = 0
-var group_id: int = 0 # 0 = Aucun groupe, 1-9 = Groupes RTS
-var _selection_mesh: MeshInstance3D = null
-var _is_selected_visually: bool = false
 var _shield_visual: MeshInstance3D = null
 var _hit_smoke_particles: CPUParticles3D = null
+var _camera_target_yaw: float = 0.0
+var _camera_target_pitch: float = -0.4
+var _camera_target_dist: float = 1500.0
+var _camera_auto_align_timer: float = 0.0
 var _flag_label: Label3D = null
 var _fleet_num: int = -1 # Mémorise le numéro de flotte
+
+# --- GRAPPIN MODULAIRE ---
+var _grapple: GrapplingHookSystem = null
 
 # Status Effects (Knockback & CC)
 var knockback_velocity: Vector3 = Vector3.ZERO
@@ -101,12 +103,6 @@ var _immobilized_icon: Node3D = null
 # Naufrage
 var is_sinking: bool = false
 
-# Camera variables
-@export var mouse_sensitivity: float = 0.002
-@export var min_zoom: float = 150.0
-@export var max_zoom: float = 5000.0
-@export var zoom_speed: float = 150.0
-
 # Sail Visual Tweakables (Visible in Godot Inspector)
 @export_group("Sail Visuals")
 @export var sail_inflation_left: float = 2.5
@@ -116,10 +112,18 @@ var is_sinking: bool = false
 @export var sail_lerp_speed: float = 1.2
 @export var mast_lerp_speed: float = 0.7
 
-var gimbal_node: Node3D
-var spring_arm: SpringArm3D
-var _cam_base_pos: Vector3 = Vector3.ZERO # Stocke la position propre sans les tremblements
-var _cel_shader_mesh: MeshInstance3D = null
+@export_group("Professional Camera")
+@export var camera_distance: float = 150.0
+@export var camera_height: float = 50.0
+@export var camera_sensitivity: float = 0.003
+@export var camera_smoothing: float = 8.0 # Lissage fluide
+
+var _cam_yaw: float = 0.0
+var _cam_yaw_smooth: float = 0.0
+var _cam_pitch: float = -0.3
+var _cam_node: Camera3D
+var _cam_tilt_target: float = 0.0
+var _cam_tilt_smooth: float = 0.0
 
 # Visual Steering
 var visual_mast: Node3D
@@ -134,6 +138,9 @@ var current_steer_angle: float = 0.0
 var current_sail_angle: float = 0.0
 
 func _ready():
+	# Disable picking if this is a CollisionObject3D
+	if self is CollisionObject3D:
+		set("input_ray_pickable", false)
 	_init_stats()
 	_init_components()
 	
@@ -141,10 +148,14 @@ func _ready():
 	add_to_group("player")
 	faction = Faction.PLAYER
 	_setup_damage_smoke()
-
-
-
 	_setup_immobilized_icon()
+	_setup_camera_wind_waker()
+	# Grappin modulaire
+	_grapple = GrapplingHookSystem.new()
+	add_child(_grapple)
+	_grapple.setup(self)
+
+
 
 func _setup_immobilized_icon():
 	if is_instance_valid(_immobilized_icon):
@@ -226,45 +237,6 @@ func _setup_damage_smoke():
 
 func _init_components():
 		
-	# Find camera nodes
-	gimbal_node = get_node_or_null("CameraGimbal")
-	if gimbal_node:
-		spring_arm = gimbal_node.get_node_or_null("SpringArm3D")
-		if spring_arm:
-			_cam_base_pos = spring_arm.position # On mémorise la position de base
-			spring_arm.spring_length = 4500.0 # Plus de recul (de-zoom)
-			
-		# Make the gimbal independent of the Ship's rotation hierarchy
-		gimbal_node.set_as_top_level(true)
-		# Force gimbal scale to 0.2 ONLY if it's the player's controlled ship or similar
-		# Actually, since the root ship is 0.2, and this is top_level, it needs to be 0.2 to match world scale height
-		gimbal_node.scale = Vector3(0.2, 0.2, 0.2)
-		
-		var cam = spring_arm.get_node_or_null("Camera3D")
-		if cam:
-			cam.current = is_controlled
-			cam.fov = 12.0 # Champ de vision encore plus serré pour compenser le de-zoom
-			cam.far = 20000.0 # Vision longue distance
-			
-			if is_player: # Only render shader for the active player's screen
-				_cel_shader_mesh = MeshInstance3D.new()
-				_cel_shader_mesh.name = "CelShaderMesh"
-				var quad = QuadMesh.new()
-				quad.size = Vector2(2, 2)
-				_cel_shader_mesh.mesh = quad
-				_cel_shader_mesh.custom_aabb = AABB(Vector3(-10000, -10000, -10000), Vector3(20000, 20000, 20000))
-				_cel_shader_mesh.ignore_occlusion_culling = true
-				
-				var shader_mat = ShaderMaterial.new()
-				shader_mat.shader = load("res://scripts/cel_shader.gdshader")
-				_cel_shader_mesh.material_override = shader_mat
-				cam.add_child(_cel_shader_mesh)
-				_cel_shader_mesh.visible = GameConfig.enable_cel_shader
-				GameConfig.cel_shader_toggled.connect(func(enabled):
-					if is_instance_valid(_cel_shader_mesh):
-						_cel_shader_mesh.visible = enabled
-				)
-			
 	var mesh_node = get_node_or_null("sloup")
 	if mesh_node:
 		visual_mast = _find_child_recursive(mesh_node, "Mast")
@@ -285,68 +257,10 @@ func _init_components():
 	_apply_sail_color()
 	_setup_shield_visual()
 	_setup_flag_label()
-	_setup_selection_visual()
-
-func _setup_selection_visual():
-	_selection_mesh = MeshInstance3D.new()
-	add_child(_selection_mesh)
-	_selection_mesh.name = "SelectionIndicator"
-	
-	# Un anneau (Torus) bien visible et élégant
-	var ring = TorusMesh.new()
-	ring.inner_radius = 16.0 # Plus grand pour dépasser du navire
-	ring.outer_radius = 18.0
-	ring.rings = 64
-	ring.ring_segments = 16 
-	_selection_mesh.mesh = ring
-	
-	var mat = StandardMaterial3D.new()
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	mat.albedo_color = Color(1.0, 0.9, 0.0, 0.3) # Un peu plus discret mais clair
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.no_depth_test = true # VISIBLE À TRAVERS LE NAVIRE
-	mat.render_priority = 5
-	_selection_mesh.material_override = mat
-	_selection_mesh.visible = false
-	_selection_mesh.position.y = 0.5 
-
-func set_selected(val: bool):
-	_is_selected_visually = val
-	if _selection_mesh:
-		_selection_mesh.visible = val
-		if val:
-			# Animation de pulsation constante
-			if get_tree():
-				var tw = create_tween().set_loops()
-				tw.tween_property(_selection_mesh, "scale", Vector3(1.2, 1.0, 1.2), 0.8).set_trans(Tween.TRANS_SINE)
-				tw.tween_property(_selection_mesh, "scale", Vector3(1.0, 1.0, 1.0), 0.8).set_trans(Tween.TRANS_SINE)
-
-func move_to_rts(pos: Vector3):
-	rts_target_pos = Vector3(pos.x, global_position.y, pos.z)
-	is_moving_to_target = true
-	attack_target = null # Annule l'attaque si on donne un ordre de mouvement
-	print("⚓ Destination RTS : ", rts_target_pos)
-
-func attack_order(target: Ship):
-	if target == self: return
-	single_shot_target = null
-	attack_target = target
-	is_moving_to_target = false
-	print("⚔️ Ordre d'attaque sur : ", target.name)
-
-func single_fire_at(target: Node3D):
-	single_shot_target = target
-	attack_target = null
-	is_moving_to_target = false
-	print("⚔️ Tir simple manuel sur : ", target.name)
 
 
-func stop():
-	is_moving_to_target = false
-	attack_target = null
-	single_shot_target = null
-	ship_speed = 0
-	print("🛑 Arrêt complet ordonné.")
+
+
 
 
 func _setup_flag_label():
@@ -472,18 +386,22 @@ func _find_child_recursive(node: Node, target_name: String) -> Node:
 	return null
 
 func _init_stats():
+	# Si max_speed est à son défaut, on utilise la config globale. 
+	# Sinon on garde la valeur d'Inspecteur
+	var use_config = (max_speed == 35.0 or max_speed == 0.0)
+	
 	match ship_type:
 		ShipClass.SLOOP:
 			max_hp = GameConfig.SloopHP
-			max_speed = GameConfig.SloopSpeed
+			if use_config: max_speed = GameConfig.SloopSpeed
 			max_cooldown = GameConfig.SloopCooldown
 		ShipClass.BRIGANTINE:
 			max_hp = GameConfig.BrigantineHP
-			max_speed = GameConfig.BrigantineSpeed
+			if use_config: max_speed = GameConfig.BrigantineSpeed
 			max_cooldown = GameConfig.BrigantineCooldown
 		ShipClass.GALLEON:
 			max_hp = GameConfig.GalleonHP
-			max_speed = GameConfig.GalleonSpeed
+			if use_config: max_speed = GameConfig.GalleonSpeed
 			max_cooldown = GameConfig.GalleonCooldown
 	hp = max_hp
 func _physics_process(delta):
@@ -515,16 +433,15 @@ func _physics_process(delta):
 	elif is_underwater:
 		water_h = current_dive_depth
 	
-	if water_h < -500.0:
-		_is_falling = true
-		_falling_timer += delta
+	# 2. GESTION DES LIMITES DU MONDE (Chute libre)
+	_handle_map_limits(delta)
+	
+	if _is_falling:
 		velocity.y -= 40.0 * delta # Gravité de chute
-		
-		# Si on tombe depuis trop longtemps (3s), on meurt
-		if _falling_timer > 3.0:
+		_falling_timer += delta
+		if _falling_timer > 3.0 and not is_sinking:
 			take_damage(2000.0, null)
 	else:
-		_is_falling = false
 		_falling_timer = 0.0
 		# Rectification immédiate de la hauteur si on est sur l'eau
 		if not is_sinking:
@@ -532,34 +449,36 @@ func _physics_process(delta):
 			velocity.y = 0
 
 	# 3. MOUVEMENT ET COLLISIONS
-	if _falling_timer < 0.5: # On autorise les contrôles un court instant au début de la chute
-		if not is_sinking:
-			if is_controlled:
-				_handle_camera_and_weapons(delta)
+	if not is_sinking:
+		if is_controlled:
+			_handle_weapons(delta)
+			_handle_movement_logic(delta)
+		else:
+			# Les vaisseaux non-contrôlés et sans ordre s'arrêtent doucement
+			_apply_movement_physics(delta, 0.0, 0.0)
+			_apply_visuals(delta, 0.0)
 			
-			if is_controlled or is_moving_to_target or is_instance_valid(attack_target):
-				_handle_movement_logic(delta)
-			else:
-				# Les vaisseaux non-contrôlés et sans ordre s'arrêtent doucement
-				_apply_movement_physics(delta, 0.0, 0.0)
-				_apply_visuals(delta, 0.0)
-				
-			# Logic modulaire des compétences (certaines modifient velocity)
-			for slot in weapon_slots:
-				if slot and slot.has_method("process_tick"):
-					slot.process_tick(self, delta)
-			
-			# Knockback physique
-			if knockback_velocity.length_squared() > 1.0:
-				velocity += knockback_velocity
-				knockback_velocity = knockback_velocity.lerp(Vector3.ZERO, delta * knockback_decay)
+		# Logic modulaire des compétences (certaines modifient velocity)
+		for slot in weapon_slots:
+			if slot and slot.has_method("process_tick"):
+				slot.process_tick(self, delta)
 		
-		move_and_slide()
+		# Knockback physique
+		if knockback_velocity.length_squared() > 1.0:
+			velocity += knockback_velocity
+			knockback_velocity = knockback_velocity.lerp(Vector3.ZERO, delta * knockback_decay)
+			
+		if _falling_timer < 0.5:
+			move_and_slide()
+		else:
+			# Mode "Chute libre"
+			global_position += velocity * delta
 	else:
-		# Mode "Chute libre" : Pas de collisions move_and_slide, juste la gravité
-		global_position += velocity * delta
+		# En train de couler (tween)
+		pass
 	
 	_update_damage_visuals(delta)
+	_update_professional_camera(delta)
 
 func _update_damage_visuals(delta):
 	if not _hit_smoke_particles: return
@@ -607,101 +526,57 @@ func _handle_movement_logic(delta):
 	var steer = 0.0
 	var throttle = 0.0
 	
-	# --- PRIORITÉ 1 : TIR SIMPLE MANUEL ---
-	if is_instance_valid(single_shot_target) and (not single_shot_target.has_method("get_hp") or single_shot_target.get("hp") > 0):
-		var to_enemy = single_shot_target.global_position - global_position
-		to_enemy.y = 0
-		var dist = to_enemy.length()
-		
-		var fwd = global_transform.basis.z.normalized()
-		var target_dir = to_enemy.normalized()
-		var angle = fwd.signed_angle_to(target_dir, Vector3.UP)
-		
-		steer = clamp(angle * 6.0, -1.0, 1.0)
-		# Vise et s'arrête (très lent) ou se met en position pour tirer
-		if dist > 800.0:
-			throttle = 1.0 # Avance un peu si vraiment trop loin
-		else:
-			throttle = 0.0 # Stationnaire pour viser
+	if is_controlled:
+		# Direction based on keyboard inputs (WASD / ZQSD)
+		# Steer: Left/Right
+		if Input.is_action_pressed("move_left"):
+			steer = 1.0  # Turn left (or -1.0 depending on turn direction, let's test. Godot rotation+y turns left typically. We'll stick to 1.0 for left)
+		elif Input.is_action_pressed("move_right"):
+			steer = -1.0 # Turn right
 			
-		# Tir simple si aligné
-		if abs(angle) < 0.2:
-			if weapon_cooldowns[active_weapon_index] <= 0:
-				shoot_cannons()
-				single_shot_target = null # Fin de l'ordre, tir effectué
-				
-	# --- PRIORITÉ 2 : ATTAQUE RTS CONTINUE ---
-	elif is_instance_valid(attack_target) and not attack_target.is_sinking:
-		var to_enemy = attack_target.global_position - global_position
-		to_enemy.y = 0
-		var dist = to_enemy.length()
-		
-		var fwd = global_transform.basis.z.normalized()
-		var target_dir = to_enemy.normalized()
-		var angle = fwd.signed_angle_to(target_dir, Vector3.UP)
-		
-		# On s'approche si on est loin, sinon on tourne pour présenter les canons de côté ?
-		# Pour faire simple : on fonce vers lui et on tire quand on est à portée (700 units)
-		if dist > 600.0:
-			steer = clamp(angle * 5.0, -1.0, 1.0)
+		# Advance: Forward/Backward
+		if Input.is_action_pressed("move_forward"):
 			throttle = 1.0
-		else:
-			# À portée : on ralentit et on essaie de rester face à lui ou de tourner
-			steer = clamp(angle * 5.0, -1.0, 1.0)
-			throttle = 0.2
+		elif Input.is_action_pressed("move_backward"):
+			throttle = -1.0
 			
-		# Tir automatique si aligné et à portée
-		if dist < 1200.0 and abs(angle) < 0.3:
-			if weapon_cooldowns[active_weapon_index] <= 0:
-				shoot_cannons()
-				
-	# --- PRIORITÉ 2 : MOUVEMENT RTS ---
-	elif is_moving_to_target:
-		var final_target = rts_target_pos
-		# Si on est en formation, FleetManager met à jour rts_target_pos continuellement
-		
-		var to_target = final_target - global_position
-		to_target.y = 0
-		var dist = to_target.length()
-		
-		# Seuil de précision maximale
-		if dist < 15.0:
-			is_moving_to_target = false
-			ship_speed = move_toward(ship_speed, 0, acceleration * 5.0 * delta)
-		else:
-			var fwd = global_transform.basis.z.normalized()
-			fwd.y = 0
-			var target_dir = to_target.normalized()
-			var angle = fwd.signed_angle_to(target_dir, Vector3.UP)
-			
-			# Braquage plus agressif pour ne pas rater le point
-			steer = clamp(angle * 6.0, -1.0, 1.0)
-			throttle = 1.0 if abs(angle) < 0.6 else 0.1
-	
 	_apply_movement_physics(delta, steer, throttle)
 	_apply_visuals(delta, steer)
 
 func _unhandled_input(event: InputEvent):
-	
 	if _is_map_open():
 		return
-	
-	# --- ZOOM ---
-	if spring_arm and is_controlled: # INDÉPENDANCE : Uniquement si contrôlé
-		if event.is_class("InputEventMagnificationGesture"):
-			# Factor is 1.0 (neutral), >1.0 (spread/zoom in), <1.0 (pinch/zoom out)
-			# We divide length by factor to zoom.
-			var factor = event.get("factor")
-			if factor != 0:
-				var target_length = spring_arm.spring_length / factor
-				spring_arm.spring_length = clamp(target_length, min_zoom, max_zoom)
-			get_viewport().set_input_as_handled()
-		elif event is InputEventMouseButton and event.is_pressed():
-			if event.button_index == MOUSE_BUTTON_WHEEL_UP:
-				spring_arm.spring_length = clamp(spring_arm.spring_length - zoom_speed, min_zoom, max_zoom)
-			elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-				spring_arm.spring_length = clamp(spring_arm.spring_length + zoom_speed, min_zoom, max_zoom)
+		
+	if event.is_action_pressed("ui_cancel"):
+		if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+			Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+		else:
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+		get_viewport().set_input_as_handled()
+		return
 
+	# Caméra à la souris
+	if is_controlled:
+		if event is InputEventMouseButton:
+			if event.button_index == MOUSE_BUTTON_RIGHT:
+				if event.pressed:
+					Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+				else:
+					Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+				get_viewport().set_input_as_handled()
+			
+		if event is InputEventMouseMotion:
+			# Rotation de la caméra (Uniquement au Clic Droit pour le confort)
+			if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+				_cam_yaw -= event.relative.x * camera_sensitivity
+				# Pitch bloqué selon la demande utilisateur
+				get_viewport().set_input_as_handled()
+
+	# Re-capture la souris en cliquant dans le jeu
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+		# On n'empêche plus le clic gauche de servir à l'UI. Le clic doit passer !
+		pass
+		
 func _is_map_open() -> bool:
 	var map_nodes = get_tree().get_nodes_in_group("map_ui")
 	for m in map_nodes:
@@ -709,31 +584,79 @@ func _is_map_open() -> bool:
 			return true
 	return false
 
-func _handle_camera_and_weapons(delta):
-	var map_open = _is_map_open()
-	
-	# Handle Zoom (Actions clavier/boutons)
-	if spring_arm and not map_open:
-		if Input.is_action_just_pressed("zoom_in"):
-			spring_arm.spring_length = clamp(spring_arm.spring_length - zoom_speed, min_zoom, max_zoom)
-		elif Input.is_action_just_pressed("zoom_out"):
-			spring_arm.spring_length = clamp(spring_arm.spring_length + zoom_speed, min_zoom, max_zoom)
-	
-	# Weapon Selection
-	# Weapon Selection (A, Z, E, R, T for AZERTY compatibility)
-	if Input.is_key_pressed(KEY_Q) or Input.is_key_pressed(KEY_A): active_weapon_index = 0
-	elif Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_Z): active_weapon_index = 1
-	elif Input.is_key_pressed(KEY_E): active_weapon_index = 2
-	elif Input.is_key_pressed(KEY_R): active_weapon_index = 3
-	elif Input.is_key_pressed(KEY_T): active_weapon_index = 4
+func _handle_weapons(delta):
+	# Mise à jour des cooldowns
+	if basic_cannon_cooldown > 0:
+		basic_cannon_cooldown -= delta
+	for i in range(weapon_cooldowns.size()):
+		if weapon_cooldowns[i] > 0:
+			weapon_cooldowns[i] -= delta
 
-	var current_action = weapon_slots[active_weapon_index]
-	var can_afford = current_action == null or ammo >= current_action.ammo_cost
-	
-	if Input.is_action_just_pressed("ui_fire") and weapon_cooldowns[active_weapon_index] <= 0 and can_afford:
-		shoot_cannons()
+	if _is_map_open():
+		if _grapple: _grapple.hide_aiming()
+		return
 
+	# Mise à jour de la visée grappin
+	var current_weapon = weapon_slots[active_weapon_index] if active_weapon_index < weapon_slots.size() else null
+	if _grapple and current_weapon and current_weapon.type == WeaponData.ActionType.GRAPPLE and not _grapple.is_pulling:
+		var mouse_pos = get_viewport().get_mouse_position()
+		var camera = get_viewport().get_camera_3d()
+		if camera:
+			var from = camera.project_ray_origin(mouse_pos)
+			var to = from + camera.project_ray_normal(mouse_pos) * 10000.0
+			var intersection = Plane(Vector3.UP, global_position.y).intersects_ray(from, to)
+			if intersection:
+				_grapple.update_aiming(global_position, intersection)
+	elif _grapple and not _grapple.is_pulling:
+		_grapple.hide_aiming()
+
+	# 1. Touche 1-5 : sélection / annulation
+	for i in range(5):
+		var action_name = "skill_" + str(i+1)
+		if Input.is_action_just_pressed(action_name) and i < weapon_slots.size():
+			var action = weapon_slots[i]
+			if active_weapon_index == i or (action and action.type == WeaponData.ActionType.GRAPPLE and _grapple and (_grapple.is_pulling or _grapple.is_launching)):
+				active_weapon_index = -1
+				if _grapple: _grapple.cancel()
+			else:
+				active_weapon_index = i
+				if action and action.type != WeaponData.ActionType.GRAPPLE:
+					shoot_cannons(i)
+					active_weapon_index = -1
+
+	# 2. Clic gauche : tir du grappin
+	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+		var cur = weapon_slots[active_weapon_index] if active_weapon_index < weapon_slots.size() else null
+		if cur and cur.type == WeaponData.ActionType.GRAPPLE and is_controlled and _grapple and not _grapple.is_pulling:
+			if (is_diving or is_underwater):
+				return # Bloqué sous l'eau
+			if weapon_cooldowns[active_weapon_index] <= 0 and ammo >= cur.ammo_cost:
+				_grapple.fire()
+				weapon_cooldowns[active_weapon_index] = cur.cooldown
+				ammo -= cur.ammo_cost
+				active_weapon_index = -1
+
+
+func _fire_simple_cannon():
+	if not BasicCannonResource: return
+	
+	if ammo < BasicCannonResource.ammo_cost:
+		weapon_blocked.emit(-1)
+		return
+		
+	basic_cannon_cooldown = BasicCannonResource.cooldown
+	ammo -= BasicCannonResource.ammo_cost
+	_fire_cannons(BasicCannonResource)
+	
+
+	
 func _apply_movement_physics(delta, steer, throttle, sync_group = false):
+	# --- GRAPPIN : Rotation douce si en cours de pull ---
+	if _grapple and _grapple.is_pulling:
+		var pull_dir = (_grapple.target_pos - global_position).normalized()
+		rotation.y = lerp_angle(rotation.y, atan2(pull_dir.x, pull_dir.z), delta * 2.0)
+
+
 	# Si le bateau est immobilisé (ex: par un filet de pêche), on bloque les commandes
 	if immobilization_timer > 0:
 		steer = 0.0
@@ -745,12 +668,23 @@ func _apply_movement_physics(delta, steer, throttle, sync_group = false):
 	
 	var max_reverse_speed = max_speed * 0.15
 	
-	if throttle > 0: # Accélérer
-		ship_speed = move_toward(ship_speed, max_speed * current_speed_buff, acceleration * current_speed_buff * delta)
-	elif throttle < 0: # Reculer
-		ship_speed = move_toward(ship_speed, -max_reverse_speed, acceleration * 0.8 * delta)
-	else: # Freinage naturel
-		ship_speed = move_toward(ship_speed, 0, acceleration * 0.6 * delta)
+	if is_in_port_zone:
+		# Au port : vitesse maxi très réduite et freinage automatique puissant
+		var port_max = max_speed * 0.25
+		if throttle > 0:
+			ship_speed = move_toward(ship_speed, port_max * current_speed_buff, acceleration * current_speed_buff * delta)
+		elif throttle < 0:
+			ship_speed = move_toward(ship_speed, -max_reverse_speed, acceleration * 0.8 * delta)
+		else:
+			# Freinage très fort pour s'arrêter (Simule l'ancre)
+			ship_speed = move_toward(ship_speed, 0, acceleration * 2.5 * delta)
+	else:
+		if throttle > 0: # Accélérer
+			ship_speed = move_toward(ship_speed, max_speed * current_speed_buff, acceleration * current_speed_buff * delta)
+		elif throttle < 0: # Reculer
+			ship_speed = move_toward(ship_speed, -max_reverse_speed, acceleration * 0.8 * delta)
+		else: # Freinage naturel
+			ship_speed = move_toward(ship_speed, 0, acceleration * 0.6 * delta)
 		
 	var forward = transform.basis.z
 	forward.y = 0
@@ -779,25 +713,33 @@ func _apply_movement_physics(delta, steer, throttle, sync_group = false):
 		is_underwater = current_dive_depth < -5.0
 		var wind_push = forward.dot(current_wind_vec_phys) if not is_underwater else 0.0
 		
-		# TWEAK: Balanced speed relative to wind
-		var wind_influence = 0.15 # Reduced when WITH wind
+		# TWEAK: Balanced speed relative to wind using exported variables
+		var wind_influence = wind_influence_with
 		if wind_push < 0:
-			# Strong boost AGAINST wind
-			wind_influence = -1.2 
-		elif is_player or ship_type == ShipClass.GALLEON:
-			wind_influence = 0.15
+			wind_influence = wind_influence_against
 		
 		var speed_modifier = 1.0 + (wind_push * wind_influence) if not is_underwater else 1.0
+		if is_in_port_zone:
+			speed_modifier = 1.0 # Le vent ne pousse pas au port
 		
 		velocity = forward * min(ship_speed * speed_modifier, 1200.0)
 		velocity.y = 0
 		
 		if ship_speed > 0 and not is_underwater:
 			var drift = current_wind_vec_phys - (forward * wind_push)
+			if is_in_port_zone: drift *= 0.05 # Quasiment plus de dérive au port
 			velocity += drift * 0.1
 			velocity.y = 0
 	
 	_apply_separation(delta)
+	
+	# --- FORCE DU GRAPPIN ---
+	if _grapple:
+		var gforce = _grapple.process_and_get_pull_force(delta, global_position, velocity)
+		velocity += gforce * delta
+		# Limitation de vitesse pendant le pull
+		if _grapple.is_pulling and velocity.length() > 60.0:
+			velocity = velocity.lerp(velocity.normalized() * 45.0, delta * 2.0)
 
 func _apply_separation(delta):
 	var push = Vector3.ZERO
@@ -844,7 +786,7 @@ func _apply_visuals(delta, steer):
 	var side_pressure = forward.cross(wind_vec3).y * wind_speed_val
 	var target_heeling = side_pressure * 0.08 
 	
-	var heeling_rot = (cos(t * 1.0) * 0.08) + target_heeling
+	var heeling_rot = (cos(t * 1.0) * 0.08) + target_heeling + (current_steer_angle * 0.08)
 	var pitch_wave = sin(t * 1.2) * 0.08
 	mesh_node.rotation = Vector3(pitch_wave + current_dive_tilt, mesh_node.rotation.y, heeling_rot)
 	mesh_node.position = Vector3(mesh_node.position.x, sin(t * 2.0) * 0.4, mesh_node.position.z)
@@ -888,17 +830,27 @@ func _apply_visuals(delta, steer):
 			visual_sails.position = lerp(visual_sails.position, target_pos, delta * sail_lerp_speed)
 
 	
-	# Force the gimbal to stay at a fixed rotation (e.g. isometric/top-down perspective)
-	# but follow the ship's position. We do this by setting it as top-level so 
-	# it ignores the ship's rotation, then manually updating its position.
-	if gimbal_node:
-		gimbal_node.global_position = global_position
-		# The gimbal's rotation was set in the editor/scene, and we just preserve it.
+	# Visual Stealth/Underwater check
+	is_underwater = current_dive_depth < -5.0
 
-func shoot_cannons():
-	var action = weapon_slots[active_weapon_index]
+func shoot_cannons(slot_index: int = -1):
+	var index = slot_index if slot_index != -1 else active_weapon_index
+	if index < 0 or index >= weapon_slots.size(): return
+	
+	var action = weapon_slots[index]
 	if not action: return
 	
+	if weapon_cooldowns[index] > 0: return # Déjà en recharge
+	
+
+	# Le grappin est géré directement dans _handle_weapons via GrapplingHookSystem
+	if action.type == WeaponData.ActionType.GRAPPLE:
+		return
+
+	# Check munition
+	if ammo < action.ammo_cost:
+		weapon_blocked.emit(index)
+		return
 	# Check if the action is allowed underwater (Diving state or actual Depth)
 	var underwater = is_diving or is_underwater
 	if underwater and action.get("can_be_used_underwater") == false:
@@ -911,7 +863,7 @@ func shoot_cannons():
 		return
 
 	
-	weapon_cooldowns[active_weapon_index] = action.cooldown
+	weapon_cooldowns[index] = action.cooldown
 	ammo -= action.ammo_cost
 
 	# LOGIQUE D'EXÉCUTION MODULAIRE : Chaque ressource sait ce qu'elle doit faire
@@ -981,8 +933,6 @@ func _fire_projectile(marker: Marker3D, direction: Vector3, speed: float, weapon
 	smoke.position = Vector3.ZERO
 	smoke.look_at(smoke.global_position + direction.normalized(), Vector3.UP)
 
-
-
 func apply_knockback(from_pos: Vector3, force: float):
 	# Direction du knockback : s'éloigner de la tentacule, horizontalement
 	var dir = (global_position - from_pos)
@@ -993,29 +943,10 @@ func apply_knockback(from_pos: Vector3, force: float):
 
 	knockback_velocity = dir * force
 
-	# Camera shake - Intensivement réduit (1.5 au lieu de 18.0) pour éviter de clip dans le mesh
-	if spring_arm:
-		_camera_shake(0.35, 1.5)
-
 func apply_immobilization(duration: float):
 	# Applique un root/immobilisation pour la durée spécifiée
 	immobilization_timer = max(immobilization_timer, duration)
 	print("⚓ " + name + " est immobilisé pour " + str(duration) + " secondes !")
-
-func _camera_shake(duration: float, intensity: float):
-	if not spring_arm: return
-	
-	var tween = create_tween()
-	# Le tremblement se fait relativement à _cam_base_pos pour éviter toute dérive
-	tween.tween_method(func(t: float):
-		var decay = 1.0 - (t / duration)
-		spring_arm.position = _cam_base_pos + Vector3(
-			randf_range(-1, 1) * intensity * decay,
-			randf_range(-1, 1) * intensity * 0.3 * decay,
-			randf_range(-1, 1) * intensity * 0.1 * decay
-		)
-	, 0.0, duration, duration)
-	tween.tween_callback(func(): spring_arm.position = _cam_base_pos)
 
 var is_flashing: bool = false
 var flash_mat: StandardMaterial3D = null
@@ -1154,7 +1085,7 @@ func respawn():
 	set_physics_process(true)
 	
 	# Replace le bateau à une position de spawn (par défaut proche du centre pour l'instant)
-	# On le met au niveau de l'eau (Y=0) pour qu'il puisse toucher les barils (qui sont à Y=0)
+	# On le met au niveau de l'eau (Y=0) pour qu'il puisse toucher les barils (qui	# Réinitialise la position
 	global_position = Vector3(0, 0, 0)
 	global_rotation = Vector3.ZERO
 	
@@ -1164,17 +1095,62 @@ func respawn():
 		mesh.rotation = Vector3.ZERO
 		mesh.position = Vector3(0, 0, 0) # Remet d'aplomb
 	
-	# Réinitialise la caméra si besoin
-	if spring_arm:
-		spring_arm.position = _cam_base_pos
-	
 	print("⚓ ", name, " a réapparu sur la carte !")
 
+func _setup_camera_wind_waker():
+	if not is_controlled: return
+	
+	_cam_node = find_child("Camera3D", true, false)
+	if not _cam_node:
+		_cam_node = Camera3D.new()
+		add_child(_cam_node)
+		_cam_node.name = "Camera3D"
+	
+	_cam_node.set_as_top_level(true) # On le détache pour un suivi ultra-fluide
+	_cam_node.make_current() 
+	_cam_node.far = 10000.0 
+	
+	# Initialisation derrière le bateau
+	_cam_yaw = global_rotation.y + PI
+
+func _update_professional_camera(delta):
+	if not is_controlled or not _cam_node: return
+	
+	# 1. AUTO-ALIGNEMENT : DÉSACTIVÉ selon la demande utilisateur
+	# La caméra ne tourne plus seule quand le bateau tourne.
+	
+	# Banking (Inclinaison)
+	var steer_v = 0.0
+	if Input.is_action_pressed("move_left"): steer_v = 1.0
+	elif Input.is_action_pressed("move_right"): steer_v = -1.0
+	_cam_tilt_target = lerp(_cam_tilt_target, steer_v * 0.1, delta * 2.0)
+	
+	# 2. LISSAGE DES ANGLES (Au lieu de la position)
+	# Cela évite que la caméra ne se rapproche du bateau lors d'une rotation rapide
+	_cam_yaw_smooth = lerp_angle(_cam_yaw_smooth, _cam_yaw, delta * camera_smoothing)
+	_cam_tilt_smooth = lerp(_cam_tilt_smooth, _cam_tilt_target, delta * 2.0)
+	
+	# 3. CALCUL DE LA POSITION (Orbitale stricte)
+	var rot_quat = Quaternion.from_euler(Vector3(_cam_pitch, _cam_yaw_smooth, _cam_tilt_smooth))
+	var offset = rot_quat * Vector3(0, 0, camera_distance)
+	var target_pos = global_position + Vector3(0, camera_height, 0) + offset
+	
+	# La caméra reste sur un cercle parfait, fini l'effet de rapprochement
+	_cam_node.global_position = target_pos
+	_cam_node.look_at(global_position + Vector3(0, camera_height * 0.4, 0), Vector3.UP)
+
 func _get_water_height(pos: Vector3, _time_val: float) -> float:
-	# Vérification des limites du rectangle
-	if abs(pos.x) > MAP_WIDTH * 0.5 or abs(pos.z) > MAP_HEIGHT * 0.5:
-		return -1000.0 # Indique une chute
 	return 0.0
+
+func _handle_map_limits(delta: float):
+	var limit_x = GameConfig.MAP_WIDTH * 0.5
+	var limit_z = GameConfig.MAP_HEIGHT * 0.5
+	
+	var pos = global_position
+	if abs(pos.x) > limit_x or abs(pos.z) > limit_z:
+		_is_falling = true
+	else:
+		_is_falling = false
 
 func switch_ship(new_type: ShipClass, scene_path: String):
 	ship_type = new_type
@@ -1207,20 +1183,22 @@ func switch_ship(new_type: ShipClass, scene_path: String):
 	# Réinitialisation des stats et des composants visuels
 	_init_stats()
 	_init_components()
-	_setup_damage_smoke()
 	_setup_immobilized_icon()
+	_setup_camera_wind_waker()
 	
 	print("⚓ Navire changé pour un : ", ship_type)
 
 func set_controlled(active: bool):
 	is_controlled = active
-	if gimbal_node:
-		var cam = spring_arm.get_node_or_null("Camera3D")
-		if cam:
-			cam.current = active
+	
+	# Active la caméra enfant si elle existe
+	var cam = find_child("Camera3D", true, false)
+	if cam and cam is Camera3D:
+		cam.current = active
 	
 	if active:
 		add_to_group("player")
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE # Souris libre par défaut pour V Rising
 	else:
 		if is_in_group("player"):
 			remove_from_group("player")

@@ -44,6 +44,7 @@ size = Vector3(31.756836, 0.19650269, 0.51792717)
 
 [node name="Ship" type="CharacterBody3D"]
 script = ExtResource("1_ship")
+turn_speed = 5.0
 sail_inflation_left = -2.5
 sail_offset_left = -0.8
 sail_inflation_right = -2.5
@@ -54,8 +55,6 @@ sail_offset_right = 0.0
 [node name="FlagLabel" type="Label3D" parent="sloup"]
 transform = Transform3D(-0.0063529024, 0, -0.9999799, 0, 1, 0, 0.9999799, 0, -0.0063529024, 0, 2083.1172, 193.26485)
 pixel_size = 1.0
-no_depth_test = true
-render_priority = 10
 modulate = Color(0, 0, 0, 1)
 font_size = 140
 outline_size = 30
@@ -65,6 +64,10 @@ transform = Transform3D(-0.078539446, 0, 99.99997, 0, 100, 0, -99.99997, 0, -0.0
 mesh = SubResource("ArrayMesh_ky8oh")
 skeleton = NodePath("")
 
+[node name="Camera3D" type="Camera3D" parent="sloup"]
+transform = Transform3D(-9.994147, 0.14541382, -0.30965003, 0.03250006, 9.41426, 3.3720422, 0.34054673, 3.3690622, -9.409222, -8.008833, 1666.9275, -1967.8213)
+fov = 59.9
+
 [node name="StatusEffectsZone" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5556812, 222.56331, 31.434385)
 gizmo_extents = 0.0
@@ -72,16 +75,6 @@ gizmo_extents = 0.0
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1.5444444, 0, 0, 0, 186.16226, 0, 0, 0, 263.9256, -2.36267, 26.937511, 4.3365192)
 shape = SubResource("BoxShape3D_gjfe0")
-
-[node name="CameraGimbal" type="Node3D" parent="."]
-
-[node name="SpringArm3D" type="SpringArm3D" parent="CameraGimbal"]
-transform = Transform3D(0.707107, -0.408248, 0.57735, 0, 0.816497, 0.57735, -0.707107, -0.408248, 0.57735, 0, 50, 0)
-spring_length = 3000.0
-
-[node name="Camera3D" type="Camera3D" parent="CameraGimbal/SpringArm3D"]
-fov = 15.0
-far = 20000.0
 
 [node name="Cannons" type="Node3D" parent="."]
 

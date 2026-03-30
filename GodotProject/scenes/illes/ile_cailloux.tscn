@@ -1,5 +1,7 @@
 [gd_scene load_steps=5 format=4 uid="uid://c7v84vj5qhew8"]
 
+[ext_resource type="Material" uid="uid://chf24x1ok1tyl" path="res://materials/targeted_outline.tres" id="OutlineMat"]
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rbk3o"]
 resource_name = "material_7"
 cull_mode = 2
@@ -49,15 +51,11 @@ transform = Transform3D(-0.9999596, 0.00898841, 0, -0.00898841, -0.9999596, 0, 0
 
 [node name="WE1-material4" type="MeshInstance3D" parent="."]
 material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
 transform = Transform3D(0.1328273, -0.9911391, 0, 0.9911391, 0.1328273, 0, 0, 0, 0.9999999, 0, 0, 0.2899642)
 mesh = SubResource("ArrayMesh_5vx8d")
 skeleton = NodePath("")
 
 [node name="WE1-material5" type="MeshInstance3D" parent="."]
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
 material_overlay = ExtResource("OutlineMat")
 transform = Transform3D(-0.09743888, 0.7270756, -0.6796077, 0.9911391, 0.1328273, 0, 0.09027046, -0.67358583, -0.73357564, -1.1592915, 0, 0.63220906)
 mesh = SubResource("ArrayMesh_5vx8d")
@@ -65,15 +63,11 @@ skeleton = NodePath("")
 
 [node name="WE1-material4" type="MeshInstance3D" parent="WE1-material5"]
 material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
 transform = Transform3D(0.99682426, -0.05481857, 0.057777088, 0.06227668, 0.9886972, -0.13638684, -0.049647275, 0.13955173, 0.9889703, 0.3703684, -1.2867718, 0.99846804)
 mesh = SubResource("ArrayMesh_5vx8d")
 skeleton = NodePath("")
 
 [node name="WE1-material5" type="MeshInstance3D" parent="WE1-material5"]
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
 material_overlay = ExtResource("OutlineMat")
 transform = Transform3D(0.9590408, 0.22711995, -0.16929281, 0.27370656, -0.5889628, 0.76040095, 0.072995216, -0.7755906, -0.62700284, 0.22120637, -0.3113464, 1.6065884)
 mesh = SubResource("ArrayMesh_5vx8d")

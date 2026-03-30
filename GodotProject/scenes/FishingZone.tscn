@@ -1,0 +1,32 @@
+[gd_scene load_steps=4 format=3 uid="uid://0phiup3n3r7w"]
+
+[ext_resource type="Script" path="res://scripts/FishingZone.gd" id="1_script"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_zone"]
+radius = 100.0
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_visual"]
+top_radius = 100.0
+bottom_radius = 100.0
+height = 2.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sparkle"]
+transparency = 1
+albedo_color = Color(0.2, 0.8, 1, 0.3)
+emission_enabled = true
+emission = Color(0.1, 0.4, 0.6, 1.0)
+
+[node name="FishingZone" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="Area3D" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+shape = SubResource("SphereShape3D_zone")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+mesh = SubResource("CylinderMesh_visual")
+surface_material_override/0 = SubResource("StandardMaterial3D_sparkle")

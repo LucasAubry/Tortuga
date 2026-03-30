@@ -66,8 +66,6 @@ var _shield_visual: MeshInstance3D = null
 var _hp_bar_mesh: MeshInstance3D = null # La barre de vie optimisée en 3D
 
 # --- LIMITES DU MONDE ---
-const MAP_WIDTH: float = 2400.0
-const MAP_HEIGHT: float = 3600.0
 var _is_falling: bool = false
 var _falling_timer: float = 0.0
 var _cached_water_h: float = 0.0
@@ -423,49 +421,41 @@ func _physics_process(delta):
 	
 	water_h = _cached_water_h if d_to_p < 400.0 else 0.0
 	
-	if water_h < -500.0:
-		_is_falling = true
-		_falling_timer += delta
-		velocity.y -= 40.0 * delta # Gravité de chute
-		
-		# Si on tombe depuis trop longtemps (3s), l'ennemi meurt
-		if _falling_timer > 3.0:
-			take_damage(2000.0, null)
-	else:
-		_is_falling = false
-		_falling_timer = 0.0
-		# Rectification immédiate de la hauteur si on est sur l'eau
-		if not is_sinking:
-			global_position.y = lerp(global_position.y, water_h, delta * 5.0)
-			velocity.y = 0
+	# 2. GESTION DES LIMITES DU MONDE (Naturelle)
+	_handle_map_limits(delta)
+	
+	# Rectification immédiate de la hauteur si on est sur l'eau
+	if not is_sinking:
+		global_position.y = lerp(global_position.y, water_h, delta * 5.0)
+		velocity.y = 0
 
 	# 3. MOUVEMENT ET COLLISIONS
-	if _falling_timer < 0.5: # On autorise les contrôles un court instant au début de la chute
-		if not is_sinking:
-			# OPTIMISATION: On ne réfléchit pas à chaque frame si on est loin du joueur
-			var player = FleetManager.get_active_ship()
-			var dist_to_player = global_position.distance_to(player.global_position) if player else 1000.0
+	if not is_sinking:
+		# OPTIMISATION: On ne réfléchit pas à chaque frame si on est loin du joueur
+		var player = FleetManager.get_active_ship()
+		var dist_to_player = global_position.distance_to(player.global_position) if player else 1000.0
+		
+		# CULLING EXTRÊME : Si trop loin, on ne s'actualise plus du tout (MMO System)
+		if dist_to_player > 2000.0:
+			return # Coupe totalement le CPU pour les IA lointaines invisibles
+		
+		if dist_to_player < 800.0:
+			_handle_ai(delta)
+		else:
+			# IA simplifiée ou moins fréquente pour les bateaux lointains
+			_handle_ai(delta * 0.5)
 			
-			if dist_to_player < 800.0:
-				_handle_ai(delta)
-			else:
-				# IA simplifiée ou moins fréquente pour les bateaux lointains
-				_handle_ai(delta * 0.5)
-				
-			# Logic modulaire des compétences (certaines modifient velocity)
-			for slot in weapon_slots:
-				if slot and slot.has_method("process_tick"):
-					slot.process_tick(self, delta)
-			
-			# Knockback physique
-			if knockback_velocity.length_squared() > 1.0:
-				velocity += knockback_velocity
-				knockback_velocity = knockback_velocity.lerp(Vector3.ZERO, delta * knockback_decay)
+		# Logic modulaire des compétences (certaines modifient velocity)
+		for slot in weapon_slots:
+			if slot and slot.has_method("process_tick"):
+				slot.process_tick(self, delta)
+		
+		# Knockback physique
+		if knockback_velocity.length_squared() > 1.0:
+			velocity += knockback_velocity
+			knockback_velocity = knockback_velocity.lerp(Vector3.ZERO, delta * knockback_decay)
 		
 		move_and_slide()
-	else:
-		# Mode "Chute libre" : Pas de collisions move_and_slide, juste la gravité
-		global_position += velocity * delta
 	
 	_update_damage_visuals(delta)
 
@@ -1036,7 +1026,32 @@ func _apply_faction_visuals():
 
 
 func _get_water_height(pos: Vector3, _time_val: float) -> float:
-	# Vérification des limites du rectangle
-	if abs(pos.x) > MAP_WIDTH * 0.5 or abs(pos.z) > MAP_HEIGHT * 0.5:
-		return -1000.0 # Indique une chute
 	return 0.0
+
+func _handle_map_limits(delta: float):
+	var limit_x = GameConfig.MAP_WIDTH * 0.5
+	var limit_z = GameConfig.MAP_HEIGHT * 0.5
+	var margin = 600.0 # On commence à pousser plus tôt pour les IA
+	var push_strength = 20.0
+	
+	var pos = global_position
+	var push_vec = Vector3.ZERO
+	
+	# Calcul du courant de rappel
+	if abs(pos.x) > limit_x - margin:
+		var over = abs(pos.x) - (limit_x - margin)
+		push_vec.x = -sign(pos.x) * (over / margin) * push_strength
+	
+	if abs(pos.z) > limit_z - margin:
+		var over = abs(pos.z) - (limit_z - margin)
+		push_vec.z = -sign(pos.z) * (over / margin) * push_strength
+	
+	if push_vec != Vector3.ZERO:
+		velocity += push_vec * delta * 5.0
+		
+		# Forcer le demi-tour de l'IA si elle sort trop
+		if abs(pos.x) > limit_x or abs(pos.z) > limit_z:
+			var center_dir = -pos.normalized()
+			center_dir.y = 0
+			var target_angle = atan2(center_dir.x, center_dir.z)
+			rotation.y = lerp_angle(rotation.y, target_angle, delta * 0.5)

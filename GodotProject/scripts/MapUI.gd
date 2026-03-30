@@ -54,17 +54,6 @@ func _input(event: InputEvent):
 			elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
 				map_scale = clamp(map_scale - 0.02, 0.01, 1.5)
 				get_viewport().set_input_as_handled()
-			elif event.pressed and (event.button_index == MOUSE_BUTTON_LEFT or event.button_index == MOUSE_BUTTON_RIGHT):
-				var local_pos = map_container.get_local_mouse_position()
-				# Si on clique dans la zone de la carte
-				if Rect2(Vector2.ZERO, map_container.size).has_point(local_pos):
-					var world_pos_v2 = (local_pos - map_offset) / map_scale
-					# Conversion inverse : world_z = pos.x, world_x = pos.y
-					var target_3d = Vector3(world_pos_v2.y, 0, world_pos_v2.x)
-					
-					print("🗺️ Click Map: local=", local_pos, " target3D=", target_3d)
-					FleetManager.move_fleet_to_world_pos(target_3d, true)
-					get_viewport().set_input_as_handled()
 		
 		elif event.is_class("InputEventMagnificationGesture"):
 			# Pinch Mac sur la map

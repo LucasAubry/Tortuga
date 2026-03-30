@@ -1,4 +1,7 @@
-[gd_scene load_steps=24 format=4 uid="uid://dv0do64ylet4"]
+[gd_scene load_steps=27 format=4 uid="uid://dv0do64ylet4"]
+
+[ext_resource type="PackedScene" path="res://scenes/BaseCore.tscn" id="BaseCoreId"]
+[ext_resource type="Material" uid="uid://chf24x1ok1tyl" path="res://materials/targeted_outline.tres" id="OutlineMat"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rbk3o"]
 resource_name = "material_7"
@@ -100,21 +103,20 @@ points = PackedVector3Array(-1.4984801, -3.0001967, 0.16710147, 1.9652059, -6.87
 [sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_wvqck"]
 points = PackedVector3Array(-1.4984801, -3.0001967, 0.16710147, 1.9652059, -6.8718023, -0.24015987, -0.47945917, 2.9074163, 0.57464206, -0.27557915, 4.1302977, -0.6477004, 1.5578249, -7.076041, -0.85168016, 2.168707, -2.5929952, -0.85168016, 0.7423049, 5.1489396, -0.44399995, 2.168707, -0.55698764, -0.03673862, 0.13180184, -4.223078, 0.37066233, -0.27557915, -4.018839, -0.85168016, -1.0907202, 2.9074163, -0.44399995, 0.33568183, 5.76038, 0.16710147, -0.8868402, 4.7404613, 0.37066233, 0.33568183, -6.464601, -0.24015987, -0.47945917, 5.556141, -0.44399995, -1.0907202, 1.0730948, -0.6477004, -0.8868402, -4.223078, 0.37066233, 1.5578249, 2.5002148, -0.6477004, 2.168707, -3.4086747, -0.03673862, 0.7423049, 1.8887744, 0.37066233, 0.13180184, -5.8531604, -0.6477004, -0.8868402, 2.9074163, 0.57464206, 1.3535659, -7.28028, -0.24015987, 1.3535659, 3.110379, -0.03673862, 2.3729658, -3.6116374, -0.24015987, 1.9652059, -6.8718023, -0.6477004, 0.13180184, 4.9447007, 0.37066233, 1.761326, -6.0573993, -0.03673862, 0.9465639, 3.9260583, -0.6477004, 0.33568183, -3.6116374, 0.37066233, 0.7423049, 4.7404613, 0.16710147, 2.168707, -4.223078, -0.85168016)
 
+[sub_resource type="SphereShape3D" id="1001"]
+radius = 30.834646
+
 [node name="Qg" type="Node3D"]
 
 [node name="base" type="MeshInstance3D" parent="."]
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
 transform = Transform3D(0.0028215053, 2.886679, 0.018570187, -2.015729, 0.0047541284, 1.2829247, -0.79261243, -0.001814664, 32.903503, -4.748903, -4.9479284, 12.93618)
+material_overlay = ExtResource("OutlineMat")
 mesh = SubResource("ArrayMesh_a1cl1")
 skeleton = NodePath("")
 
 [node name="cailloux2" type="MeshInstance3D" parent="."]
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
 transform = Transform3D(2.0019786, 0, 1.1206748, 0, 1.0548799, 0, -0.46653807, 0, 4.808969, -2.7297263, 0, 0)
+material_overlay = ExtResource("OutlineMat")
 mesh = SubResource("ArrayMesh_a1cl1")
 skeleton = NodePath("")
 
@@ -124,10 +126,8 @@ skeleton = NodePath("")
 shape = SubResource("ConvexPolygonShape3D_a1cl1")
 
 [node name="cailloux" type="MeshInstance3D" parent="."]
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
 transform = Transform3D(1, 0, 0, 0, 0.9746012, -1.0482838, 0, 0.22394758, 4.5620437, 1.3837729, 0, 0)
+material_overlay = ExtResource("OutlineMat")
 mesh = SubResource("ArrayMesh_a1cl1")
 skeleton = NodePath("")
 
@@ -137,10 +137,8 @@ skeleton = NodePath("")
 shape = SubResource("ConvexPolygonShape3D_mowf4")
 
 [node name="cailloux3" type="MeshInstance3D" parent="."]
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
 transform = Transform3D(1.9722992, 0, -1.3915889, 0, 1.0548799, 0, 0.57931983, 0, 4.737676, 4.5104713, 0, 1.835713)
+material_overlay = ExtResource("OutlineMat")
 mesh = SubResource("ArrayMesh_a1cl1")
 skeleton = NodePath("")
 
@@ -150,10 +148,8 @@ skeleton = NodePath("")
 shape = SubResource("ConvexPolygonShape3D_4wpfd")
 
 [node name="cailloux4" type="MeshInstance3D" parent="."]
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
 transform = Transform3D(0.8704674, 0, -2.3040776, 0, 1, 0, 0.49222606, 0, 4.0746007, 8.091139, 0, 3.8604846)
+material_overlay = ExtResource("OutlineMat")
 mesh = SubResource("ArrayMesh_a1cl1")
 skeleton = NodePath("")
 
@@ -163,10 +159,8 @@ skeleton = NodePath("")
 shape = SubResource("ConvexPolygonShape3D_di5u7")
 
 [node name="cailloux5" type="MeshInstance3D" parent="."]
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
 transform = Transform3D(0.023894329, -0.3080669, 6.1538677, 0.6299695, 1.4495406, 1.2264574, -2.656963, 0.34091738, 0.3461368, 9.189023, 0, 10.728824)
+material_overlay = ExtResource("OutlineMat")
 mesh = SubResource("ArrayMesh_a1cl1")
 skeleton = NodePath("")
 
@@ -176,10 +170,8 @@ skeleton = NodePath("")
 shape = SubResource("ConvexPolygonShape3D_r5kio")
 
 [node name="cailloux6" type="MeshInstance3D" parent="."]
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
 transform = Transform3D(0.49192506, 0, 5.1839423, 0, 1.4415141, 0, -1.3101343, 0, 1.9464507, 10.183241, 0, 6.012265)
+material_overlay = ExtResource("OutlineMat")
 mesh = SubResource("ArrayMesh_a1cl1")
 skeleton = NodePath("")
 
@@ -189,10 +181,8 @@ skeleton = NodePath("")
 shape = SubResource("ConvexPolygonShape3D_ffht4")
 
 [node name="cailloux7" type="MeshInstance3D" parent="."]
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
 transform = Transform3D(-2.473208, 0, 2.6641643, 0, 0.9493119, 0, -1.1576403, 0, -5.691778, 9.323399, 0, 18.916998)
+material_overlay = ExtResource("OutlineMat")
 mesh = SubResource("ArrayMesh_a1cl1")
 skeleton = NodePath("")
 
@@ -202,10 +192,8 @@ skeleton = NodePath("")
 shape = SubResource("ConvexPolygonShape3D_s36o7")
 
 [node name="cailloux8" type="MeshInstance3D" parent="."]
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
 transform = Transform3D(-1.0997474, 0, 3.4244018, 0, 0.89992434, 0, -0.86544657, 0, -4.3514824, 8.252138, 0, 15.520517)
+material_overlay = ExtResource("OutlineMat")
 mesh = SubResource("ArrayMesh_a1cl1")
 skeleton = NodePath("")
 
@@ -215,10 +203,8 @@ skeleton = NodePath("")
 shape = SubResource("ConvexPolygonShape3D_j1h6w")
 
 [node name="cailloux9" type="MeshInstance3D" parent="."]
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
 transform = Transform3D(-0.9361021, 0, 2.1478102, 0, 1.0548798, 0, -0.36440647, 0, -5.517382, -10.49485, 0, 19.833687)
+material_overlay = ExtResource("OutlineMat")
 mesh = SubResource("ArrayMesh_a1cl1")
 skeleton = NodePath("")
 
@@ -228,10 +214,8 @@ skeleton = NodePath("")
 shape = SubResource("ConvexPolygonShape3D_4if48")
 
 [node name="cailloux10" type="MeshInstance3D" parent="."]
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
 transform = Transform3D(-0.82523197, 0, 2.6437647, 0, 1.6085435, 0, -0.56479424, 0, -3.862856, -13.8894415, 0, 17.510406)
+material_overlay = ExtResource("OutlineMat")
 mesh = SubResource("ArrayMesh_a1cl1")
 skeleton = NodePath("")
 
@@ -241,10 +225,8 @@ skeleton = NodePath("")
 shape = SubResource("ConvexPolygonShape3D_pgyia")
 
 [node name="cailloux11" type="MeshInstance3D" parent="."]
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
 transform = Transform3D(-1.3004074, 0, 3.8241954, 0, 1.0548798, 0, -1.5920162, 0, -3.1237192, -15.432892, 0, 14.229576)
+material_overlay = ExtResource("OutlineMat")
 mesh = SubResource("ArrayMesh_a1cl1")
 skeleton = NodePath("")
 
@@ -254,10 +236,8 @@ skeleton = NodePath("")
 shape = SubResource("ConvexPolygonShape3D_srk4q")
 
 [node name="cailloux12" type="MeshInstance3D" parent="."]
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
 transform = Transform3D(-0.44033098, 0, 4.2027087, 0, 1, 0, -0.8978355, 0, -2.0611606, -17.244194, 0, 10.536329)
+material_overlay = ExtResource("OutlineMat")
 mesh = SubResource("ArrayMesh_a1cl1")
 skeleton = NodePath("")
 
@@ -267,10 +247,8 @@ skeleton = NodePath("")
 shape = SubResource("ConvexPolygonShape3D_ksu5t")
 
 [node name="cailloux13" type="MeshInstance3D" parent="."]
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
 transform = Transform3D(-1.8218961, 0, -4.6812367, 0, 1.520624, 0, 2.0341048, 0, -4.192866, -13.38686, 0, 4.853393)
+material_overlay = ExtResource("OutlineMat")
 mesh = SubResource("ArrayMesh_a1cl1")
 skeleton = NodePath("")
 
@@ -280,10 +258,8 @@ skeleton = NodePath("")
 shape = SubResource("ConvexPolygonShape3D_p3wmh")
 
 [node name="cailloux14" type="MeshInstance3D" parent="."]
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
 transform = Transform3D(1.2895502, 0.23004879, -1.9610138, -0.20846891, 1.4230393, 0.31701788, 0.50203997, 0, 5.1687384, -17.755348, 0, 7.5790052)
+material_overlay = ExtResource("OutlineMat")
 mesh = SubResource("ArrayMesh_a1cl1")
 skeleton = NodePath("")
 
@@ -293,10 +269,8 @@ skeleton = NodePath("")
 shape = SubResource("ConvexPolygonShape3D_w06yg")
 
 [node name="cailloux15" type="MeshInstance3D" parent="."]
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
 transform = Transform3D(1.3871415, 0, -5.4132366, 0, 0.9493119, 0, 2.3521752, 0, 3.1923318, -9.757262, 0, -2.5847578)
+material_overlay = ExtResource("OutlineMat")
 mesh = SubResource("ArrayMesh_a1cl1")
 skeleton = NodePath("")
 
@@ -306,10 +280,8 @@ skeleton = NodePath("")
 shape = SubResource("ConvexPolygonShape3D_3tpeh")
 
 [node name="cailloux16" type="MeshInstance3D" parent="."]
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
 transform = Transform3D(-1.2285641, 0, -4.816437, 0, 0.89992434, 0, 1.507282, 0, -3.9258108, -8.481962, 0, 0.079472065)
+material_overlay = ExtResource("OutlineMat")
 mesh = SubResource("ArrayMesh_a1cl1")
 skeleton = NodePath("")
 
@@ -319,10 +291,8 @@ skeleton = NodePath("")
 shape = SubResource("ConvexPolygonShape3D_14230")
 
 [node name="cailloux17" type="MeshInstance3D" parent="."]
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
 transform = Transform3D(0.38054705, 0, 5.3286624, 0.30971867, 0.8758018, -0.34629512, -1.3106109, 0.20696622, 1.4653887, -8.485685, 0, 22.724634)
+material_overlay = ExtResource("OutlineMat")
 mesh = SubResource("ArrayMesh_a1cl1")
 skeleton = NodePath("")
 
@@ -332,10 +302,8 @@ skeleton = NodePath("")
 shape = SubResource("ConvexPolygonShape3D_brm1u")
 
 [node name="cailloux18" type="MeshInstance3D" parent="."]
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
 transform = Transform3D(-0.23337133, 0.09953147, 6.2479153, 2.5745025, 0.49883562, 0.3735797, -0.8799761, 1.4330226, -0.5639955, 8.059953, -3.7636738, 10.728824)
+material_overlay = ExtResource("OutlineMat")
 mesh = SubResource("ArrayMesh_a1cl1")
 skeleton = NodePath("")
 
@@ -345,10 +313,8 @@ skeleton = NodePath("")
 shape = SubResource("ConvexPolygonShape3D_7agau")
 
 [node name="cailloux19" type="MeshInstance3D" parent="."]
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
 transform = Transform3D(1.2583535, -1.1342318, 3.0223243, 2.386335, 0.43610293, -2.4668403, 0.4228928, 0.9141275, 4.926901, -10.292864, -3.2501717, 6.6891212)
+material_overlay = ExtResource("OutlineMat")
 mesh = SubResource("ArrayMesh_a1cl1")
 skeleton = NodePath("")
 
@@ -358,10 +324,8 @@ skeleton = NodePath("")
 shape = SubResource("ConvexPolygonShape3D_gsa84")
 
 [node name="cailloux20" type="MeshInstance3D" parent="."]
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
-material_overlay = ExtResource("OutlineMat")
 transform = Transform3D(2.0019786, 0, 1.1206748, 0, 1.0548799, 0, -0.46653807, 0, 4.808969, -13.478634, -2.0102875, 19.675806)
+material_overlay = ExtResource("OutlineMat")
 mesh = SubResource("ArrayMesh_a1cl1")
 skeleton = NodePath("")
 
@@ -369,3 +333,14 @@ skeleton = NodePath("")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="cailloux20/StaticBody3D"]
 shape = SubResource("ConvexPolygonShape3D_wvqck")
+
+[node name="BaseCore" parent="." instance=ExtResource("BaseCoreId")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.9422598, 1.4993968, 10.592674)
+
+[node name="PortArea" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PortArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.1759787, 0, 10.54295)
+shape = SubResource("1001")

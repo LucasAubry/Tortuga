@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="WeaponData" load_steps=3 format=3 uid="uid://cy2gcsrbdst16"]
+
+[ext_resource type="Texture2D" uid="uid://c6i6hmscgchy8" path="res://assets/ui/icons/grappling_hook.jpg" id="1_icon"]
+[ext_resource type="Script" uid="uid://cexkxjymb314v" path="res://scripts/WeaponData.gd" id="2_script"]
+
+[resource]
+script = ExtResource("2_script")
+type = 1
+weapon_name = "Grappin"
+damage = 0.0
+cooldown = 15.0
+ammo_cost = 5
+projectile_speed = 1000.0
+projectile_color = Color(0.8, 0.6, 0.4, 1)
+projectile_scale = 1.0
+icon = ExtResource("1_icon")
+pull_force = 150.0
+skill_duration = 1.5

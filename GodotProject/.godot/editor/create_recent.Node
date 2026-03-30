@@ -1,11 +1,12 @@
 StaticBody3D
+Node3D
+Node
+MeshInstance3D
 CollisionShape3D
 TextureRect
 AnimationPlayer
 TextureProgressBar
 ProgressBar
 HBoxContainer
-Node3D
-MeshInstance3D
 DirectionalLight3D
 Camera3D

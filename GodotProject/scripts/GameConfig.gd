@@ -1,12 +1,14 @@
 extends Node
-signal cel_shader_toggled(enabled)
 signal fps_toggled(enabled)
 
 # Global wind state (Default, used if get_wind_at not called)
 var wind_direction: Vector2 = Vector2(1, 0).normalized() 
 var wind_speed: float = 1.0
-var enable_cel_shader: bool = true
 var show_fps: bool = false
+
+# World Map Limits (Playable Area)
+const MAP_WIDTH: float = 8000.0
+const MAP_HEIGHT: float = 8000.0
 var fps_limit_index: int = 0 # 0 = Illimité, 1 = 60, 2 = 30
 
 # Noise for global wind zones
@@ -78,9 +80,9 @@ const BaseWindStrengthMultiplier = 0.2
 const MaxWindStrengthMultiplier = 1.0
 
 # Ship Base Speeds (Max Speed)
-const SloopSpeed = 70.0
-const BrigantineSpeed = 95.0
-const GalleonSpeed = 125.0
+const SloopSpeed = 35.0
+const BrigantineSpeed = 45.0
+const GalleonSpeed = 55.0
 
 # Ship Base Health (Max HP)
 const SloopHP = 150.0
@@ -194,22 +196,19 @@ var available_ships = [
 		"name": "Sloop de base",
 		"price": 0,
 		"type": 0, # ShipClass.SLOOP
-		"scene_path": "res://scenes/sloup.tscn",
-		"skills": ["res://resources/weapons/Standard.tres", "res://resources/skills/WindControl.tres", "res://resources/skills/Shield.tres"]
+		"scene_path": "res://scenes/sloup.tscn"
 	},
 	{
 		"name": "Brigantin Rapide",
 		"price": 500,
 		"type": 1, # ShipClass.BRIGANTINE
-		"scene_path": "res://scenes/sloup.tscn",
-		"skills": ["res://resources/weapons/Standard.tres", "res://resources/skills/WindControl.tres", "res://resources/weapons/barrage.tres", "res://resources/skills/Shield.tres"]
+		"scene_path": "res://scenes/sloup.tscn" 
 	},
 	{
 		"name": "Galion de Guerre",
 		"price": 1500,
 		"type": 2, # ShipClass.GALLEON
-		"scene_path": "res://scenes/sloup.tscn",
-		"skills": ["res://resources/weapons/Standard.tres", "res://resources/weapons/barrage.tres", "res://resources/weapons/baril_explosif.tres", "res://resources/skills/Shield.tres", "res://resources/skills/kraken_skill.tres"]
+		"scene_path": "res://scenes/sloup.tscn" 
 	}
 ]
 
@@ -222,10 +221,8 @@ var merchant_fleet_ships = [
 		"speed": 28.0,
 		"damage": 40.0,
 		"cooldown": 2.5,
-		"skills": ["res://resources/weapons/Standard.tres", "res://resources/weapons/barrage.tres", "res://resources/weapons/baril_explosif.tres", "res://resources/skills/kraken_skill.tres"],
-		"icon_text": "⚔️",
-		"type": 2, # ShipClass.GALLEON
-		"scene_path": "res://scenes/sloup.tscn" # Change to galion.tscn if it exists later
+		"skills": ["res://resources/weapons/barrage.tres", "res://resources/weapons/baril_explosif.tres"], # Barrage + Simple canon (le simple est l'action par defaut si on a 0 on va voir)
+		"icon_text": "⚔️"
 	},
 	{
 		"name": "Cogue de Commerce",
@@ -234,9 +231,7 @@ var merchant_fleet_ships = [
 		"speed": 55.0,
 		"damage": 15.0,
 		"cooldown": 1.2,
-		"skills": ["res://resources/weapons/Standard.tres", "res://resources/skills/WindControl.tres", "res://resources/skills/Shield.tres", "res://resources/skills/FishingNet.tres"],
-		"icon_text": "📦",
-		"type": 1, # ShipClass.BRIGANTINE
-		"scene_path": "res://scenes/sloup.tscn"
+		"skills": ["res://resources/skills/WindControl.tres", "res://resources/weapons/boulet_faible.tres"],
+		"icon_text": "📦"
 	}
 ]

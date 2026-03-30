@@ -74,20 +74,15 @@ func _update_tab_visuals():
 			btn.add_theme_color_override("font_color", Color(0.2, 0.1, 0.05, 0.8))
 
 func _process(_delta):
-	if Input.is_action_just_pressed("act"):
-		if not visible:
-			if GameManager.parked_island != null:
-				var island = GameManager.parked_island
-				if island is Ile and island.ile_type == Ile.IleType.KRAKEN_FARMER:
-					show_menu()
-		else:
+	if Input.is_action_just_pressed("interact"):
+		if visible:
 			hide_menu()
 			
 func _is_merchant_ship() -> bool:
 	var ship = FleetManager.get_active_ship()
 	if not is_instance_valid(ship): return false
-	# On bloque les Sloops de base et les Cogues de commerce (📦)
-	return ship.ship_type == Ship.ShipClass.SLOOP or ship.get("icon_text") == "📦"
+	# On bloque uniquement les Cogues de commerce (📦) s'ils ne sont pas le joueur
+	return ship.get("icon_text") == "📦" and not ship.is_player
 
 func show_menu():
 	if _is_merchant_ship():

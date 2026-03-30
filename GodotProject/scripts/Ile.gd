@@ -1,10 +1,10 @@
 class_name Ile
-extends StaticBody3D
+extends Node3D
 
 enum IleType { CITY, MERCHANT, SHIPWRIGHT, FISHERMAN, KRAKEN_FARMER, HEADQUARTERS, SHIP_MERCHANT }
 @export var ile_type: IleType = IleType.CITY
 
-@export var inner_radius: float = 50.0
+@export var inner_radius: float = 400.0
 @export var is_giant: bool = false
 @export var is_merchant: bool = false
 @export var is_shipwright: bool = false
@@ -13,11 +13,13 @@ enum IleType { CITY, MERCHANT, SHIPWRIGHT, FISHERMAN, KRAKEN_FARMER, HEADQUARTER
 @export var is_capital_platform: bool = false
 @export var is_solid_capital_island: bool = false
 
+@onready var port_area = get_node_or_null("PortArea")
+
 # Enable picking for clicks
 func _ready():
-	# Disable picking for the huge legacy Godot island cylinders! 
-	# Only the modular interaction box will receive clicks now.
-	input_ray_pickable = false
+	# Disable picking if this is a physics object (legacy island compatibility)
+	if "input_ray_pickable" in self:
+		set("input_ray_pickable", false)
 	# (Defunct large cylinders removed)
 	# Build a floating interaction zone marker (a small square with text above)
 	# This anticipates using the script generically over imported Blender environments!
@@ -41,7 +43,7 @@ func _ready():
 	box_shape.size = box.size
 	click_col.shape = box_shape
 	click_body.add_child(click_col)
-	click_body.input_event.connect(_on_marker_clicked)
+	# click_body.input_event.connect(_on_marker_clicked)
 	
 	square.add_child(click_body)
 	
@@ -52,13 +54,13 @@ func _ready():
 	elif ile_type == IleType.MERCHANT:
 		icon.text = "[ MARCHAND ]"
 	elif ile_type == IleType.SHIPWRIGHT:
-		icon.text = "[ CHANTIER ]"
+		icon.text = "[ CHARPENTIER ]"
 	elif ile_type == IleType.FISHERMAN:
-		icon.text = "[ PECHEUR ]"
+		icon.text = "[ PÊCHEUR ]"
 	elif ile_type == IleType.KRAKEN_FARMER:
-		icon.text = "[ ELEVEUR DE KRAKEN ]"
+		icon.text = "[ ÉLEVEUR DE KRAKEN ]"
 	elif ile_type == IleType.HEADQUARTERS:
-		icon.text = "[ QUARTIER GENERALE ]"
+		icon.text = "[ QUARTIER GÉNÉRAL ]"
 	elif ile_type == IleType.SHIP_MERCHANT:
 		icon.text = "[ VENDEUR DE NAVIRES ]"
 		icon.modulate = Color(0.2, 0.8, 1.0)
@@ -78,68 +80,102 @@ func _ready():
 	# But we'll leave it static for now for max performance
 	add_child(marker_base)
 		
-	var port_area = get_node_or_null("PortArea")
+	# Ajuster la taille de la zone de port par rapport à l'island
 	if port_area:
+		# Suppression de l'écrasement du rayon par le code.
+		# L'utilisateur gère maintenant la taille directement dans la scène Godot.
+		
 		port_area.body_entered.connect(_on_port_area_body_entered)
 		port_area.body_exited.connect(_on_port_area_body_exited)
 
 func _on_port_area_body_entered(body: Node3D):
 	if body is Ship and body.is_player:
+		body.is_in_port_zone = true
+		print("DEBUG: Player entered zone of ", name, " (Type: ", ile_type, ")")
+		# Toujours permettre de se garer, même au QG
 		GameManager.parked_island = self
-		if ile_type == IleType.MERCHANT:
-			print("Player entered MERCHANT port at ", global_position, " - Press 'E' to trade!")
-		elif ile_type == IleType.KRAKEN_FARMER:
-			print("Player entered KRAKEN FARMER port - Press 'E' to customize your Kraken!")
-		else:
-			print("Player entered port at ", global_position)
+		
+		# Build specific text
+		var txt = "[G] Accoster"
+		if ile_type == IleType.KRAKEN_FARMER:
+			txt = "[G] Interagir avec le Kraken"
+		elif ile_type == IleType.MERCHANT:
+			txt = "[G] Marchand"
+		elif ile_type == IleType.SHIPWRIGHT:
+			txt = "[G] Charpentier — Améliorer le Navire"
+		
+		get_tree().call_group("hud", "show_interaction_prompt", txt)
 
 func _on_port_area_body_exited(body: Node3D):
 	if body is Ship and body.is_player:
+		body.is_in_port_zone = false
 		if GameManager.parked_island == self:
 			GameManager.parked_island = null
-		print("Player left port.")
+		get_tree().call_group("hud", "hide_interaction_prompt")
 
-func _on_marker_clicked(camera, event, position, normal, shape_idx):
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		var player = null
-		var world = get_tree().current_scene
-		if world:
-			player = world.get_node_or_null("Ship")
+func _process(_delta):
+	# Si on est dans la zone et que l'on n'est pas déjà dans un menu, on s'assure que le HUD l'affiche
+	if GameManager.parked_island == self:
+		# On définit précisément quels états sont des menus
+		var is_menu_open = GameManager.state in [
+			GameManager.GameState.TOWN_MENU,
+			GameManager.GameState.SHIPWRIGHT_MENU,
+			GameManager.GameState.KRAKEN_MENU,
+			GameManager.GameState.HQ_MENU,
+			GameManager.GameState.SHIP_MERCHANT_MENU
+		]
+		
+		if is_menu_open:
+			get_tree().call_group("hud", "hide_interaction_prompt")
+		else:
+			# On redonne le texte à afficher
+			var txt = "[G] Accoster"
+			if ile_type == IleType.KRAKEN_FARMER:
+				txt = "[G] Interagir avec le Kraken"
+			elif ile_type == IleType.MERCHANT:
+				txt = "[G] Marchand"
 			
-		if player:
-			var dist = global_position.distance_to(player.global_position)
-			if dist < 2500.0: # Close enough to interact
-				GameManager.parked_island = self
-				
-				# Open corresponding interface based on island type
-				var world_node = get_tree().current_scene
-				if ile_type == IleType.MERCHANT or ile_type == IleType.FISHERMAN or ile_type == IleType.CITY:
-					GameManager.state = GameManager.GameState.TOWN_MENU
-					var qmenu = world_node.get_node_or_null("QuestMenu")
-					if qmenu and qmenu.has_method("show_menu"):
-						qmenu.show_menu()
-				elif ile_type == IleType.SHIPWRIGHT:
-					GameManager.state = GameManager.GameState.SHIPWRIGHT_MENU
-					var tmenu = world_node.get_node_or_null("TabMenu")
-					if tmenu and tmenu.has_method("show_menu"):
-						tmenu.show_menu()
-				elif ile_type == IleType.KRAKEN_FARMER:
-					GameManager.state = GameManager.GameState.KRAKEN_MENU
-					var kmenu = world_node.get_node_or_null("KrakenMenu")
-					if kmenu and kmenu.has_method("show_menu"):
-						kmenu.show_menu()
-				elif ile_type == IleType.HEADQUARTERS:
-					GameManager.state = GameManager.GameState.HQ_MENU
-					var hqmenu = world_node.get_node_or_null("HQMenu")
-					if hqmenu and hqmenu.has_method("show_menu"):
-						hqmenu.show_menu()
-				elif ile_type == IleType.SHIP_MERCHANT:
-					GameManager.state = GameManager.GameState.SHIP_MERCHANT_MENU
-					var smmenu = world_node.get_node_or_null("ShipMerchantMenu")
-					if smmenu and smmenu.has_method("show_menu"):
-						smmenu.show_menu()
-						get_viewport().set_input_as_handled()
-					
-				print("Opened interface for island type: ", ile_type)
-			else:
-				print("Too far to interact with island!")
+			get_tree().call_group("hud", "show_interaction_prompt", txt)
+			
+		# Interaction via touche 'G'
+		if Input.is_action_just_pressed("interact") and not is_menu_open:
+			interact()
+
+func interact():
+	var world_node = get_tree().current_scene
+	
+	# Le HUD sera masqué via _process dès que l'état changera
+	
+	if ile_type == IleType.MERCHANT or ile_type == IleType.FISHERMAN or ile_type == IleType.CITY:
+		GameManager.state = GameManager.GameState.TOWN_MENU
+		var qmenu = world_node.get_node_or_null("QuestMenu")
+		if qmenu and qmenu.has_method("show_menu"):
+			qmenu.show_menu()
+	elif ile_type == IleType.SHIPWRIGHT:
+		GameManager.state = GameManager.GameState.SHIPWRIGHT_MENU
+		# Chercher ou créer le ShipwrightMenu
+		var swmenu = get_tree().get_first_node_in_group("shipwright_menu")
+		if not swmenu:
+			swmenu = ShipwrightMenu.new()
+			world_node.add_child(swmenu)
+		if swmenu and swmenu.has_method("show_menu"):
+			swmenu.show_menu()
+	elif ile_type == IleType.KRAKEN_FARMER:
+		GameManager.state = GameManager.GameState.KRAKEN_MENU
+		var kmenu = world_node.get_node_or_null("KrakenMenu")
+		if kmenu and kmenu.has_method("show_menu"):
+			kmenu.show_menu()
+	elif ile_type == IleType.HEADQUARTERS:
+		GameManager.state = GameManager.GameState.HQ_MENU
+		var hqmenu = world_node.get_node_or_null("HQMenu")
+		if hqmenu and hqmenu.has_method("show_menu"):
+			hqmenu.show_menu()
+	elif ile_type == IleType.SHIP_MERCHANT:
+		GameManager.state = GameManager.GameState.SHIP_MERCHANT_MENU
+		var smmenu = world_node.get_node_or_null("ShipMerchantMenu")
+		if smmenu and smmenu.has_method("show_menu"):
+			smmenu.show_menu()
+
+	# Libère la souris pour cliquer dans les menus
+	if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
