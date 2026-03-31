@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=3 uid="uid://world"]
+[gd_scene load_steps=33 format=3 uid="uid://world"]
 
 [ext_resource type="PackedScene" uid="uid://ship" path="res://scenes/Ship.tscn" id="1"]
 [ext_resource type="PackedScene" uid="uid://b73hyfrtx14yh" path="res://scenes/HUD.tscn" id="2"]
@@ -26,8 +26,6 @@
 [ext_resource type="PackedScene" uid="uid://bn5uh8s673can" path="res://scenes/illes/ile_charpentier.tscn" id="27_charpentier"]
 [ext_resource type="PackedScene" uid="uid://c7v84vj5qhew8" path="res://scenes/illes/ile_cailloux.tscn" id="28_cailloux"]
 [ext_resource type="PackedScene" path="res://scenes/FishingZone.tscn" id="29_fishing"]
-
-[sub_resource type="WorldBoundaryShape3D" id="WorldBoundaryShape3D_ocean"]
 
 [sub_resource type="Shader" id="Shader_water"]
 code = "shader_type spatial;
@@ -133,11 +131,6 @@ weapon_slots = Array[ExtResource("16")]([ExtResource("4_jgbtq"), ExtResource("5_
 [node name="ShipSpawner" type="Node3D" parent="."]
 script = ExtResource("18")
 
-[node name="OceanFloor" type="StaticBody3D" parent="."]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="OceanFloor"]
-shape = SubResource("WorldBoundaryShape3D_ocean")
-
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(-0.844914, 0.53454196, -0.01962559, 0.22962865, 0.3293317, -0.9158666, -0.4831053, -0.778335, -0.4010031, 0, 83, 0)
 light_color = Color(0.828197, 0.828197, 0.828197, 1)
@@ -195,7 +188,7 @@ transform = Transform3D(-4.873642, 0, 19.397104, 0, 20, 0, 19.397104, 0, 4.87364
 transform = Transform3D(-17.320505, 0, 10.000005, 0, 20, 0, 10.000005, 0, 17.320505, 468.80997, -9.300232, 1085.5897)
 
 [node name="ille_pecheur" parent="Islands" instance=ExtResource("25_4q8dg")]
-transform = Transform3D(59.98697, -1.2502632, 0, 1.2502632, 59.98697, 0, 0, 0, -59.999996, 277.15656, -27.832512, -256.06088)
+transform = Transform3D(-50, 0, 0, 0, 50, 0, 0, 0, 50, 0, -23.49121, 129.57602)
 
 [node name="FishingZones" type="Node3D" parent="."]
 

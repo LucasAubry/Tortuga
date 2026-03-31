@@ -93,6 +93,14 @@ func add_to_inventory(item_name: String) -> bool:
 		inventory_changed.emit()
 		return true
 	return false
+
+func remove_from_inventory(item_name: String) -> bool:
+	var idx = inventory.find(item_name)
+	if idx != -1:
+		inventory.remove_at(idx)
+		inventory_changed.emit()
+		return true
+	return false
 var purchase_price: int = 0
 var _shield_visual: MeshInstance3D = null
 var _hit_smoke_particles: CPUParticles3D = null

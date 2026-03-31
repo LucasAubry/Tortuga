@@ -103,6 +103,8 @@ func _on_port_area_body_entered(body: Node3D):
 			txt = "[G] Marchand"
 		elif ile_type == IleType.SHIPWRIGHT:
 			txt = "[G] Charpentier — Améliorer le Navire"
+		elif ile_type == IleType.FISHERMAN:
+			txt = "[G] Pêcheur — Vendre tes poissons"
 		
 		get_tree().call_group("hud", "show_interaction_prompt", txt)
 
@@ -139,7 +141,10 @@ func _process(_delta):
 			
 		# Interaction via touche 'G'
 		if Input.is_action_just_pressed("interact") and not is_menu_open:
-			interact()
+			# Double vérification que le joueur est bien dans la zone
+			var p = _find_player()
+			if p and p.is_in_port_zone:
+				interact()
 
 func interact():
 	var world_node = get_tree().current_scene
@@ -179,3 +184,13 @@ func interact():
 	# Libère la souris pour cliquer dans les menus
 	if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+func _find_player() -> Ship:
+	return _find_player_recursive(get_tree().get_root())
+
+func _find_player_recursive(node: Node) -> Ship:
+	if node is Ship and node.is_player: return node
+	for child in node.get_children():
+		var res = _find_player_recursive(child)
+		if res: return res
+	return null

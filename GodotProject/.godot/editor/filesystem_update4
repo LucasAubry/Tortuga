@@ -21,3 +21,5 @@ res://scripts/skills/ShieldSkill.gd
 res://scripts/ExplosiveBarrel.gd
 res://scripts/FishingZone.gd
 res://scenes/illes/ille_pecheur.tscn
+res://scripts/QuestMenu.gd
+res://scripts/Ile.gd
