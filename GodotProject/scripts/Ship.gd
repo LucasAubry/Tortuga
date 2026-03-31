@@ -12,8 +12,8 @@ var is_player: bool = true
 var is_in_port_zone: bool = false
 var icon_text: String = "⚓"
 
-var hp: float
-var max_hp: float
+var hp: float = 1000.0
+var max_hp: float = 1000.0
 var ship_speed: float
 @export_group("Physics & Speed")
 @export var max_speed: float = 35.0
@@ -72,6 +72,7 @@ var _falling_timer: float = 0.0
 
 @export_group("Diving Status (ReadOnly)")
 @export var is_diving: bool = false
+@export var is_underwater: bool = false
 @export var current_dive_depth: float = 0.0
 @export var current_dive_tilt: float = 0.0
 @export var dive_delay_timer: float = 0.0
@@ -79,8 +80,19 @@ var _falling_timer: float = 0.0
 @export var wind_boost_timer: float = 0.0
 var current_wind_vec_phys: Vector3 = Vector3.ZERO
 var wind_boost_intensity: float = 0.0
-var is_underwater: bool = false
 var current_shield: float = 0.0
+
+# --- INVENTAIRE ---
+signal inventory_changed
+var inventory: Array[String] = []
+var inventory_max_slots: int = 12 # 2 lignes de 6 par exemple
+
+func add_to_inventory(item_name: String) -> bool:
+	if inventory.size() < inventory_max_slots:
+		inventory.append(item_name)
+		inventory_changed.emit()
+		return true
+	return false
 var purchase_price: int = 0
 var _shield_visual: MeshInstance3D = null
 var _hit_smoke_particles: CPUParticles3D = null
@@ -323,18 +335,18 @@ func _setup_shield_visual():
 	_shield_visual.name = "ShieldVisual"
 	
 	var sphere = SphereMesh.new()
-	sphere.radius = 55.0 # Plus grand
-	sphere.height = 110.0
+	sphere.radius = 100.0
+	sphere.height = 200.0
 	_shield_visual.mesh = sphere
 	
 	var mat = StandardMaterial3D.new()
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	mat.albedo_color = Color(1.0, 0.4, 0.0, 0.25) # Orange transparent
-	mat.metallic = 1.0 # Effet miroir/métallique
-	mat.roughness = 0.05
+	mat.albedo_color = Color(0.14, 0.45, 0.8, 0.2) # Bleu translucide
 	mat.emission_enabled = true
-	mat.emission = Color(1.0, 0.3, 0.0)
-	mat.emission_energy_multiplier = 1.2
+	mat.emission = Color(0.2, 0.6, 1.0)
+	mat.emission_energy_multiplier = 1.0
+	mat.roughness = 0.1
+	
 	_shield_visual.material_override = mat
 	_shield_visual.visible = false
 
@@ -668,23 +680,15 @@ func _apply_movement_physics(delta, steer, throttle, sync_group = false):
 	
 	var max_reverse_speed = max_speed * 0.15
 	
-	if is_in_port_zone:
-		# Au port : vitesse maxi très réduite et freinage automatique puissant
-		var port_max = max_speed * 0.25
-		if throttle > 0:
-			ship_speed = move_toward(ship_speed, port_max * current_speed_buff, acceleration * current_speed_buff * delta)
-		elif throttle < 0:
-			ship_speed = move_toward(ship_speed, -max_reverse_speed, acceleration * 0.8 * delta)
-		else:
-			# Freinage très fort pour s'arrêter (Simule l'ancre)
-			ship_speed = move_toward(ship_speed, 0, acceleration * 2.5 * delta)
-	else:
-		if throttle > 0: # Accélérer
-			ship_speed = move_toward(ship_speed, max_speed * current_speed_buff, acceleration * current_speed_buff * delta)
-		elif throttle < 0: # Reculer
-			ship_speed = move_toward(ship_speed, -max_reverse_speed, acceleration * 0.8 * delta)
-		else: # Freinage naturel
-			ship_speed = move_toward(ship_speed, 0, acceleration * 0.6 * delta)
+	if throttle > 0: # Accélérer
+		ship_speed = move_toward(ship_speed, max_speed * current_speed_buff, acceleration * current_speed_buff * delta)
+	elif throttle < 0: # Reculer
+		ship_speed = move_toward(ship_speed, -max_reverse_speed, acceleration * 0.8 * delta)
+	else: # Freinage naturel
+		var friction = 0.6
+		if is_in_port_zone:
+			friction = 2.5 # On garde un freinage puissant si on lâche les gaz au port pour aider à accoster
+		ship_speed = move_toward(ship_speed, 0, acceleration * friction * delta)
 		
 	var forward = transform.basis.z
 	forward.y = 0
@@ -1006,9 +1010,11 @@ func take_damage(amount: float, attacker: Node3D):
 		
 		# Feedback visuel impact bouclier
 		if _shield_visual:
-			var tw = create_tween()
-			tw.tween_property(_shield_visual, "modulate", Color(2, 2, 2, 1), 0.05)
-			tw.tween_property(_shield_visual, "modulate", Color(1, 1, 1, 1), 0.1)
+			var mat = _shield_visual.material_override
+			if mat is StandardMaterial3D:
+				var tw = create_tween()
+				tw.tween_property(mat, "emission_energy_multiplier", 15.0, 0.05)
+				tw.tween_property(mat, "emission_energy_multiplier", 1.0, 0.2)
 			
 		if current_shield <= 0:
 			_hide_shield()

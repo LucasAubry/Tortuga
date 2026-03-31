@@ -107,8 +107,12 @@ func _fish_biting():
 
 func _catch_fish():
 	if player_ship:
-		player_ship.fish += 1
-		print("Poisson pêché ! Total : ", player_ship.fish)
+		var success = player_ship.add_to_inventory("Poisson")
+		if success:
+			player_ship.fish += 1
+			print("Poisson ajouté à l'inventaire !")
+		else:
+			print("Inventaire plein !")
 	
 	_reset_to_idle("Poisson attrapé !")
 
