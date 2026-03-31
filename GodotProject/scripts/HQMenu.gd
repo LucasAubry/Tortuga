@@ -4,6 +4,7 @@ extends CanvasLayer
 @onready var gold_label = $BurntMap/MarginContainer/VBox/GoldLabel
 
 func _ready():
+	add_to_group("hq_menu")
 	visible = false
 
 func show_menu():

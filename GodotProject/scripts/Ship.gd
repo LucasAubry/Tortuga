@@ -5,6 +5,10 @@ enum ShipClass { SLOOP, BRIGANTINE, GALLEON }
 enum Faction { PLAYER, NAVY, PIRATE, MERCHANT }
 
 var is_player: bool = true
+var is_auto_cruising: bool = false
+var follow_target = null # Instance de Ship
+var is_defending: bool = false
+var defense_skill_index: int = -1
 @export var ship_type: ShipClass = ShipClass.SLOOP
 @export var ship_color: Color = Color.WHITE
 @export var faction: Faction = Faction.PLAYER
@@ -472,12 +476,9 @@ func _physics_process(delta):
 	if not is_sinking:
 		if is_controlled:
 			_handle_weapons(delta)
-			_handle_movement_logic(delta)
-		else:
-			# Les vaisseaux non-contrôlés et sans ordre s'arrêtent doucement
-			_apply_movement_physics(delta, 0.0, 0.0)
-			_apply_visuals(delta, 0.0)
-			
+		
+		_handle_movement_logic(delta)
+		
 		# Logic modulaire des compétences (certaines modifient velocity)
 		for slot in weapon_slots:
 			if slot and slot.has_method("process_tick"):
@@ -547,21 +548,72 @@ func _handle_movement_logic(delta):
 	var throttle = 0.0
 	
 	if is_controlled:
-		# Direction based on keyboard inputs (WASD / ZQSD)
-		# Steer: Left/Right
-		if Input.is_action_pressed("move_left"):
-			steer = 1.0  # Turn left (or -1.0 depending on turn direction, let's test. Godot rotation+y turns left typically. We'll stick to 1.0 for left)
-		elif Input.is_action_pressed("move_right"):
-			steer = -1.0 # Turn right
+		var move_f = Input.is_action_pressed("move_forward")
+		var move_b = Input.is_action_pressed("move_backward")
+		var move_l = Input.is_action_pressed("move_left")
+		var move_r = Input.is_action_pressed("move_right")
+		
+		if move_f or move_b or move_l or move_r:
+			if is_auto_cruising or follow_target or is_defending:
+				is_auto_cruising = false
+				follow_target = null
+				is_defending = false
 			
-		# Advance: Forward/Backward
-		if Input.is_action_pressed("move_forward"):
-			throttle = 1.0
-		elif Input.is_action_pressed("move_backward"):
-			throttle = -1.0
-			
+			if move_l: steer = 1.0
+			elif move_r: steer = -1.0
+			if move_f: throttle = 1.0
+			elif move_b: throttle = -1.0
+		else:
+			_process_autonomous_behavior(delta)
+			return
+	else:
+		_process_autonomous_behavior(delta)
+		return
+
 	_apply_movement_physics(delta, steer, throttle)
 	_apply_visuals(delta, steer)
+
+func _process_autonomous_behavior(delta):
+	var steer = 0.0
+	var throttle = 0.0
+	
+	if is_defending:
+		_handle_defense_mode(delta)
+		_apply_movement_physics(delta, 0.0, 0.0)
+		_apply_visuals(delta, 0.0)
+		return
+
+	if follow_target and is_instance_valid(follow_target):
+		var to_target = follow_target.global_position - global_position
+		var dist = to_target.length()
+		var target_yaw = atan2(to_target.x, to_target.z)
+		var angle_diff = wrapf(target_yaw - global_rotation.y, -PI, PI)
+		
+		if abs(angle_diff) > 0.1:
+			steer = clamp(angle_diff * 2.0, -1.0, 1.0)
+		
+		if dist > 200.0: throttle = 1.0
+		elif dist > 120.0: throttle = 0.5
+		elif dist < 80.0: throttle = -0.3
+		
+		_apply_movement_physics(delta, steer, throttle)
+		_apply_visuals(delta, steer)
+		return
+
+	if is_auto_cruising:
+		_apply_movement_physics(delta, 0.0, 0.8)
+		_apply_visuals(delta, 0.0)
+		return
+	
+	_apply_movement_physics(delta, 0.0, 0.0)
+	_apply_visuals(delta, 0.0)
+
+func _handle_defense_mode(delta):
+	if defense_skill_index != -1:
+		var skill = weapon_slots[defense_skill_index]
+		# IA de défense simplifiée : tire sur l'ennemi le plus proche si possible
+		# Cela sera géré par les scripts d'armes s'ils ont une logique autonome
+		pass
 
 func _unhandled_input(event: InputEvent):
 	if _is_map_open():

@@ -16,6 +16,7 @@ var tree_canvas: Control = null  # Free-form container for skill nodes
 var skill_positions = {}  # id -> Vector2 center position (for drawing lines)
 
 func _ready():
+	add_to_group("kraken_menu")
 	visible = false
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	

@@ -23,3 +23,11 @@ res://scripts/FishingZone.gd
 res://scenes/illes/ille_pecheur.tscn
 res://scripts/QuestMenu.gd
 res://scripts/Ile.gd
+res://scripts/ShipwrightMenu.gd
+res://scripts/FleetManager.gd
+res://scenes/menu/ShipwrightMenu.tscn
+res://scripts/HUD.gd
+res://scripts/HQMenu.gd
+res://scripts/KrakenMenu.gd
+res://scripts/MinimapUI.gd
+res://scripts/GrapplingHookSystem.gd

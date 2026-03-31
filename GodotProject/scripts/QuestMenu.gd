@@ -7,6 +7,7 @@ extends CanvasLayer
 @onready var close_btn = $BurntMap/CloseBtn
 
 func _ready():
+	add_to_group("quest_menu")
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
 	btn_q1.pressed.connect(_on_q1_pressed)
@@ -53,7 +54,18 @@ func _update_title():
 			2: title_lbl.text = "CHANTIER NAVAL"
 			3: 
 				title_lbl.text = "CABANE DU PÊCHEUR"
-				btn_q1.text = "Vendre 1 Poisson -> 20 Or"
+				# Calcul du gain potentiel pour les poissons
+				var p = _get_player()
+				var fish_count = 0
+				if p:
+					for item in p.inventory:
+						if item == "Poisson": fish_count += 1
+				
+				if fish_count > 0:
+					btn_q1.text = "Vendre %d Poissons -> %d Or" % [fish_count, fish_count * 25] # Prix monté à 25 pour le lot
+				else:
+					btn_q1.text = "Aucun poisson à vendre"
+					
 				btn_q2.text = "Acheter 20 Boulets -> 150 Or" 
 				btn_q3.text = "Réparer Navire -> 50 Or"
 
@@ -71,18 +83,32 @@ func _on_q1_pressed():
 	var p = _get_player()
 	if not p: return
 
-	# Spécificité Pêcheur
+	# Spécificité Pêcheur : Vendre TOUT
 	if GameManager.parked_island and GameManager.parked_island.ile_type == 3:
-		if p.remove_from_inventory("Poisson"):
-			p.gold += 20
-			print("Poisson vendu !")
+		var fish_sold = 0
+		# On boucle à l'envers pour supprimer sans casser l'index
+		for i in range(p.inventory.size() - 1, -1, -1):
+			if p.inventory[i] == "Poisson":
+				p.inventory.remove_at(i)
+				fish_sold += 1
+		
+		if fish_sold > 0:
+			var gain = fish_sold * 25
+			p.gold += gain
+			p.fish = 0 # On reset aussi le compteur visuel si utilisé
+			p.inventory_changed.emit()
+			print("Vendu %d poissons pour %d or !" % [fish_sold, gain])
+			_update_title() # Refresh menu
 			return
+		return
 
 	# Deliver 10 Wood -> 50 Gold (Generic)
 	if p.wood >= 10:
 		p.wood -= 10
 		p.gold += 50
+		p.inventory_changed.emit()
 		print("Quest 1 Complete!")
+		_update_title()
 
 func _on_q2_pressed():
 	var p = _get_player()

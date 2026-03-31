@@ -2,7 +2,6 @@
 
 [ext_resource type="PackedScene" uid="uid://ship" path="res://scenes/Ship.tscn" id="1"]
 [ext_resource type="PackedScene" uid="uid://b73hyfrtx14yh" path="res://scenes/HUD.tscn" id="2"]
-[ext_resource type="Resource" uid="uid://7dpk8oyrmim1" path="res://resources/skills/Shield.tres" id="4_jgbtq"]
 [ext_resource type="PackedScene" uid="uid://dsyamwtg77c6r" path="res://scenes/MapUI.tscn" id="5"]
 [ext_resource type="Resource" uid="uid://bcfqprvw8da34" path="res://resources/weapons/baril_explosif.tres" id="5_jgbtq"]
 [ext_resource type="Resource" uid="uid://ddwmeu16ucgvt" path="res://resources/skills/WindControl.tres" id="6"]
@@ -17,6 +16,7 @@
 [ext_resource type="Script" uid="uid://cexkxjymb314v" path="res://scripts/WeaponData.gd" id="16"]
 [ext_resource type="Texture2D" uid="uid://75585v8wmdpp" path="res://assets/water_normal.png" id="17"]
 [ext_resource type="Script" uid="uid://dftkoho5i4ub5" path="res://scripts/ShipSpawner.gd" id="18"]
+[ext_resource type="Resource" uid="uid://cy2gcsrbdst16" path="res://resources/skills/GrapplingHook.tres" id="20_grapple"]
 [ext_resource type="PackedScene" path="res://scenes/menu/HQMenu.tscn" id="21"]
 [ext_resource type="PackedScene" path="res://scenes/menu/ShipMerchantMenu.tscn" id="22"]
 [ext_resource type="Script" uid="uid://c1wvuiktinidk" path="res://scripts/World.gd" id="24_world"]
@@ -126,7 +126,7 @@ wind_influence_against = -0.5
 ammo = 500
 max_ammo = 1000
 gold = 10000
-weapon_slots = Array[ExtResource("16")]([ExtResource("4_jgbtq"), ExtResource("5_jgbtq"), ExtResource("6_4q8dg"), ExtResource("6"), ExtResource("8")])
+weapon_slots = Array[ExtResource("16")]([ExtResource("20_grapple"), ExtResource("5_jgbtq"), ExtResource("6_4q8dg"), ExtResource("6"), ExtResource("8")])
 
 [node name="ShipSpawner" type="Node3D" parent="."]
 script = ExtResource("18")
@@ -143,6 +143,7 @@ script = ExtResource("12")
 script = ExtResource("13")
 
 [node name="WaterVisual" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.4812012, -0.00012207031, 0.14477539)
 mesh = SubResource("PlaneMesh_ocean")
 
 [node name="HUD" parent="." instance=ExtResource("2")]
@@ -172,8 +173,12 @@ transform = Transform3D(10, 0, -1.509958e-06, 0, 10, 0, -1.509958e-06, 0, -10, 0
 [node name="KrakenIsland" parent="Islands" instance=ExtResource("26_kraken")]
 transform = Transform3D(-13.944246, 2.1055228e-06, -7.8458905, 2.4159328e-06, 16, 0, -7.8458905, 1.1846965e-06, 13.944246, -1092.1924, 0, -200)
 
-[node name="CharpentierIsland" parent="Islands" instance=ExtResource("27_charpentier")]
-transform = Transform3D(-24.24872, 3.6614551e-06, 13.999984, 4.2278825e-06, 28, 0, 13.999984, -2.1139388e-06, 24.24872, 1112.6168, 0, 424.653)
+[node name="CharpentierIsland_West" parent="Islands" instance=ExtResource("27_charpentier")]
+transform = Transform3D(-24.2487, 0, 14, 0, 28, 0, 14, 0, 24.2487, -1021.24, 0, -1400.36)
+
+[node name="CharpentierIsland_East" parent="Islands" instance=ExtResource("27_charpentier")]
+transform = Transform3D(-26.55352, 0, -8.8831415, 0, 28, 0, 8.8831415, 0, -26.55352, 1021.24, 0, 1400.36)
+faction = 1
 
 [node name="Rock1" parent="Islands" instance=ExtResource("28_cailloux")]
 transform = Transform3D(-20, 0, 0, 0, 19.859722, 2.3646138, 0, -2.3646138, 19.859722, -400, -30.296806, -1127.5142)

@@ -1,0 +1,88 @@
+[gd_scene load_steps=10 format=4 uid="uid://ile_charpentier_v2"]
+
+[ext_resource type="Script" uid="uid://ile_script" path="res://scripts/Ile.gd" id="1_script"]
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_ground"]
+height = 5.0
+radius = 45.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sand"]
+albedo_color = Color(0.76, 0.65, 0.45, 1)
+roughness = 0.8
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_island"]
+material = SubResource("StandardMaterial3D_sand")
+top_radius = 45.0
+bottom_radius = 50.0
+height = 5.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_grass"]
+albedo_color = Color(0.2, 0.45, 0.15, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_grass"]
+material = SubResource("StandardMaterial3D_grass")
+top_radius = 35.0
+bottom_radius = 38.0
+height = 1.0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_port"]
+size = Vector3(40, 20, 60)
+
+[sub_resource type="BoxMesh" id="BoxMesh_marker"]
+size = Vector3(4, 4, 4)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_marker"]
+shading_mode = 0
+albedo_color = Color(0, 1, 0, 1)
+
+[node name="CharpentierIsland" type="StaticBody3D"]
+script = ExtResource("1_script")
+ile_type = 2
+
+[node name="CollisionGround" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.5, 0)
+shape = SubResource("CylinderShape3D_ground")
+
+[node name="Visuals" type="Node3D" parent="."]
+
+[node name="Terrain" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2.5, 0)
+mesh = SubResource("CylinderMesh_island")
+
+[node name="Grass" type="MeshInstance3D" parent="Visuals"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+mesh = SubResource("CylinderMesh_grass")
+
+[node name="Props" type="Node3D" parent="Visuals"]
+unique_name_in_owner = true
+
+[node name="ExampleProp" type="CSGBox3D" parent="Visuals/Props"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 5, -10)
+size = Vector3(8, 10, 8)
+material = SubResource("StandardMaterial3D_sand")
+
+[node name="InteractionAnchor" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8, 45)
+
+[node name="Label3D" type="Label3D" parent="InteractionAnchor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, 0)
+pixel_size = 0.05
+billboard = 1
+text = "[ CHARPENTIER ]"
+font_size = 120
+outline_size = 40
+
+[node name="PortArea" type="Area3D" parent="InteractionAnchor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionAnchor/PortArea"]
+shape = SubResource("BoxShape3D_port")
+
+[node name="FactionIndicator" type="MeshInstance3D" parent="InteractionAnchor"]
+mesh = SubResource("BoxMesh_marker")
+surface_material_override/0 = SubResource("StandardMaterial3D_marker")
+
+[connection signal="body_entered" from="InteractionAnchor/PortArea" to="." method="_on_port_area_body_entered"]
+[connection signal="body_exited" from="InteractionAnchor/PortArea" to="." method="_on_port_area_body_exited"]

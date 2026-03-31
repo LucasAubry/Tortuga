@@ -280,15 +280,29 @@ theme_override_colors/font_color = Color(0.2, 0.6, 1, 1)
 theme_override_font_sizes/font_size = 28
 text = "Water: 100"
 
+[node name="LabelFish" type="Label" parent="MarginContainer/TopLeft"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.9, 0.6, 1)
+theme_override_font_sizes/font_size = 28
+text = "Poissons: 0"
+
+[node name="StatusLabel" type="Label" parent="MarginContainer/TopLeft"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 0.6, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "ORDRE: MANUEL"
+
 [node name="MinimapUI" parent="." instance=ExtResource("2_mini")]
 
-[node name="FleetGrid" type="HFlowContainer" parent="."]
+[node name="FleetGrid" type="VBoxContainer" parent="."]
+unique_name_in_owner = true
 offset_left = 22.0
-offset_top = 485.0
-offset_right = 242.0
+offset_top = 200.0
+offset_right = 142.0
 offset_bottom = 575.0
-theme_override_constants/h_separation = 10
-theme_override_constants/v_separation = 10
+theme_override_constants/separation = 10
 
 [node name="WeaponSlots" type="Control" parent="."]
 layout_mode = 3
@@ -327,6 +341,128 @@ offset_left = 278.0
 offset_top = 34.0
 offset_right = 340.0
 offset_bottom = 94.0
+
+[node name="InteractionLabel" type="Label" parent="."]
+unique_name_in_owner = true
+visible = false
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -200.0
+offset_top = -150.0
+offset_right = 200.0
+offset_bottom = -100.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(1, 1, 0, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 28
+text = "[G] Accoster"
+horizontal_alignment = 1
+
+[node name="FollowMenu" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BG" type="ColorRect" parent="FollowMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.4)
+
+[node name="VBox" type="VBoxContainer" parent="FollowMenu"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -100.0
+offset_right = 200.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="FollowMenu/VBox"]
+layout_mode = 2
+text = "ESCORTES : SUIVRE QUI ?"
+horizontal_alignment = 1
+
+[node name="FollowGrid" type="GridContainer" parent="FollowMenu/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/h_separation = 15
+theme_override_constants/v_separation = 15
+columns = 2
+
+[node name="CancelBtn" type="Button" parent="FollowMenu/VBox"]
+layout_mode = 2
+text = "ANNULER ORDRES"
+
+[node name="CloseBtn" type="Button" parent="FollowMenu/VBox"]
+layout_mode = 2
+text = "FERMER (X)"
+
+[node name="DefenseMenu" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BG" type="ColorRect" parent="DefenseMenu"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="VBox" type="VBoxContainer" parent="DefenseMenu"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -125.0
+offset_top = -100.0
+offset_right = 125.0
+offset_bottom = 100.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="DefenseMenu/VBox"]
+layout_mode = 2
+text = "CHOISIR ARME DE DÉFENSE (STATIONNAIRE)"
+horizontal_alignment = 1
+
+[node name="DefenseGrid" type="GridContainer" parent="DefenseMenu/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+columns = 1
+
+[node name="CloseBtn" type="Button" parent="DefenseMenu/VBox"]
+layout_mode = 2
+text = "ANNULER / FERMER"
 
 [node name="Slot4" type="PanelContainer" parent="WeaponSlots"]
 unique_name_in_owner = true

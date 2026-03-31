@@ -30,7 +30,7 @@ var _aim_mesh: MeshInstance3D
 var _shape_cast: ShapeCast3D
 var _rope_mesh: MeshInstance3D
 
-func setup(parent_ship: Ship):
+func setup(parent_ship: Node3D):
 	# --- VISUAL AIMING ---
 	_aim_pivot = Node3D.new()
 	add_child(_aim_pivot)
